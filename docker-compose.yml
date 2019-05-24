@@ -1,0 +1,35 @@
+version: "3"
+services:
+  jupyter:
+    image: swan_cern
+    container_name: swan_jupyter
+    ports:
+      - 8888:8888
+      - 5001:5001
+      - 5002:5002
+      - 5003:5003
+    environment:
+      - SPARK_USER=default
+      - SPARK_CLUSTER_NAME=k8s
+      - SERVER_HOSTNAME=localhost
+      - SPARK_PORTS=5001,5002,5003
+      - SPARKMONITOR_UI_HOST=localhost
+      - SPARKMONITOR_UI_PORT=5003
+      - KUBECONFIG=/home/jovyan/config
+    volumes:
+      - /Users/sahiljajodia/SWAN/switch-cluster/switch-cluster:/home/jovyan/SwitchCluster
+      - /Users/sahiljajodia/SWAN/switch-cluster/SparkConnector:/home/jovyan/SparkConnector
+      - /Users/sahiljajodia/SWAN/switch-cluster/config:/home/jovyan/config
+      - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
+      - /Users/sahiljajodia/SWAN/switch-cluster/run.sh:/home/jovyan/run.sh
+    entrypoint:
+      - bash
+      - -c
+      - |
+          ### Run custom modifications ###
+
+
+          ### Start notebook ###
+          jupyter notebook --allow-root
+volumes:
+  home:
