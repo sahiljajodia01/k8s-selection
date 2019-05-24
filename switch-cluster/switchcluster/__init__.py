@@ -1,6 +1,6 @@
 def _jupyter_server_extension_paths():
     return [{
-        "module": "switchcluster"
+        "module": "switchcluster.extension"
     }]
 
 # Jupyter Extension points
@@ -12,4 +12,5 @@ def _jupyter_nbextension_paths():
         # directory in the `nbextension/` namespace
         dest="switchcluster",
         # _also_ in the `nbextension/` namespace
-        require="switchcluster/index")]
+        require="switchcluster/index"),
+        ]
