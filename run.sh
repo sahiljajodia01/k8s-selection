@@ -22,7 +22,8 @@ printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector')" > /
 
 chmod g+w -R /usr/local/share/jupyter/nbextensions && chown -R root:users /usr/local/share/jupyter/nbextensions && chmod g+w -R /opt/conda/lib/python3.7/site-packages
 else
-ls -d ./*/ | xargs -n1 sh -c 'extension=$(basename $0) ; jupyter nbextension install --py --system ${extension,,} || exit 1'
+server_extensions=('SparkConnector' 'switch-cluster') && for extension in ${server_extensions[@]}; do cd /home/jovyan/$extension/ ; pip install --no-deps . ; cd .. || exit 1; done
+nb_extensions=('sparkconnector' 'switchcluster') && for extension in ${nb_extensions[@]}; do jupyter nbextension install --py --system $extension || exit 1; done
 server_extensions=('sparkconnector' 'switchcluster') && for extension in ${server_extensions[@]}; do jupyter serverextension enable --py --system $extension || exit 1 ; done
 nb_extensions=('sparkconnector' 'switchcluster') && for extension in ${nb_extensions[@]}; do jupyter nbextension enable --py --system $extension || exit 1; done
 fi

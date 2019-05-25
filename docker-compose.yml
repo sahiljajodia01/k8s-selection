@@ -17,7 +17,7 @@ services:
       - SPARKMONITOR_UI_PORT=5003
       - KUBECONFIG=/home/jovyan/config
     volumes:
-      - /Users/sahiljajodia/SWAN/switch-cluster/switch-cluster:/home/jovyan/SwitchCluster
+      - /Users/sahiljajodia/SWAN/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
       - /Users/sahiljajodia/SWAN/switch-cluster/SparkConnector:/home/jovyan/SparkConnector
       - /Users/sahiljajodia/SWAN/switch-cluster/config:/home/jovyan/config
       - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
