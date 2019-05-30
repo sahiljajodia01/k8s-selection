@@ -22,13 +22,26 @@ printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector')" > /
 
 chmod g+w -R /usr/local/share/jupyter/nbextensions && chown -R root:users /usr/local/share/jupyter/nbextensions && chmod g+w -R /opt/conda/lib/python3.7/site-packages
 else
-# docker exec -it --user=root swan_jupyter bash -c "chmod +x /home/jovyan/run.sh && /home/jovyan/run.sh"
+# docker exec -it --user=root swan_jupyter bash -c "chmod +x /home/jovyan/run.sh && /home/jovyan/run.sh 0"
 cd /home/jovyan/SparkConnector/sparkconnector/ ; rm -rf js/ ; cd .. ; cd .. ;
 cd /home/jovyan/switch-cluster/switchcluster/ ; rm -rf js/ ; cd .. ; cd .. ;
 server_extensions=('SparkConnector' 'switch-cluster') && for extension in ${server_extensions[@]}; do cd /home/jovyan/$extension/ ; make ; cd .. || exit 1; done
 printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector') \nc.InteractiveShellApp.extensions.append('switchcluster.kernelextension')" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
-server_extensions=('SparkConnector' 'switch-cluster') && for extension in ${server_extensions[@]}; do cd /home/jovyan/$extension/ ; pip install --no-deps . ; cd .. || exit 1; done
-nb_extensions=('sparkconnector' 'switchcluster') && for extension in ${nb_extensions[@]}; do jupyter nbextension install --py --system $extension || exit 1; done
-server_extensions=('sparkconnector' 'switchcluster') && for extension in ${server_extensions[@]}; do jupyter serverextension enable --py --system $extension || exit 1 ; done
-nb_extensions=('sparkconnector' 'switchcluster') && for extension in ${nb_extensions[@]}; do jupyter nbextension enable --py --system $extension || exit 1; done
+cp -r /home/jovyan/SparkConnector/sparkconnector/js/* /usr/local/share/jupyter/nbextensions/sparkconnector/
+echo 'Upgrade/replace Python for SparkConnector'
+cp /home/jovyan/SparkConnector/sparkconnector/logreader.py /opt/conda/lib/python3.7/site-packages/sparkconnector/logreader.py
+cp /home/jovyan/SparkConnector/sparkconnector/configuration.py /opt/conda/lib/python3.7/site-packages/sparkconnector/configuration.py
+cp /home/jovyan/SparkConnector/sparkconnector/portallocator.py /opt/conda/lib/python3.7/site-packages/sparkconnector/portallocator.py
+cp /home/jovyan/SparkConnector/sparkconnector/connector.py /opt/conda/lib/python3.7/site-packages/sparkconnector/connector.py
+cp /home/jovyan/SparkConnector/sparkconnector/log4j_conf /opt/conda/lib/python3.7/site-packages/sparkconnector/log4j_conf
+
+cp -r /home/jovyan/switch-cluster/switchcluster/js/* /usr/local/share/jupyter/nbextensions/switchcluster/
+echo 'Upgrade/replace Python for Switchcluster'
+cp /home/jovyan/switch-cluster/switchcluster/extension.py /opt/conda/lib/python3.7/site-packages/switchcluster/extension.py
+cp /home/jovyan/switch-cluster/switchcluster/kernelextension.py /opt/conda/lib/python3.7/site-packages/switchcluster/kernelextension.py
+
+# server_extensions=('SparkConnector' 'switch-cluster') && for extension in ${server_extensions[@]}; do cd /home/jovyan/$extension/ ; pip install --no-deps . ; cd .. || exit 1; done
+# nb_extensions=('sparkconnector' 'switchcluster') && for extension in ${nb_extensions[@]}; do jupyter nbextension install --py --system $extension || exit 1; done
+# server_extensions=('sparkconnector' 'switchcluster') && for extension in ${server_extensions[@]}; do jupyter serverextension enable --py --system $extension || exit 1 ; done
+# nb_extensions=('sparkconnector' 'switchcluster') && for extension in ${nb_extensions[@]}; do jupyter nbextension enable --py --system $extension || exit 1; done
 fi
