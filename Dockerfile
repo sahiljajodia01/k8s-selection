@@ -1,5 +1,7 @@
 FROM jupyter/minimal-notebook:7f1482f5a136
 
+MAINTAINER Sahil Jajodia <sahil.jajodia@gmail.com>
+
 USER root
 
 RUN apt-get update
@@ -13,6 +15,11 @@ RUN pip install \
         pyspark==2.4.0 \
         jupyter_nbextensions_configurator \
         kubernetes==9.0.0
+
+
+RUN npm install less@2.7.1 -g && \
+    npm install -g less-plugin-clean-css && \
+    npm install -g yarn
 
 
 # Use bash instead of dash
@@ -49,7 +56,7 @@ RUN cd /home/jovyan && \
 
 
 RUN mkdir -p /home/jovyan/.ipython/profile_default/ && \
-    printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector')" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
+    printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector') \nc.InteractiveShellApp.extensions.append('switchcluster.kernelextension')" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
 
 # # Set Jupyter configurations
 # RUN printf "c.NotebookApp.default_url = 'projects' \
