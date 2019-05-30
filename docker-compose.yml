@@ -4,10 +4,10 @@ services:
     image: swan_cern
     container_name: swan_jupyter
     ports:
-      - 8888:8888
-      - 5001:5001
-      - 5002:5002
-      - 5003:5003
+      - 8080:8888
+      - 5101:5001
+      - 5102:5002
+      - 5103:5003
     environment:
       - SPARK_USER=default
       - SPARK_CLUSTER_NAME=k8s
@@ -22,14 +22,46 @@ services:
       - /Users/sahiljajodia/.kube:/Users/sahiljajodia/.kube
       - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
       - /Users/sahiljajodia/SWAN/switch-cluster/run.sh:/home/jovyan/run.sh
+      - /Users/sahiljajodia/SWAN/switch-cluster/common:/home/jovyan/common
     entrypoint:
       - bash
       - -c
       - |
-          ### Run custom modifications ###
+          # if false; then
+          #  echo "Adjust CSS"
+          #  lessc --clean-css /home/jovyan/common/css/style.less /home/jovyan/.jupyter/custom/css/style.css || \
+          #  exit 1
+          # fi
 
+          # if false; then
+            echo "Adjust JavaScript for SparkConnector"
+            cd /home/jovyan/SparkConnector && \
+            rm -rf ./sparkconnector/js && \
+            make && \
+            cp -r /home/jovyan/SparkConnector/sparkconnector/js/* /usr/local/share/jupyter/nbextensions/sparkconnector/ && \
+            echo 'Upgrade/replace Python for SparkConnector' && \
+            cp /home/jovyan/SparkConnector/sparkconnector/logreader.py /opt/conda/lib/python3.7/site-packages/sparkconnector/logreader.py && \
+            cp /home/jovyan/SparkConnector/sparkconnector/configuration.py /opt/conda/lib/python3.7/site-packages/sparkconnector/configuration.py && \
+            cp /home/jovyan/SparkConnector/sparkconnector/portallocator.py /opt/conda/lib/python3.7/site-packages/sparkconnector/portallocator.py && \
+            cp /home/jovyan/SparkConnector/sparkconnector/connector.py /opt/conda/lib/python3.7/site-packages/sparkconnector/connector.py && \
+            cp /home/jovyan/SparkConnector/sparkconnector/log4j_conf /opt/conda/lib/python3.7/site-packages/sparkconnector/log4j_conf || \
+            exit 1
+          # fi
 
-          ### Start notebook ###
+          # if false; then
+            echo "Adjust JavaScript for SwitchCluster"
+            cd /home/jovyan/switch-cluster && \
+            rm -rf ./switchcluster/js && \
+            make && \
+            cp -r /home/jovyan/switch-cluster/switchcluster/js/* /usr/local/share/jupyter/nbextensions/switchcluster/ && \
+            echo 'Upgrade/replace Python for Switchcluster' && \
+            cp /home/jovyan/switch-cluster/switchcluster/extension.py /opt/conda/lib/python3.7/site-packages/switchcluster/extension.py && \
+            cp /home/jovyan/switch-cluster/switchcluster/kernelextension.py /opt/conda/lib/python3.7/site-packages/switchcluster/kernelextension.py ||\
+            exit 1
+          # fi
+
+          # cd /home/jovyan/ && \
+          # start-notebook.sh --NotebookApp.token=''
           jupyter notebook --allow-root
 volumes:
   home:

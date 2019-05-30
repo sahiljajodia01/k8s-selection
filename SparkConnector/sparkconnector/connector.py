@@ -85,6 +85,9 @@ class SparkConnector:
                     ports
                 )
 
+                print("Configuration:     ", conf)
+
+
                 sc = SparkContext(conf=conf)
                 spark = SparkSession(sc)
 

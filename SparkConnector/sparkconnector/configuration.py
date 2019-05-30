@@ -199,6 +199,7 @@ class SparkK8sConfiguration(SparkConfiguration):
         conf.set('spark.executorEnv.JAVA_HOME', os.environ.get('JAVA_HOME'))
         conf.set('spark.executorEnv.SPARK_HOME', os.environ.get('SPARK_HOME'))
         conf.set('spark.executorEnv.SPARK_EXTRA_CLASSPATH', os.environ.get('SPARK_DIST_CLASSPATH'))
+        conf.set("spark.kubernetes.container.image", "gcr.io/spark-operator/spark-py:v2.4.0")
 
         # There is no resource staging server for files, download directly from storage to executors
         # Distribute files (for pyFiles add them also to files) and jars
