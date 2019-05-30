@@ -15,11 +15,11 @@ services:
       - SPARK_PORTS=5001,5002,5003
       - SPARKMONITOR_UI_HOST=localhost
       - SPARKMONITOR_UI_PORT=5003
-      - KUBECONFIG=/home/jovyan/config
+      - KUBECONFIG=/Users/sahiljajodia/.kube/config
     volumes:
       - /Users/sahiljajodia/SWAN/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
       - /Users/sahiljajodia/SWAN/switch-cluster/SparkConnector:/home/jovyan/SparkConnector
-      - /Users/sahiljajodia/SWAN/switch-cluster/config:/home/jovyan/config
+      - /Users/sahiljajodia/.kube:/Users/sahiljajodia/.kube
       - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
       - /Users/sahiljajodia/SWAN/switch-cluster/run.sh:/home/jovyan/run.sh
     entrypoint:
