@@ -6,6 +6,12 @@ except ImportError:
 
 import os, logging, tempfile, subprocess
 
+import time
+import kubernetes.client
+import kubernetes.config
+from kubernetes.client.rest import ApiException
+from pprint import pprint
+
 
 class SwitchCluster:
     def __init__(self, ipython, log):
@@ -38,6 +44,19 @@ class SwitchCluster:
         """ Callback function to be called when a frontend comm is opened """
         self.log.info("Established connection to frontend")
         self.log.debug("Received message: %s", str(msg))
+
+        kubernetes.config.load_kube_config()
+
+        # create an instance of the API class
+        api_instance = kubernetes.client.CoreV1Api()
+        namespace = 'default'
+
+        try: 
+            api_response = api_instance.list_namespaced_pod(namespace)
+            self.log.info("Api response: %s", api_response)
+        except ApiException as e:
+            self.log.info("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
+
         self.comm = comm
 
         @self.comm.on_msg

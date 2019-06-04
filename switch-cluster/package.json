@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "devbridge-autocomplete": "^1.4.5",
-    "inline-edit-js": "^1.1.1"
+    "inline-edit-js": "^1.1.1",
+    "jquery": "^3.4.1"
   }
 }

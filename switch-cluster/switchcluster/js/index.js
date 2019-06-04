@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("base/js/keyboard"), require("base/js/utils"), require("services/config"));
+		module.exports = factory(require("jquery"), require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("base/js/keyboard"), require("base/js/utils"), require("services/config"));
 	else if(typeof define === 'function' && define.amd)
-		define(["base/js/dialog", "base/js/namespace", "base/js/events", "base/js/keyboard", "base/js/utils", "services/config"], factory);
+		define(["jquery", "base/js/dialog", "base/js/namespace", "base/js/events", "base/js/keyboard", "base/js/utils", "services/config"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("base/js/keyboard"), require("base/js/utils"), require("services/config")) : factory(root["base/js/dialog"], root["base/js/namespace"], root["base/js/events"], root["base/js/keyboard"], root["base/js/utils"], root["services/config"]);
+		var a = typeof exports === 'object' ? factory(require("jquery"), require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("base/js/keyboard"), require("base/js/utils"), require("services/config")) : factory(root["jquery"], root["base/js/dialog"], root["base/js/namespace"], root["base/js/events"], root["base/js/keyboard"], root["base/js/utils"], root["services/config"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__) {
+})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -85,110 +85,92 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.load_ipython_extension = undefined;
 
-var _dialog = __webpack_require__(1);
+var _jquery = __webpack_require__(1);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _dialog = __webpack_require__(2);
 
 var _dialog2 = _interopRequireDefault(_dialog);
 
-var _namespace = __webpack_require__(2);
+var _namespace = __webpack_require__(3);
 
 var _namespace2 = _interopRequireDefault(_namespace);
 
-var _events = __webpack_require__(3);
+var _events = __webpack_require__(4);
 
 var _events2 = _interopRequireDefault(_events);
 
-var _keyboard = __webpack_require__(4);
+var _keyboard = __webpack_require__(5);
 
 var _keyboard2 = _interopRequireDefault(_keyboard);
 
-var _utils = __webpack_require__(5);
+var _utils = __webpack_require__(6);
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _config = __webpack_require__(6);
+var _config = __webpack_require__(7);
 
 var _config2 = _interopRequireDefault(_config);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// var $ = jquery;
-
-// import jquery from 'jquery';
-function Switchcluster() {
-    // this.states = {
-    //     basic: $.proxy(this.get_basic, this),
-    //     buttons: {
-    //         'Select Cluster': {
-    //             class: 'btn-success size-100',
-    //             click: $.proxy(this.select_cluster, this)
-    //         }
-    //     }
-    // };
-
-    console.log('Switch Cluster start!!!!');
+function SwitchCluster() {
 
     this.comm = null;
+} // define([
+//     'base/js/namespace'
+//     ], function(Jupyter) {
 
-    // this.options = this.get_notebook_metadata();
+//         var redirect = function() {
+//             window.location.href = "http://spark.apache.org/";
+//       };
 
-    // this.add_toolbar_button();
-}
+//       var defaultButton = function () {
+//           Jupyter.toolbar.add_buttons_group([
+//               Jupyter.keyboard_manager.actions.register ({
+//                   'help': 'Redirect to http://spark.apache.org/',
+//                   'icon' : 'fa-external-link',
+//                   'handler': redirect
+//               }, 'redirect-page', 'Swan Action')
+//           ])
+//       }
 
-Switchcluster.prototype.add_toolbar_button = function () {
+//     function load_ipython_extension() {
+//         defaultButton();
+//     }
+//     return {
+//         load_ipython_extension: load_ipython_extension
+//     };
+// });
+
+
+;
+
+SwitchCluster.prototype.add_toolbar_button = function () {
     var action = {
-        help: 'Switch Spark K8s cluster',
+        help: 'Spark clusters connection',
+        icon: 'fa-external-link',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
-        handler: $.proxy(this.open_modal, this)
+        handler: _jquery2.default.proxy(this.redirect, this)
     };
 
-    var prefix = 'SwitchCluster';
-    var action_name = 'show-cluster-dropdown';
+    var prefix = 'SparkConnector';
+    var action_name = 'show-sparkcluster-conf';
 
     var full_action_name = _namespace2.default.actions.register(action, action_name, prefix);
     this.toolbar_button = _namespace2.default.toolbar.add_buttons_group([full_action_name]).find('.btn');
-    this.toolbar_button.addClass('spark-icon');
-    this.enabled = true;
+    // this.toolbar_button.addClass('fa-external-link');
+    // this.enabled = true;
 };
 
-Switchcluster.prototype.open_modal = function () {
-
-    if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
-        var that = this;
-
-        this.modal = _dialog2.default.modal({
-            show: false,
-            draggable: false,
-            notebook: _namespace2.default.notebook,
-            keyboard_manager: _namespace2.default.keyboard_manager,
-            title: 'Spark clusters connection'
-        }).attr('id', 'sparkclusters-modal').addClass('right');
-
-        this.modal.click(function (e) {
-            // Close modal on click outside of connector area when in not "hide_close" state
-            if ($(e.target).is("div") && !$(e.target).closest('.modal-dialog').length && !that.state.hide_close) {
-                that.modal.modal('hide');
-            }
-        });
-
-        this.modal.on('shown.bs.modal', function () {
-            that.modal.find("input").first().focus();
-        });
-
-        this.modal.on('show.bs.modal', function () {
-
-            that.switch_state(that.state, that.state_config, that.state_error);
-        }).modal('show');
-        this.modal.find(".modal-header").unbind("mousedown");
-
-        this.modal.on('hide.bs.modal', function () {
-            that.close();
-        });
-    }
+SwitchCluster.prototype.redirect = function () {
+    window.location.href = "http://spark.apache.org/";
 };
 
 function load_ipython_extension() {
 
-    var conn = new Switchcluster();
+    var conn = new SwitchCluster();
     conn.add_toolbar_button();
 }
 
@@ -229,6 +211,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
 /***/ (function(module, exports) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 
 /***/ })
 /******/ ]);

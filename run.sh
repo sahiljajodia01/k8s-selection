@@ -26,7 +26,7 @@ else
 cd /home/jovyan/SparkConnector/sparkconnector/ ; rm -rf js/ ; cd .. ; cd .. ;
 cd /home/jovyan/switch-cluster/switchcluster/ ; rm -rf js/ ; cd .. ; cd .. ;
 server_extensions=('SparkConnector' 'switch-cluster') && for extension in ${server_extensions[@]}; do cd /home/jovyan/$extension/ ; make ; cd .. || exit 1; done
-printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector') \nc.InteractiveShellApp.extensions.append('switchcluster.kernelextension')" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
+printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector') \nc.InteractiveShellApp.extensions.append('switchcluster.kernelextension') " > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
 cp -r /home/jovyan/SparkConnector/sparkconnector/js/* /usr/local/share/jupyter/nbextensions/sparkconnector/
 echo 'Upgrade/replace Python for SparkConnector'
 cp /home/jovyan/SparkConnector/sparkconnector/logreader.py /opt/conda/lib/python3.7/site-packages/sparkconnector/logreader.py
