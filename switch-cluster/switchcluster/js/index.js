@@ -183,8 +183,8 @@ SwitchCluster.prototype.start_comm = function () {
     if (_namespace2.default.notebook.kernel) {
         console.log("Inside if statement!!");
         this.comm = _namespace2.default.notebook.kernel.comm_manager.new_comm('SwitchCluster', { 'msgtype': 'switchcluster-conn-open' });
-        // this.comm.on_msg($.proxy(that.on_comm_msg, that));
-        // this.comm.on_close($.proxy(that.on_comm_close, that));
+        this.comm.on_msg(_jquery2.default.proxy(that.on_comm_msg, that));
+        this.comm.on_close(_jquery2.default.proxy(that.on_comm_close, that));
     } else {
         console.log("SwitchCluster: No communication established, kernel null");
     }
