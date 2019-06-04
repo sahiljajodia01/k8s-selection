@@ -10,7 +10,6 @@ import time
 import kubernetes.client
 import kubernetes.config
 from kubernetes.client.rest import ApiException
-from pprint import pprint
 
 
 class SwitchCluster:
@@ -38,7 +37,7 @@ class SwitchCluster:
     def register_comm(self):
         """ Register a comm_target which will be used by frontend to start communication """
         self.ipython.kernel.comm_manager.register_target(
-            "SparkConnector", self.target_func)
+            "SwitchCluster", self.target_func)
 
     def target_func(self, comm, msg):
         """ Callback function to be called when a frontend comm is opened """

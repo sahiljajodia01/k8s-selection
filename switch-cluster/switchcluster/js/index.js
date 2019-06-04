@@ -118,6 +118,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function SwitchCluster() {
 
     this.comm = null;
+
+    _events2.default.on('kernel_connected.Kernel', _jquery2.default.proxy(this.start_comm, this));
 } // define([
 //     'base/js/namespace'
 //     ], function(Jupyter) {
@@ -155,7 +157,7 @@ SwitchCluster.prototype.add_toolbar_button = function () {
         handler: _jquery2.default.proxy(this.redirect, this)
     };
 
-    var prefix = 'SparkConnector';
+    var prefix = 'SwitchCluster';
     var action_name = 'show-sparkcluster-conf';
 
     var full_action_name = _namespace2.default.actions.register(action, action_name, prefix);
@@ -166,6 +168,26 @@ SwitchCluster.prototype.add_toolbar_button = function () {
 
 SwitchCluster.prototype.redirect = function () {
     window.location.href = "http://spark.apache.org/";
+};
+
+SwitchCluster.prototype.start_comm = function () {
+
+    if (this.comm) {
+        this.comm.close();
+    }
+
+    console.log('SwitchCluster: Starting Comm with kernel');
+
+    var that = this;
+
+    if (_namespace2.default.notebook.kernel) {
+        console.log("Inside if statement!!");
+        this.comm = _namespace2.default.notebook.kernel.comm_manager.new_comm('SwitchCluster', { 'msgtype': 'switchcluster-conn-open' });
+        // this.comm.on_msg($.proxy(that.on_comm_msg, that));
+        // this.comm.on_close($.proxy(that.on_comm_close, that));
+    } else {
+        console.log("SwitchCluster: No communication established, kernel null");
+    }
 };
 
 function load_ipython_extension() {
