@@ -33,6 +33,8 @@ import keyboard from 'base/js/keyboard';
 import utils from 'base/js/utils';
 import configmod from 'services/config';
 
+import user_html from './templates/user.html'
+
 
 
 function SwitchCluster() {
@@ -48,7 +50,7 @@ SwitchCluster.prototype.add_toolbar_button = function() {
         help: 'Spark clusters connection',
         icon: 'fa-external-link',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
-        handler: $.proxy(this.redirect, this)
+        handler: $.proxy(this.open_modal, this)
     };
 
     var prefix = 'SwitchCluster';
@@ -59,6 +61,8 @@ SwitchCluster.prototype.add_toolbar_button = function() {
     // this.toolbar_button.addClass('fa-external-link');
     // this.enabled = true;
 };
+
+
 
 SwitchCluster.prototype.redirect = function() {
     window.location.href = "http://spark.apache.org/";
