@@ -174,7 +174,6 @@ SwitchCluster.prototype.open_modal = function () {
 
     if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
         var that = this;
-
         this.modal = _dialog2.default.modal({
             show: false,
             draggable: false,
@@ -201,8 +200,15 @@ SwitchCluster.prototype.open_modal = function () {
             var html = that.modal.find('.modal-body');
 
             var template = _user2.default;
+            html.append(template);
+            var list = [0, 1, 2, 3, 4, 5, 6];
 
-            html.html(template);
+            for (var i = 0; i < list.length; i++) {
+                var select = html.find("#select_cluster_options");
+                (0, _jquery2.default)('<option>' + list[i] + '</option>').appendTo(select);
+            }
+
+            // html.html(template);
         }).modal('show');
         // this.modal.find(".modal-header").unbind("mousedown");
 
@@ -290,7 +296,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = "<p>Hello World! Welcome to the switchcluster extension!!</p>";
+module.exports = "<div> <label for=select_cluster_options>Select Spark K8s cluster</label> <br> <select id=select_cluster_options> </select> </div>";
 
 /***/ })
 /******/ ]);
