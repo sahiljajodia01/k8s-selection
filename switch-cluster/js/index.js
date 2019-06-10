@@ -1,37 +1,7 @@
-// define([
-//     'base/js/namespace'
-//     ], function(Jupyter) {
-
-//         var redirect = function() {
-//             window.location.href = "http://spark.apache.org/";
-//       };
-
-//       var defaultButton = function () {
-//           Jupyter.toolbar.add_buttons_group([
-//               Jupyter.keyboard_manager.actions.register ({
-//                   'help': 'Redirect to http://spark.apache.org/',
-//                   'icon' : 'fa-external-link',
-//                   'handler': redirect
-//               }, 'redirect-page', 'Swan Action')
-//           ])
-//       }
-
-//     function load_ipython_extension() {
-//         defaultButton();
-//     }
-//     return {
-//         load_ipython_extension: load_ipython_extension
-//     };
-// });
-
-
 import $ from 'jquery';
 import dialog from 'base/js/dialog';
 import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
-import keyboard from 'base/js/keyboard';
-import utils from 'base/js/utils';
-import configmod from 'services/config';
 
 import user_html from './templates/user.html'
 
@@ -67,6 +37,7 @@ SwitchCluster.prototype.open_modal = function () {
 
     if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
         var that = this;
+
         this.modal = dialog.modal({
             show: false,
             draggable: false,
