@@ -4,8 +4,8 @@ import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
 
 import user_html from './templates/user.html'
-
-
+import './css/style.css'
+// import './js/materialize.min.js'
 
 function SwitchCluster() {
 
@@ -46,7 +46,6 @@ SwitchCluster.prototype.open_modal = function () {
             title: 'Spark cluster setting',
         });
 
-
         this.modal.click(function(e) {
             // Close modal on click outside of connector area when in not "hide_close" state
             if ($(e.target).is("div") && !$(e.target).closest('.modal-dialog').length) {
@@ -61,20 +60,32 @@ SwitchCluster.prototype.open_modal = function () {
 
         this.modal.on('show.bs.modal', function () {
             console.log("Inside 2nd open model");
-            // that.switch_state(that.state, that.state_config, that.state_error);
+            var header = that.modal.find('.modal-header');
             var html = that.modal.find('.modal-body');
+            var footer = that.modal.find('.modal-footer');
+            // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
 
             var template = user_html;
             html.append(template);
             var list = [0, 1, 2, 3, 4, 5, 6];
 
+            var select = html.find('select');
+
             for(var i = 0; i < list.length; i++) {
                 var select = html.find("#select_cluster_options");
-                $('<option>' + list[i] + '</option>').appendTo(select);
+                $('<option>' + list[i] + '</option>').attr('value', list[i]).appendTo(select);
             }
-
-            // html.html(template);
-
+            
+            
+            $('<button>')
+                .addClass('btn-blue')
+                .attr('data-dismiss', 'modal')
+                .text("Select Cluster")
+                .appendTo(footer);
+            // $('<script type="text/javascript" src="js/materialize.min.js"></script>').appendTo(html);
+            // html.append('<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>');
+            // html.append('<script>$("select").formSelect();</script>');
+            
         }).modal('show');
         // this.modal.find(".modal-header").unbind("mousedown");
 

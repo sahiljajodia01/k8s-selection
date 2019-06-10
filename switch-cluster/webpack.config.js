@@ -29,6 +29,13 @@ module.exports = {
                     "babelrc": false,
                 }
             }
+        },
+        {
+            test: /\.css$/,
+            use: [
+                'style-loader',
+                'css-loader'
+            ]
         }
         ]
     }
