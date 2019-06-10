@@ -7,8 +7,7 @@ except ImportError:
 import os, logging, tempfile, subprocess
 
 import time
-import kubernetes.client
-import kubernetes.config
+from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
 
@@ -44,17 +43,21 @@ class SwitchCluster:
         self.log.info("Established connection to frontend")
         self.log.debug("Received message: %s", str(msg))
 
-        kubernetes.config.load_kube_config()
+        ## K8s cluster code
+        contexts, active_context = config.list_kube_config_contexts()
 
-        # create an instance of the API class
-        api_instance = kubernetes.client.CoreV1Api()
-        namespace = 'default'
+        if not contexts:
+            print("Cannot find any context in kube-config file.")
 
-        try: 
-            api_response = api_instance.list_namespaced_pod(namespace)
-            self.log.info("Api response: %s", api_response)
-        except ApiException as e:
-            self.log.info("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
+        contexts = [context['name'] for context in contexts]
+        active_context = active_context['name']
+
+        self.log.info("Cluster:")
+        for i in contexts:
+            self.log.info(i)
+
+        self.log.info("Current cluster: ", active_context)
+
 
         self.comm = comm
 
