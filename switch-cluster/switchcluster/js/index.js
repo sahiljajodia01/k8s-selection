@@ -113,14 +113,13 @@ var _config = __webpack_require__(7);
 
 var _config2 = _interopRequireDefault(_config);
 
+var _user = __webpack_require__(8);
+
+var _user2 = _interopRequireDefault(_user);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function SwitchCluster() {
-
-    this.comm = null;
-
-    _events2.default.on('kernel_connected.Kernel', _jquery2.default.proxy(this.start_comm, this));
-} // define([
+// define([
 //     'base/js/namespace'
 //     ], function(Jupyter) {
 
@@ -147,14 +146,19 @@ function SwitchCluster() {
 // });
 
 
-;
+function SwitchCluster() {
+
+    this.comm = null;
+
+    _events2.default.on('kernel_connected.Kernel', _jquery2.default.proxy(this.start_comm, this));
+};
 
 SwitchCluster.prototype.add_toolbar_button = function () {
     var action = {
         help: 'Spark clusters connection',
         icon: 'fa-external-link',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
-        handler: _jquery2.default.proxy(this.redirect, this)
+        handler: _jquery2.default.proxy(this.open_modal, this)
     };
 
     var prefix = 'SwitchCluster';
@@ -163,7 +167,49 @@ SwitchCluster.prototype.add_toolbar_button = function () {
     var full_action_name = _namespace2.default.actions.register(action, action_name, prefix);
     this.toolbar_button = _namespace2.default.toolbar.add_buttons_group([full_action_name]).find('.btn');
     // this.toolbar_button.addClass('fa-external-link');
-    // this.enabled = true;
+    this.enabled = true;
+};
+
+SwitchCluster.prototype.open_modal = function () {
+
+    if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
+        var that = this;
+
+        this.modal = _dialog2.default.modal({
+            show: false,
+            draggable: false,
+            notebook: _namespace2.default.notebook,
+            keyboard_manager: _namespace2.default.keyboard_manager,
+            title: 'Spark cluster setting'
+        });
+
+        this.modal.click(function (e) {
+            // Close modal on click outside of connector area when in not "hide_close" state
+            if ((0, _jquery2.default)(e.target).is("div") && !(0, _jquery2.default)(e.target).closest('.modal-dialog').length) {
+                that.modal.modal('hide');
+            }
+        });
+
+        // this.modal.on('shown.bs.modal', function () {
+        //     console.log("Inside 1st open model");
+        //     that.modal.find("input").first().focus();
+        // });
+
+        this.modal.on('show.bs.modal', function () {
+            console.log("Inside 2nd open model");
+            // that.switch_state(that.state, that.state_config, that.state_error);
+            var html = that.modal.find('.modal-body');
+
+            var template = _user2.default;
+
+            html.html(template);
+        }).modal('show');
+        // this.modal.find(".modal-header").unbind("mousedown");
+
+        this.modal.on('hide.bs.modal', function () {
+            that.close();
+        });
+    }
 };
 
 SwitchCluster.prototype.redirect = function () {
@@ -239,6 +285,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
 /***/ (function(module, exports) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = "<p>Hello World! Welcome to the switchcluster extension!!</p>";
 
 /***/ })
 /******/ ]);

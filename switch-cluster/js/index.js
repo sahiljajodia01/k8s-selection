@@ -59,9 +59,53 @@ SwitchCluster.prototype.add_toolbar_button = function() {
     var full_action_name = Jupyter.actions.register(action, action_name, prefix);
     this.toolbar_button = Jupyter.toolbar.add_buttons_group([full_action_name]).find('.btn');
     // this.toolbar_button.addClass('fa-external-link');
-    // this.enabled = true;
+    this.enabled = true;
 };
 
+
+SwitchCluster.prototype.open_modal = function () {
+
+    if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
+        var that = this;
+
+        this.modal = dialog.modal({
+            show: false,
+            draggable: false,
+            notebook: Jupyter.notebook,
+            keyboard_manager: Jupyter.keyboard_manager,
+            title: 'Spark cluster setting',
+        });
+
+
+        this.modal.click(function(e) {
+            // Close modal on click outside of connector area when in not "hide_close" state
+            if ($(e.target).is("div") && !$(e.target).closest('.modal-dialog').length) {
+                that.modal.modal('hide');
+            }
+        });
+
+        // this.modal.on('shown.bs.modal', function () {
+        //     console.log("Inside 1st open model");
+        //     that.modal.find("input").first().focus();
+        // });
+
+        this.modal.on('show.bs.modal', function () {
+            console.log("Inside 2nd open model");
+            // that.switch_state(that.state, that.state_config, that.state_error);
+            var html = that.modal.find('.modal-body');
+
+            var template = user_html;
+
+            html.html(template);
+
+        }).modal('show');
+        // this.modal.find(".modal-header").unbind("mousedown");
+
+        this.modal.on('hide.bs.modal', function () {
+            that.close();
+        });
+    }
+}
 
 
 SwitchCluster.prototype.redirect = function() {
