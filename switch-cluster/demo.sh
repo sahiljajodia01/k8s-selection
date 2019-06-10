@@ -2,7 +2,7 @@
 
 # cd switchcluster ; rm -rf js/ ; cd ..
 make
-printf "c.InteractiveShellApp.extensions.append('switchcluster.kernelextension')\n" > /Users/sahiljajodia/.ipython/profile_default/ipython_kernel_config.py
+# printf "c.InteractiveShellApp.extensions.append('switchcluster.kernelextension')\n" > /Users/sahiljajodia/.ipython/profile_default/ipython_kernel_config.py
 pip3 install .
 jupyter nbextension install --py switchcluster
 # jupyter serverextension enable --py switchcluster

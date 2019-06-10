@@ -102,7 +102,7 @@ SwitchCluster.prototype.open_modal = function () {
         // this.modal.find(".modal-header").unbind("mousedown");
 
         this.modal.on('hide.bs.modal', function () {
-            that.close();
+            return true;
         });
     }
 }
