@@ -197,17 +197,29 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 
     (0, _jquery2.default)('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
 
-    var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('placeholder', 'Namespace').addClass('form__field').appendTo(main_div).focus().change(function () {
-        that.selected_namespace = namespace_input.val();
-    });
+    if (this.selected_namespace) {
+        var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('value', this.selected_namespace).attr('placeholder', 'Namespace').addClass('form__field').appendTo(main_div).focus().change(function () {
+            that.selected_namespace = namespace_input.val();
+        });
+    } else {
+        var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('placeholder', 'Namespace').addClass('form__field').appendTo(main_div).focus().change(function () {
+            that.selected_namespace = namespace_input.val();
+        });
+    }
 
     (0, _jquery2.default)('<br><br>').appendTo(main_div);
 
     (0, _jquery2.default)('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
 
-    var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(main_div).focus().change(function () {
-        that.selected_svcaccount = svcaccount_input.val();
-    });
+    if (this.selected_svcaccount) {
+        var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('value', this.selected_svcaccount).attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(main_div).focus().change(function () {
+            that.selected_svcaccount = svcaccount_input.val();
+        });
+    } else {
+        var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(main_div).focus().change(function () {
+            that.selected_svcaccount = svcaccount_input.val();
+        });
+    }
 
     select.change(function () {
         that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
@@ -217,15 +229,9 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 
 SwitchCluster.prototype.change_cluster = function () {
     console.log("Sending msg to kernel to change KUBECONFIG");
-    // if(this.modified_cluster == null) {
-    //     this.modified_cluster = this.current_cluster;
-    // }
-
-    // this.current_cluster = this.modified_cluster;
     console.log("Modified cluster: " + this.current_cluster);
     console.log("Selected namespace: " + this.selected_namespace);
     console.log("Selected serviceaccount: " + this.selected_svcaccount);
-    // var that = this;
     this.send({
         'action': 'change-current-context',
         'context': this.current_cluster
