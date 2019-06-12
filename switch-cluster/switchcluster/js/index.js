@@ -190,15 +190,25 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
             (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
         }
     }
-    // var selected_context;
+
+    var main_div = html.find('#user_html_inputs');
+
+    (0, _jquery2.default)('<br>').appendTo(main_div);
+
+    var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('placeholder', 'Write namespace here').appendTo(main_div).focus().change(function () {
+        that.selected_namespace = namespace_input.val();
+    });
+
+    // this.selected_namespace = namespace_input.val();
+    // this.selected_namespace = namespace_input.val()
+    // var namespace_input = html.find('#namespace_text');
+    // namespace_input.change(function() {
+    //     that.selected_namespace = this.val();
+    // });
+
     select.change(function () {
         that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
     });
-
-    // if(selected_context) {
-    //     this.current_cluster = selected_context;
-    // }
-
     (0, _jquery2.default)('<button>').addClass('btn-blue').attr('data-dismiss', 'modal').text("Select Cluster").appendTo(footer).on('click', _jquery2.default.proxy(this.change_cluster, this));
 };
 
@@ -210,6 +220,7 @@ SwitchCluster.prototype.change_cluster = function () {
 
     // this.current_cluster = this.modified_cluster;
     console.log("Modified cluster: " + this.current_cluster);
+    console.log("Selected namespace: " + this.selected_namespace);
     // var that = this;
     this.send({
         'action': 'change-current-context',
@@ -285,7 +296,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
+module.exports = "<div class=select id=user_html_inputs> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
 
 /***/ }),
 /* 6 */

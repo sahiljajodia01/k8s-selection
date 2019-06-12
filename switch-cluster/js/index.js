@@ -96,7 +96,28 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
     }
 
+    var main_div = html.find('#user_html_inputs');
     
+    $('<br>').appendTo(main_div);
+
+    var namespace_input = $('<input/>')
+        .attr('name', 'namespace_text')
+        .attr('type', 'text')
+        .attr('id', 'namespace_text')
+        .attr('placeholder', 'Write namespace here')
+        .appendTo(main_div)
+        .focus()
+        .change(function() {
+            that.selected_namespace = namespace_input.val();
+        });
+    
+
+    // this.selected_namespace = namespace_input.val();
+    // this.selected_namespace = namespace_input.val()
+    // var namespace_input = html.find('#namespace_text');
+    // namespace_input.change(function() {
+    //     that.selected_namespace = this.val();
+    // });
 
     select.change(function() {
         that.current_cluster = $(this).children("option:selected").val();
@@ -117,6 +138,7 @@ SwitchCluster.prototype.change_cluster = function() {
 
     // this.current_cluster = this.modified_cluster;
     console.log("Modified cluster: " + this.current_cluster);
+    console.log("Selected namespace: " + this.selected_namespace);
     // var that = this;
     this.send({
         'action': 'change-current-context',
