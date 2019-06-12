@@ -155,35 +155,11 @@ SwitchCluster.prototype.open_modal = function () {
             }
         });
 
-        // this.modal.on('shown.bs.modal', function () {
-        //     console.log("Inside 1st open model");
-        //     that.modal.find("input").first().focus();
-        // });
-
         this.modal.on('show.bs.modal', function () {
             console.log("Inside 2nd open model");
-            var header = that.modal.find('.modal-header');
-            var html = that.modal.find('.modal-body');
-            var footer = that.modal.find('.modal-footer');
-            // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
-
-            var template = _user2.default;
-            html.append(template);
-            var list = [0, 1, 2, 3, 4, 5, 6];
-
-            var select = html.find('select');
-
-            for (var i = 0; i < list.length; i++) {
-                var select = html.find("#select_cluster_options");
-                (0, _jquery2.default)('<option>' + list[i] + '</option>').attr('value', list[i]).appendTo(select);
-            }
-
-            (0, _jquery2.default)('<button>').addClass('btn-blue').attr('data-dismiss', 'modal').text("Select Cluster").appendTo(footer);
-            // $('<script type="text/javascript" src="js/materialize.min.js"></script>').appendTo(html);
-            // html.append('<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>');
-            // html.append('<script>$("select").formSelect();</script>');
+            that.get_html_select_cluster();
         }).modal('show');
-        // this.modal.find(".modal-header").unbind("mousedown");
+        this.modal.find(".modal-header").unbind("mousedown");
 
         this.modal.on('hide.bs.modal', function () {
             return true;
@@ -191,8 +167,66 @@ SwitchCluster.prototype.open_modal = function () {
     }
 };
 
+SwitchCluster.prototype.send = function (msg) {
+    this.comm.send(msg);
+};
+
+SwitchCluster.prototype.get_html_select_cluster = function () {
+    this.send({ 'action': 'Refresh' });
+    var html = this.modal.find('.modal-body');
+    var footer = this.modal.find('.modal-footer');
+    // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
+    var clusters = this.clusters;
+    var current_cluster = this.current_cluster;
+    var template = _user2.default;
+    html.append(template);
+    // var list = [0, 1, 2, 3, 4, 5, 6];
+    var that = this;
+    var select = html.find("#select_cluster_options");
+    for (var i = 0; i < clusters.length; i++) {
+        if (clusters[i] == current_cluster) {
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr('selected', 'selected').appendTo(select).change(function () {});
+        } else {
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
+        }
+    }
+    // var selected_context;
+    select.change(function () {
+        that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
+    });
+
+    // if(selected_context) {
+    //     this.current_cluster = selected_context;
+    // }
+
+    (0, _jquery2.default)('<button>').addClass('btn-blue').attr('data-dismiss', 'modal').text("Select Cluster").appendTo(footer).on('click', _jquery2.default.proxy(this.change_cluster, this));
+};
+
+SwitchCluster.prototype.change_cluster = function () {
+    console.log("Sending msg to kernel to change KUBECONFIG");
+    // if(this.modified_cluster == null) {
+    //     this.modified_cluster = this.current_cluster;
+    // }
+
+    // this.current_cluster = this.modified_cluster;
+    console.log("Modified cluster: " + this.current_cluster);
+    // var that = this;
+    this.send({
+        'action': 'change-current-context',
+        'context': this.current_cluster
+    });
+};
+
 SwitchCluster.prototype.redirect = function () {
     window.location.href = "http://spark.apache.org/";
+};
+
+SwitchCluster.prototype.on_comm_msg = function (msg) {
+    if (msg.content.data.msgtype == 'cluster-select') {
+        console.log("Got message from frontend: " + msg.content.data.current_cluster);
+        this.current_cluster = msg.content.data.current_cluster;
+        this.clusters = msg.content.data.clusters;
+    }
 };
 
 SwitchCluster.prototype.start_comm = function () {
@@ -251,7 +285,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=select> <select id=select_cluster_options class=select-text> <option value=\"\" disabled=disabled selected=selected></option> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
+module.exports = "<div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
 
 /***/ }),
 /* 6 */

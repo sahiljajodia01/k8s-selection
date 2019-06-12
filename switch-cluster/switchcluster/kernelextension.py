@@ -5,6 +5,7 @@ except ImportError:
     ipykernel_imported = False
 
 import os, logging, tempfile, subprocess
+import io, yaml
 
 import time
 from kubernetes import client, config
@@ -30,8 +31,23 @@ class SwitchCluster:
 
     def handle_comm_message(self, msg):
         """ Handle message received from frontend """
-
+        self.log.info(msg)
         action = msg['content']['data']['action']
+
+        if action == 'Refresh':
+            self.cluster_list()
+        elif action == 'change-current-context':
+            context = msg['content']['data']['context']
+            self.log.info("Changed context for kubeconfig!")
+            self.log.info("Context from frontend: ", context)
+
+            with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
+                load = yaml.safe_load(stream)
+
+            load['current-context'] = context
+
+            with io.open('/Users/sahiljajodia/config', 'w', encoding='utf8') as out:
+                yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
 
     def register_comm(self):
         """ Register a comm_target which will be used by frontend to start communication """
@@ -42,13 +58,22 @@ class SwitchCluster:
         """ Callback function to be called when a frontend comm is opened """
         self.log.info("Established connection to frontend")
         self.log.debug("Received message: %s", str(msg))
+        self.comm = comm
 
-        ## K8s cluster code
+        @self.comm.on_msg
+        def _recv(msg):
+            self.handle_comm_message(msg)
+
+
+        self.cluster_list()
+
+    def cluster_list(self):
         contexts, active_context = config.list_kube_config_contexts()
 
         if not contexts:
             print("Cannot find any context in kube-config file.")
 
+        self.log.info(active_context)
         contexts = [context['name'] for context in contexts]
         active_context = active_context['name']
 
@@ -56,15 +81,13 @@ class SwitchCluster:
         for i in contexts:
             self.log.info(i)
 
-        self.log.info("Current cluster: ", active_context)
+        self.log.info("Current cluster: ")
 
-
-        self.comm = comm
-
-        @self.comm.on_msg
-        def _recv(msg):
-            self.handle_comm_message(msg)
-
+        self.send({
+            'msgtype': 'cluster-select',
+            'clusters': contexts,
+            'current_cluster': active_context
+        })
 
 
 def load_ipython_extension(ipython):
