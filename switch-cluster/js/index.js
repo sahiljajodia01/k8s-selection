@@ -111,13 +111,19 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
             that.selected_namespace = namespace_input.val();
         });
     
+    $('<br><br>').appendTo(main_div);
+    
+    var svcaccount_input = $('<input/>')
+        .attr('name', 'svcaccount_text')
+        .attr('type', 'text')
+        .attr('id', 'svcaccount_text')
+        .attr('placeholder', 'Write serviceaccount name here')
+        .appendTo(main_div)
+        .focus()
+        .change(function() {
+            that.selected_svcaccount = svcaccount_input.val();
+        });
 
-    // this.selected_namespace = namespace_input.val();
-    // this.selected_namespace = namespace_input.val()
-    // var namespace_input = html.find('#namespace_text');
-    // namespace_input.change(function() {
-    //     that.selected_namespace = this.val();
-    // });
 
     select.change(function() {
         that.current_cluster = $(this).children("option:selected").val();
@@ -139,6 +145,7 @@ SwitchCluster.prototype.change_cluster = function() {
     // this.current_cluster = this.modified_cluster;
     console.log("Modified cluster: " + this.current_cluster);
     console.log("Selected namespace: " + this.selected_namespace);
+    console.log("Selected serviceaccount: " + this.selected_svcaccount);
     // var that = this;
     this.send({
         'action': 'change-current-context',
