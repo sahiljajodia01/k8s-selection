@@ -100,30 +100,37 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     
     $('<br>').appendTo(main_div);
 
+    $('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
+
     var namespace_input = $('<input/>')
         .attr('name', 'namespace_text')
         .attr('type', 'text')
         .attr('id', 'namespace_text')
-        .attr('placeholder', 'Write namespace here')
+        .attr('placeholder', 'Namespace')
+        .addClass('form__field')
         .appendTo(main_div)
         .focus()
         .change(function() {
             that.selected_namespace = namespace_input.val();
         });
     
+        
     $('<br><br>').appendTo(main_div);
+
+    $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
     
     var svcaccount_input = $('<input/>')
         .attr('name', 'svcaccount_text')
         .attr('type', 'text')
         .attr('id', 'svcaccount_text')
-        .attr('placeholder', 'Write serviceaccount name here')
+        .attr('placeholder', 'ServiceAccount')
+        .addClass('form__field')
         .appendTo(main_div)
         .focus()
         .change(function() {
             that.selected_svcaccount = svcaccount_input.val();
         });
-
+    
 
     select.change(function() {
         that.current_cluster = $(this).children("option:selected").val();
