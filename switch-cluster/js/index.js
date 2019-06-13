@@ -48,7 +48,7 @@ SwitchCluster.prototype.open_modal = function () {
 
         this.modal.click(function(e) {
             // Close modal on click outside of connector area when in not "hide_close" state
-            if ($(e.target).is("div") && !$(e.target).closest('.modal-dialog').length) {
+            if ($(e.target).is("div") && !$(e.target).closest('.modal-dialog').length && !that.hide_close) {
                 that.modal.modal('hide');
             }
         });
@@ -80,6 +80,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     var clusters = this.clusters;
     var current_cluster = this.current_cluster;
     var template = user_html;
+    this.hide_close = true;
     html.append(template);
     // var list = [0, 1, 2, 3, 4, 5, 6];
     var that = this;
@@ -169,18 +170,20 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     $('<button>')
         .addClass('btn-blue')
         .attr('id', 'select-button')
-        .text("Select Cluster")
+        .text("Select Settings")
         .appendTo(footer)
         .on('click', $.proxy(this.change_cluster, this));
 }
 
 SwitchCluster.prototype.change_cluster = function() {
+    var header = this.modal.find('.modal-header');
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
     var error_div = html.find('#setting-error');
     error_div.remove();
 
     footer.find('#select-button').attr('disabled', true);
+    header.find('.close').hide();
 
     console.log("Sending msg to kernel to change KUBECONFIG")
     console.log("Modified cluster: " + this.current_cluster);
@@ -208,19 +211,23 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'authentication-successfull') {
         console.log("Authentication successfull");
+        this.hide_close = false;
         this.modal.modal('hide');
         console.log("Authentication successfull");
     }
     else if(msg.content.data.msgtype == 'authentication-unsuccessfull') {
         console.log("Authentication unsuccessfull");
+        this.hide_close = false;
         // this.open_modal();
         var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
+        var header = this.modal.find('.modal-header');
         $('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
 
         console.log("Authentication unsuccessfull");
 
         footer.find('#select-button').attr('disabled', false);
+        header.find('.close').show();
     }
 }
 
