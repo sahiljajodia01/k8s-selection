@@ -15,16 +15,16 @@ get secret "${SECRET}" -o json \
 | python -c 'import json,sys;obj=json.load(sys.stdin);print(obj["data"]["ca.crt"])') || exit 1
 
 
-cat > ${HOME}/k8s-user.config <<EOF
+cat > ${HOME}/k8s-${NAMESPACE}-${SERVICE_ACCOUNT}-${CLUSTER}.config <<EOF
 apiVersion: v1
 clusters:
 - cluster:
     certificate-authority-data: $CA
     server: $SERVER
-  name: minikube
+  name: $CLUSTER
 contexts:
 - context:
-    cluster: minikube
+    cluster: $CLUSTER
     namespace: $NAMESPACE
     user: spark
   name: default

@@ -168,6 +168,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     });
     $('<button>')
         .addClass('btn-blue')
+        .attr('id', 'select-button')
         .text("Select Cluster")
         .appendTo(footer)
         .on('click', $.proxy(this.change_cluster, this));
@@ -175,9 +176,11 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 SwitchCluster.prototype.change_cluster = function() {
     var html = this.modal.find('.modal-body');
-
+    var footer = this.modal.find('.modal-footer');
     var error_div = html.find('#setting-error');
     error_div.remove();
+
+    footer.find('#select-button').attr('disabled', true);
 
     console.log("Sending msg to kernel to change KUBECONFIG")
     console.log("Modified cluster: " + this.current_cluster);
@@ -212,10 +215,12 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         console.log("Authentication unsuccessfull");
         // this.open_modal();
         var html = this.modal.find('.modal-body');
-
+        var footer = this.modal.find('.modal-footer');
         $('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
 
         console.log("Authentication unsuccessfull");
+
+        footer.find('#select-button').attr('disabled', false);
     }
 }
 

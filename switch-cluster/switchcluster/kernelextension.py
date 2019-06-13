@@ -31,7 +31,7 @@ class SwitchCluster:
 
     def handle_comm_message(self, msg):
         """ Handle message received from frontend """
-        self.log.info(msg)
+        # self.log.info(msg)
         action = msg['content']['data']['action']
 
         if action == 'Refresh':
@@ -74,25 +74,42 @@ class SwitchCluster:
         self.cluster_list()
 
     def cluster_list(self):
-        contexts, active_context = config.list_kube_config_contexts()
+        # contexts, active_context = config.list_kube_config_contexts()
 
-        if not contexts:
+        # if not contexts:
+        #     print("Cannot find any context in kube-config file.")
+
+        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+            load = yaml.safe_load(stream)
+            # self.log.info(load)
+        if len(load['contexts']) == 0:
             print("Cannot find any context in kube-config file.")
 
-        self.log.info(active_context)
-        contexts = [context['name'] for context in contexts]
-        active_context = active_context['name']
+        clusters = []
+        for i in load['clusters']:
+            clusters.append(i['name'])
+
+        active_context = load['current-context']
+
+        for i in load['contexts']:
+            if i['name'] == active_context:
+                current_cluster = i['context']['cluster']
+
+        
+        self.log.info(current_cluster)
+        # contexts = [context['name'] for context in contexts]
+        # active_context = active_context['name']
 
         self.log.info("Cluster:")
-        for i in contexts:
+        for i in clusters:
             self.log.info(i)
 
-        self.log.info("Current cluster: ")
+        self.log.info("Current cluster: ", current_cluster)
 
         self.send({
             'msgtype': 'cluster-select',
-            'clusters': contexts,
-            'current_cluster': active_context
+            'clusters': clusters,
+            'current_cluster': current_cluster
         })
 
     def check_config(self, cluster, namespace, svcaccount):
@@ -105,6 +122,7 @@ class SwitchCluster:
 
         with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                 load = yaml.safe_load(stream)
+                self.log.info(load)
         
         for i in load['clusters']:
             if i['name'] == cluster:
@@ -115,6 +133,7 @@ class SwitchCluster:
         os.environ['NAMESPACE'] = namespace
         os.environ['SERVICE_ACCOUNT'] = svcaccount
         os.environ['SERVER'] = server_host
+        os.environ['CLUSTER'] = cluster
 
         error = ''
         # for line in run_command(command):
