@@ -224,17 +224,24 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
     select.change(function () {
         that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
     });
-    (0, _jquery2.default)('<button>').addClass('btn-blue').attr('data-dismiss', 'modal').text("Select Cluster").appendTo(footer).on('click', _jquery2.default.proxy(this.change_cluster, this));
+    (0, _jquery2.default)('<button>').addClass('btn-blue').text("Select Cluster").appendTo(footer).on('click', _jquery2.default.proxy(this.change_cluster, this));
 };
 
 SwitchCluster.prototype.change_cluster = function () {
+    var html = this.modal.find('.modal-body');
+
+    var error_div = html.find('#setting-error');
+    error_div.remove();
+
     console.log("Sending msg to kernel to change KUBECONFIG");
     console.log("Modified cluster: " + this.current_cluster);
     console.log("Selected namespace: " + this.selected_namespace);
     console.log("Selected serviceaccount: " + this.selected_svcaccount);
     this.send({
-        'action': 'change-current-context',
-        'context': this.current_cluster
+        'action': 'check-current-settings',
+        'cluster': this.current_cluster,
+        'namespace': this.selected_namespace,
+        'svcaccount': this.selected_svcaccount
     });
 };
 
@@ -247,6 +254,18 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         console.log("Got message from frontend: " + msg.content.data.current_cluster);
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
+    } else if (msg.content.data.msgtype == 'authentication-successfull') {
+        console.log("Authentication successfull");
+        this.modal.modal('hide');
+        console.log("Authentication successfull");
+    } else if (msg.content.data.msgtype == 'authentication-unsuccessfull') {
+        console.log("Authentication unsuccessfull");
+        // this.open_modal();
+        var html = this.modal.find('.modal-body');
+
+        (0, _jquery2.default)('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
+
+        console.log("Authentication unsuccessfull");
     }
 };
 

@@ -6,7 +6,7 @@ except ImportError:
 
 import os, logging, tempfile, subprocess
 import io, yaml
-
+import subprocess
 import time
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
@@ -37,17 +37,23 @@ class SwitchCluster:
         if action == 'Refresh':
             self.cluster_list()
         elif action == 'change-current-context':
-            context = msg['content']['data']['context']
+            context = msg['content']['data']['cluster']
             self.log.info("Changed context for kubeconfig!")
             self.log.info("Context from frontend: ", context)
 
-            with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
+            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                 load = yaml.safe_load(stream)
 
             load['current-context'] = context
 
-            with io.open('/Users/sahiljajodia/config', 'w', encoding='utf8') as out:
+            with io.open(os.environ['HOME'] + '/config', 'w', encoding='utf8') as out:
                 yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
+        elif action == 'check-current-settings':
+            cluster = msg['content']['data']['cluster']
+            namespace = msg['content']['data']['namespace']
+            svcaccount = msg['content']['data']['svcaccount']
+
+            self.check_config(cluster, namespace, svcaccount)
 
     def register_comm(self):
         """ Register a comm_target which will be used by frontend to start communication """
@@ -88,6 +94,47 @@ class SwitchCluster:
             'clusters': contexts,
             'current_cluster': active_context
         })
+
+    def check_config(self, cluster, namespace, svcaccount):
+        # def run_command(command):
+        #     p = subprocess.Popen(command,
+        #                         stdout=subprocess.PIPE,
+        #                         stderr=subprocess.STDOUT)
+        #     return iter(p.stdout.readline, b'')
+
+
+        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                load = yaml.safe_load(stream)
+        
+        for i in load['clusters']:
+            if i['name'] == cluster:
+                server_host = i['cluster']['server']
+        
+        kubeconfig = os.environ['HOME'] + "/config"
+        os.environ['KUBECONFIG'] = kubeconfig
+        os.environ['NAMESPACE'] = namespace
+        os.environ['SERVICE_ACCOUNT'] = svcaccount
+        os.environ['SERVER'] = server_host
+
+        error = ''
+        # for line in run_command(command):
+        #     print(line)
+        output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test.sh', shell=True)
+        self.log.info("output: ", output)
+        if output != 0:
+            error = 'Error'
+
+        if error == '':
+            self.send({
+            'msgtype': 'authentication-successfull',
+            })
+        else:
+            self.send({
+            'msgtype': 'authentication-unsuccessfull',
+            'error': error
+            })
+
+        
 
 
 def load_ipython_extension(ipython):

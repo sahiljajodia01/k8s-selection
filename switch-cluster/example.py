@@ -12,6 +12,8 @@ load = {}
 # Write YAML file
 with io.open('config', 'r', encoding='utf8') as stream:
     load = yaml.safe_load(stream)
+
+print(load)
     
 load['current-context'] = current_context
 
