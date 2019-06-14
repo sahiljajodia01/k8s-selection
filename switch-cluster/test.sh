@@ -36,5 +36,3 @@ users:
   user:
     token: $TOKEN
 EOF
-
-echo "1"

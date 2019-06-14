@@ -144,9 +144,16 @@ class SwitchCluster:
             error = 'Error'
 
         if error == '':
-            self.send({
-            'msgtype': 'authentication-successfull',
-            })
+            output2 = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test2.sh', shell=True)
+            if output2 != 0:
+                self.send({
+                'msgtype': 'authentication-unsuccessfull',
+                'error': "Error"
+                })
+            else:
+                self.send({
+                'msgtype': 'authentication-successfull',
+                })
         else:
             self.send({
             'msgtype': 'authentication-unsuccessfull',
