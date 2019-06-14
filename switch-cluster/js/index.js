@@ -9,6 +9,37 @@ import './css/style.css'
 
 function SwitchCluster() {
 
+    this.states = {
+        select: {
+            get_html: $.proxy(this.get_html_select_cluster, this),
+            buttons: {
+                'View Context': {
+                    class: 'btn-success size-100 auth-button',
+                    click: $.proxy(this.change_cluster, this)
+                }
+            }
+        },
+        create: {
+            get_html: $.proxy(this.get_html_create_context, this),
+            buttons: {
+                'Create Context': {
+                    class: 'btn-success size-100',
+                    click: $.proxy(this.connect, this)
+                }
+            }
+        },
+        view: {
+            get_html: $.proxy(this.get_html_view_context, this),
+            hide_close: true,
+            buttons: {
+                'Select Context': {
+                    class: 'btn-danger size-100',
+                    click: $.proxy(this.back_to_config, this)
+                }
+            }
+        }
+    }
+
     this.comm = null;
 
     events.on('kernel_connected.Kernel', $.proxy(this.start_comm, this));
@@ -55,7 +86,8 @@ SwitchCluster.prototype.open_modal = function () {
 
         this.modal.on('show.bs.modal', function () {
             console.log("Inside 2nd open model");
-            that.get_html_select_cluster();
+            that.switch_state(that.states.select);
+            // that.get_html_select_cluster();
             
         }).modal('show');
         this.modal.find(".modal-header").unbind("mousedown");
@@ -167,34 +199,44 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     select.change(function() {
         that.current_cluster = $(this).children("option:selected").val();
     });
-    $('<button>')
-        .addClass('btn-blue')
-        .attr('id', 'select-button')
-        .text("Select Settings")
-        .appendTo(footer)
-        .on('click', $.proxy(this.change_cluster, this));
+    // $('<button>')
+    //     .addClass('btn-blue')
+    //     .attr('id', 'select-button')
+    //     .text("Select Settings")
+    //     .appendTo(footer)
+    //     .on('click', $.proxy(this.change_cluster, this));
+}
+
+
+SwitchCluster.prototype.get_html_view_context = function() {
+
 }
 
 SwitchCluster.prototype.change_cluster = function() {
-    var header = this.modal.find('.modal-header');
-    var html = this.modal.find('.modal-body');
-    var footer = this.modal.find('.modal-footer');
-    var error_div = html.find('#setting-error');
-    error_div.remove();
-
-    footer.find('#select-button').attr('disabled', true);
-    header.find('.close').hide();
-
     console.log("Sending msg to kernel to change KUBECONFIG")
     console.log("Modified cluster: " + this.current_cluster);
-    console.log("Selected namespace: " + this.selected_namespace);
-    console.log("Selected serviceaccount: " + this.selected_svcaccount);
     this.send({
-        'action': 'check-current-settings',
-        'cluster': this.current_cluster,
-        'namespace': this.selected_namespace,
-        'svcaccount': this.selected_svcaccount
+        'action': 'get-context-settings',
+        'context': this.current_cluster,
     })
+    // var header = this.modal.find('.modal-header');
+    // var html = this.modal.find('.modal-body');
+    // var footer = this.modal.find('.modal-footer');
+    // var error_div = html.find('#setting-error');
+    // error_div.remove();
+
+    // footer.find('#select-button').attr('disabled', true);
+    // header.find('.close').hide();
+
+    // console.log("Selected namespace: " + this.selected_namespace);
+    // console.log("Selected serviceaccount: " + this.selected_svcaccount);
+    // this.send({
+    //     'action': 'check-current-settings',
+    //     'cluster': this.current_cluster,
+    //     'namespace': this.selected_namespace,
+    //     'svcaccount': this.selected_svcaccount
+    // })
+    
 }
 
 
@@ -204,10 +246,11 @@ SwitchCluster.prototype.redirect = function() {
 
 
 SwitchCluster.prototype.on_comm_msg = function (msg) {
-    if(msg.content.data.msgtype == 'cluster-select') {
-        console.log("Got message from frontend: " + msg.content.data.current_cluster);
-        this.current_cluster = msg.content.data.current_cluster;
-        this.clusters = msg.content.data.clusters;
+    if(msg.content.data.msgtype == 'context-select') {
+        console.log("Got message from frontend: " + msg.content.data.active_context);
+        this.current_cluster = msg.content.data.active_context;
+        this.clusters = msg.content.data.contexts;
+        // this.switch_state(this.states.select);
     }
     else if(msg.content.data.msgtype == 'authentication-successfull') {
         console.log("Authentication successfull");
@@ -230,6 +273,40 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         header.find('.close').show();
     }
 }
+
+
+
+SwitchCluster.prototype.switch_state = function (new_state) {
+    this.state = new_state;
+
+    if (this.modal) {
+        Jupyter.keyboard_manager.disable()
+        var header = this.modal.find('.modal-header');
+        var body = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+
+        body.html('');
+        footer.html('');
+
+        new_state.get_html();
+
+        $.each(new_state.buttons, function (name, options) {
+            $('<button>')
+                .addClass('btn-blue')
+                .attr('id', 'select-button')
+                .on('click', options.click)
+                .text(name)
+                .appendTo(footer);
+        });
+
+        // if (new_state.hide_close) {
+        //     header.find('.close').hide();
+        // } else {
+        //     header.find('.close').show();
+        // }
+    }
+}
+
 
 
 

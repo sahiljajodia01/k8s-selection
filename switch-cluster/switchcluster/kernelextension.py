@@ -74,42 +74,42 @@ class SwitchCluster:
         self.cluster_list()
 
     def cluster_list(self):
-        # contexts, active_context = config.list_kube_config_contexts()
+        contexts, active_context = config.list_kube_config_contexts()
 
-        # if not contexts:
-        #     print("Cannot find any context in kube-config file.")
-
-        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-            load = yaml.safe_load(stream)
-            # self.log.info(load)
-        if len(load['contexts']) == 0:
+        if not contexts:
             print("Cannot find any context in kube-config file.")
 
-        clusters = []
-        for i in load['clusters']:
-            clusters.append(i['name'])
+        # with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+        #     load = yaml.safe_load(stream)
+            # self.log.info(load)
+        # if len(load['contexts']) == 0:
+        #     print("Cannot find any context in kube-config file.")
 
-        active_context = load['current-context']
+        # clusters = []
+        # for i in load['clusters']:
+        #     clusters.append(i['name'])
 
-        for i in load['contexts']:
-            if i['name'] == active_context:
-                current_cluster = i['context']['cluster']
+        # active_context = load['current-context']
+
+        # for i in load['contexts']:
+        #     if i['name'] == active_context:
+        #         current_cluster = i['context']['cluster']
 
         
-        self.log.info(current_cluster)
-        # contexts = [context['name'] for context in contexts]
-        # active_context = active_context['name']
+        # self.log.info(current_cluster)
+        contexts = [context['name'] for context in contexts]
+        active_context = active_context['name']
 
-        self.log.info("Cluster:")
-        for i in clusters:
+        self.log.info("Contexts:")
+        for i in contexts:
             self.log.info(i)
 
-        self.log.info("Current cluster: ", current_cluster)
+        self.log.info("Current context: ", active_context)
 
         self.send({
-            'msgtype': 'cluster-select',
-            'clusters': clusters,
-            'current_cluster': current_cluster
+            'msgtype': 'context-select',
+            'contexts': contexts,
+            'active_context': active_context
         })
 
     def check_config(self, cluster, namespace, svcaccount):
