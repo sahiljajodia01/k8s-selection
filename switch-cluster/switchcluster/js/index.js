@@ -226,33 +226,70 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 
     var main_div = html.find('#user_html_inputs');
 
-    (0, _jquery2.default)('<br>').appendTo(main_div);
+    (0, _jquery2.default)('<br><br><br><br>').appendTo(main_div);
 
-    (0, _jquery2.default)('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
+    // $('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
 
-    if (this.selected_namespace) {
-        var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('value', this.selected_namespace).attr('placeholder', 'Namespace').addClass('form__field').appendTo(main_div).focus().change(function () {
-            that.selected_namespace = namespace_input.val();
-        });
-    } else {
-        var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('placeholder', 'Namespace').addClass('form__field').appendTo(main_div).focus().change(function () {
-            that.selected_namespace = namespace_input.val();
-        });
-    }
+    // if(this.selected_namespace) {
+    //     var namespace_input = $('<input/>')
+    //         .attr('name', 'namespace_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'namespace_text')
+    //         .attr('value', this.selected_namespace)
+    //         .attr('placeholder', 'Namespace')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_namespace = namespace_input.val();
+    //         });
+    // }
+    // else {
+    //     var namespace_input = $('<input/>')
+    //         .attr('name', 'namespace_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'namespace_text')
+    //         .attr('placeholder', 'Namespace')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_namespace = namespace_input.val();
+    //         });
+    // }
 
-    (0, _jquery2.default)('<br><br>').appendTo(main_div);
 
-    (0, _jquery2.default)('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
+    // $('<br><br>').appendTo(main_div);
 
-    if (this.selected_svcaccount) {
-        var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('value', this.selected_svcaccount).attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(main_div).focus().change(function () {
-            that.selected_svcaccount = svcaccount_input.val();
-        });
-    } else {
-        var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(main_div).focus().change(function () {
-            that.selected_svcaccount = svcaccount_input.val();
-        });
-    }
+    // $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
+
+    // if(this.selected_svcaccount) {
+    //     var svcaccount_input = $('<input/>')
+    //         .attr('name', 'svcaccount_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'svcaccount_text')
+    //         .attr('value', this.selected_svcaccount)
+    //         .attr('placeholder', 'ServiceAccount')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_svcaccount = svcaccount_input.val();
+    //         });
+    // }
+    // else {
+    //     var svcaccount_input = $('<input/>')
+    //         .attr('name', 'svcaccount_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'svcaccount_text')
+    //         .attr('placeholder', 'ServiceAccount')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_svcaccount = svcaccount_input.val();
+    //         });
+    // }    
 
     select.change(function () {
         that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
@@ -265,26 +302,44 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
     //     .on('click', $.proxy(this.change_cluster, this));
 };
 
-SwitchCluster.prototype.change_cluster = function () {
-    var header = this.modal.find('.modal-header');
+SwitchCluster.prototype.get_html_view_context = function () {
     var html = this.modal.find('.modal-body');
-    var footer = this.modal.find('.modal-footer');
-    var error_div = html.find('#setting-error');
-    error_div.remove();
 
-    footer.find('#select-button').attr('disabled', true);
-    header.find('.close').hide();
+    html.append('<div id="view_context"></div>');
+    var div = html.find("#view_context");
+    (0, _jquery2.default)('<h4 id="cluster_name">Cluster name: ' + this.view_cluster_name + '</h4><br>').appendTo(div);
 
+    (0, _jquery2.default)('<h4 id="namespace">Namespace: ' + this.view_namespace + '</h4><br>').appendTo(div);
+
+    (0, _jquery2.default)('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
+
+    (0, _jquery2.default)('<h4 id="token">Token: ' + this.view_token + '</h4><br>').appendTo(div);
+};
+
+SwitchCluster.prototype.change_cluster = function () {
     console.log("Sending msg to kernel to change KUBECONFIG");
     console.log("Modified cluster: " + this.current_cluster);
-    console.log("Selected namespace: " + this.selected_namespace);
-    console.log("Selected serviceaccount: " + this.selected_svcaccount);
     this.send({
-        'action': 'check-current-settings',
-        'cluster': this.current_cluster,
-        'namespace': this.selected_namespace,
-        'svcaccount': this.selected_svcaccount
+        'action': 'get-context-settings',
+        'context': this.current_cluster
     });
+    // var header = this.modal.find('.modal-header');
+    // var html = this.modal.find('.modal-body');
+    // var footer = this.modal.find('.modal-footer');
+    // var error_div = html.find('#setting-error');
+    // error_div.remove();
+
+    // footer.find('#select-button').attr('disabled', true);
+    // header.find('.close').hide();
+
+    // console.log("Selected namespace: " + this.selected_namespace);
+    // console.log("Selected serviceaccount: " + this.selected_svcaccount);
+    // this.send({
+    //     'action': 'check-current-settings',
+    //     'cluster': this.current_cluster,
+    //     'namespace': this.selected_namespace,
+    //     'svcaccount': this.selected_svcaccount
+    // })
 };
 
 SwitchCluster.prototype.redirect = function () {
@@ -315,6 +370,13 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 
         footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
+    } else if (msg.content.data.msgtype == 'context-info') {
+        this.view_cluster_name = msg.content.data.cluster_name;
+        this.view_svcaccount = msg.content.data.svcaccount;
+        this.view_namespace = msg.content.data.namespace;
+        this.view_token = msg.content.data.token;
+
+        this.switch_state(this.states.view);
     }
 };
 
@@ -400,7 +462,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=select id=user_html_inputs> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
+module.exports = "<br> <div class=select id=user_html_inputs> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
 
 /***/ }),
 /* 6 */
@@ -442,7 +504,7 @@ exports = module.exports = __webpack_require__(8)(false);
 
 
 // module
-exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 350px;\n      margin-top: 15px;\n  }\n  \n  .select-text {\n      position: relative;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 18px;\n      right: 10px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}", ""]);
+exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 350px;\n      margin-top: 15px;\n      margin: auto;\n  }\n  \n  .select-text {\n      position: relative;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 18px;\n      right: 10px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}", ""]);
 
 // exports
 

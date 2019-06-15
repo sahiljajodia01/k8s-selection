@@ -54,6 +54,39 @@ class SwitchCluster:
             svcaccount = msg['content']['data']['svcaccount']
 
             self.check_config(cluster, namespace, svcaccount)
+        elif action == 'get-context-settings':
+            context = msg['content']['data']['context']
+
+            self.log.info("View Context: ", context)
+
+            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                load = yaml.safe_load(stream)
+
+            for i in load['contexts']:
+                if i['name'] == context:
+                    cluster_name = i['context']['cluster']
+                    user_name = i['context']['user']
+                    namespace_name = i['context']['namespace']
+
+            self.log.info("Cluster name: ", cluster_name)
+            self.log.info("Service account name: ", user_name)
+            self.log.info("Namespace name: ", namespace_name)
+
+            os.environ['KUBECONFIG'] = os.environ['HOME'] + '/.kube/config'
+            os.environ['NAMESPACE'] = namespace_name
+            os.environ['SERVICE_ACCOUNT'] = user_name
+
+            token = subprocess.check_output('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test3.sh', shell=True)
+
+            self.log.info("Token: ", token)
+
+            self.send({
+                'msgtype': 'context-info',
+                'cluster_name': cluster_name,
+                'svcaccount': user_name,
+                'namespace': namespace_name,
+                'token': token
+            })
 
     def register_comm(self):
         """ Register a comm_target which will be used by frontend to start communication """

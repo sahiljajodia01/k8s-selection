@@ -131,70 +131,70 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
     var main_div = html.find('#user_html_inputs');
     
-    $('<br>').appendTo(main_div);
+    $('<br><br><br><br>').appendTo(main_div);
 
-    $('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
+    // $('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
 
-    if(this.selected_namespace) {
-        var namespace_input = $('<input/>')
-            .attr('name', 'namespace_text')
-            .attr('type', 'text')
-            .attr('id', 'namespace_text')
-            .attr('value', this.selected_namespace)
-            .attr('placeholder', 'Namespace')
-            .addClass('form__field')
-            .appendTo(main_div)
-            .focus()
-            .change(function() {
-                that.selected_namespace = namespace_input.val();
-            });
-    }
-    else {
-        var namespace_input = $('<input/>')
-            .attr('name', 'namespace_text')
-            .attr('type', 'text')
-            .attr('id', 'namespace_text')
-            .attr('placeholder', 'Namespace')
-            .addClass('form__field')
-            .appendTo(main_div)
-            .focus()
-            .change(function() {
-                that.selected_namespace = namespace_input.val();
-            });
-    }
+    // if(this.selected_namespace) {
+    //     var namespace_input = $('<input/>')
+    //         .attr('name', 'namespace_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'namespace_text')
+    //         .attr('value', this.selected_namespace)
+    //         .attr('placeholder', 'Namespace')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_namespace = namespace_input.val();
+    //         });
+    // }
+    // else {
+    //     var namespace_input = $('<input/>')
+    //         .attr('name', 'namespace_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'namespace_text')
+    //         .attr('placeholder', 'Namespace')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_namespace = namespace_input.val();
+    //         });
+    // }
     
         
-    $('<br><br>').appendTo(main_div);
+    // $('<br><br>').appendTo(main_div);
 
-    $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
+    // $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
     
-    if(this.selected_svcaccount) {
-        var svcaccount_input = $('<input/>')
-            .attr('name', 'svcaccount_text')
-            .attr('type', 'text')
-            .attr('id', 'svcaccount_text')
-            .attr('value', this.selected_svcaccount)
-            .attr('placeholder', 'ServiceAccount')
-            .addClass('form__field')
-            .appendTo(main_div)
-            .focus()
-            .change(function() {
-                that.selected_svcaccount = svcaccount_input.val();
-            });
-    }
-    else {
-        var svcaccount_input = $('<input/>')
-            .attr('name', 'svcaccount_text')
-            .attr('type', 'text')
-            .attr('id', 'svcaccount_text')
-            .attr('placeholder', 'ServiceAccount')
-            .addClass('form__field')
-            .appendTo(main_div)
-            .focus()
-            .change(function() {
-                that.selected_svcaccount = svcaccount_input.val();
-            });
-    }    
+    // if(this.selected_svcaccount) {
+    //     var svcaccount_input = $('<input/>')
+    //         .attr('name', 'svcaccount_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'svcaccount_text')
+    //         .attr('value', this.selected_svcaccount)
+    //         .attr('placeholder', 'ServiceAccount')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_svcaccount = svcaccount_input.val();
+    //         });
+    // }
+    // else {
+    //     var svcaccount_input = $('<input/>')
+    //         .attr('name', 'svcaccount_text')
+    //         .attr('type', 'text')
+    //         .attr('id', 'svcaccount_text')
+    //         .attr('placeholder', 'ServiceAccount')
+    //         .addClass('form__field')
+    //         .appendTo(main_div)
+    //         .focus()
+    //         .change(function() {
+    //             that.selected_svcaccount = svcaccount_input.val();
+    //         });
+    // }    
 
     select.change(function() {
         that.current_cluster = $(this).children("option:selected").val();
@@ -209,6 +209,17 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 
 SwitchCluster.prototype.get_html_view_context = function() {
+    var html = this.modal.find('.modal-body');
+
+    html.append('<div id="view_context"></div>');
+    var div = html.find("#view_context")
+    $('<h4 id="cluster_name">Cluster name: ' + this.view_cluster_name + '</h4><br>').appendTo(div);
+
+    $('<h4 id="namespace">Namespace: ' + this.view_namespace + '</h4><br>').appendTo(div);
+    
+    $('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
+
+    $('<h4 id="token">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 
 }
 
@@ -271,6 +282,14 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 
         footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
+    }
+    else if(msg.content.data.msgtype == 'context-info') {
+        this.view_cluster_name = msg.content.data.cluster_name;
+        this.view_svcaccount = msg.content.data.svcaccount;
+        this.view_namespace = msg.content.data.namespace;
+        this.view_token = msg.content.data.token;
+
+        this.switch_state(this.states.view);
     }
 }
 

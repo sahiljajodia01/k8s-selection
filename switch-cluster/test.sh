@@ -9,6 +9,7 @@ TOKEN=$(kubectl --kubeconfig="${KUBECONFIG}" \
 get secret "${SECRET}" -o json \
 | python -c 'import json,sys;obj=json.load(sys.stdin);print(obj["data"]["token"])' | base64 --decode) || exit 1
 
+
 CA=$(kubectl --kubeconfig="${KUBECONFIG}" \
 --namespace "${NAMESPACE}" \
 get secret "${SECRET}" -o json \
