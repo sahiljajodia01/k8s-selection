@@ -284,3 +284,23 @@ header {
 		left:340px;
 		width: 80px;
 }
+
+.back-button {
+    float: left;
+    font-size: 19.5px;
+    font-weight: bold;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    filter: alpha(opacity=20);
+    opacity: 0.2;
+}
+
+button.back-button {
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    appearance: none;
+}

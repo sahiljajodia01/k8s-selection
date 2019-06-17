@@ -222,7 +222,16 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 SwitchCluster.prototype.get_html_view_context = function() {
     var html = this.modal.find('.modal-body');
-    
+    var header = this.modal.find('.modal-header')
+
+    header.find(".modal-title").html("Context: " + this.current_cluster);
+
+    $("<button>")
+        .addClass("back-button")
+        .attr("type", "button")
+        .text("<-")
+        .appendTo(header)
+        .on("click", $.proxy(this.switch_state, this, this.states.select));
 
     html.append('<div id="view_context"></div>');
     var div = html.find("#view_context")
