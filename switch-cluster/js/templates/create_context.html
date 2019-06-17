@@ -11,7 +11,17 @@
 
     <div class="tab-content">
             <div id="tab1">
-                    
+
+                <div class="select">
+                    <select id="select_cluster_options" class="select-text">
+
+                    </select>
+                
+                    <span class="select-highlight"></span>
+                    <span class="select-bar"></span>
+                    <label class="select-label">Select Spark K8s cluster</label>
+                </div>
+
             </div>
             <div id="tab2">
                     <p>Second tab content.</p>
@@ -57,7 +67,9 @@
 
 						e.preventDefault();
 				});
-		});
+        });
+        
+        
     });
   </script>
 

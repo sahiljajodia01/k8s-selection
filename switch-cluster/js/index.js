@@ -49,7 +49,7 @@ function SwitchCluster() {
 
 SwitchCluster.prototype.add_toolbar_button = function() {
     var action = {
-        help: 'Spark clusters connection',
+        help: 'Spark clusters settings',
         icon: 'fa-external-link',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
         handler: $.proxy(this.open_modal, this)
@@ -119,7 +119,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
     $('<h4 class="modal-title">Spark cluster setting</h4>').appendTo(header);
     // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
-    var clusters = this.clusters;
+    var contexts = this.contexts;
     // var current_cluster = this.current_cluster;
     var template = user_html;
     this.hide_close = true;
@@ -127,12 +127,12 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     // var list = [0, 1, 2, 3, 4, 5, 6];
     var that = this;
     var select = html.find("#select_cluster_options");
-    for(var i = 0; i < clusters.length; i++) {
-        if(clusters[i] == this.current_cluster) {
-            $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select);
+    for(var i = 0; i < contexts.length; i++) {
+        if(contexts[i] == this.current_cluster) {
+            $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
         }
         else {
-            $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
+            $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).appendTo(select);
         }
 
     }
@@ -301,30 +301,43 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     console.log(active.html());
 
+    var contexts = this.contexts;
+
     
     tabs.click(function() {
-        console.log($(".active").html());
+        this.selected_tab = $(".active").val();
     })
 
 
     var tab1 = html.find("#tab1");
 
+    var select = html.find(".select-text");
+    for(var i = 0; i < contexts.length; i++) {
+        if(contexts[i] == this.current_cluster) {
+            $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
+        }
+        else {
+            $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).appendTo(select);
+        }
+    }
 
 
-    $('<label for="namespace_text">Namespace</label><br>').appendTo(tab1);
 
-    if(this.selected_namespace) {
+
+    $('<br><label for="namespace_text">Namespace</label><br>').appendTo(tab1);
+
+    if(this.local_selected_namespace) {
         var namespace_input = $('<input/>')
             .attr('name', 'namespace_text')
             .attr('type', 'text')
             .attr('id', 'namespace_text')
-            .attr('value', this.selected_namespace)
+            .attr('value', this.local_selected_namespace)
             .attr('placeholder', 'Namespace')
             .addClass('form__field')
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_namespace = namespace_input.val();
+                that.local_selected_namespace = namespace_input.val();
             });
     }
     else {
@@ -337,27 +350,27 @@ SwitchCluster.prototype.get_html_create_context = function() {
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_namespace = namespace_input.val();
+                that.local_selected_namespace = namespace_input.val();
             });
     }
     
-        
+    
     $('<br><br>').appendTo(tab1);
 
     $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(tab1);
     
-    if(this.selected_svcaccount) {
+    if(this.local_selected_svcaccount) {
         var svcaccount_input = $('<input/>')
             .attr('name', 'svcaccount_text')
             .attr('type', 'text')
             .attr('id', 'svcaccount_text')
-            .attr('value', this.selected_svcaccount)
+            .attr('value', this.local_selected_svcaccount)
             .attr('placeholder', 'ServiceAccount')
             .addClass('form__field')
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_svcaccount = svcaccount_input.val();
+                that.local_selected_svcaccount = svcaccount_input.val();
             });
     }
     else {
@@ -370,7 +383,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_svcaccount = svcaccount_input.val();
+                that.local_selected_svcaccount = svcaccount_input.val();
             });
     }
 
@@ -379,31 +392,31 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     $('<label for="token_text">Token</label><br>').appendTo(tab1);
     
-    if(this.selected_token) {
+    if(this.local_selected_token) {
         var token_input = $('<input/>')
             .attr('name', 'token_text')
             .attr('type', 'text')
             .attr('id', 'token_text')
-            .attr('value', this.selected_token)
+            .attr('value', this.local_selected_token)
             .attr('placeholder', 'Token')
             .addClass('form__field')
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_token = token_input.val();
+                that.local_selected_token = token_input.val();
             });
     }
     else {
         var token_input = $('<input/>')
-            .attr('name', 'svcaccount_text')
+            .attr('name', 'token_text')
             .attr('type', 'text')
-            .attr('id', 'svcaccount_text')
+            .attr('id', 'token_text')
             .attr('placeholder', 'Token')
             .addClass('form__field')
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_token = token_input.val();
+                that.local_selected_token = token_input.val();
             });
     }
 
@@ -412,35 +425,99 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     $('<label for="catoken_text">CA Token</label><br>').appendTo(tab1);
     
-    if(this.selected_catoken) {
+    if(this.local_selected_catoken) {
         var catoken_input = $('<input/>')
             .attr('name', 'catoken_text')
             .attr('type', 'text')
             .attr('id', 'catoken_text')
-            .attr('value', this.selected_catoken)
+            .attr('value', this.local_selected_catoken)
             .attr('placeholder', 'CA Token')
             .addClass('form__field')
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_catoken = catoken_input.val();
+                that.local_selected_catoken = catoken_input.val();
             });
     }
     else {
         var catoken_input = $('<input/>')
-            .attr('name', 'svcaccount_text')
+            .attr('name', 'catoken_text')
             .attr('type', 'text')
-            .attr('id', 'svcaccount_text')
-            .attr('placeholder', 'Token')
+            .attr('id', 'catoken_text')
+            .attr('placeholder', 'CA Token')
             .addClass('form__field')
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.selected_catoken = catoken_input.val();
+                that.local_selected_catoken = catoken_input.val();
+            });
+    }
+
+    $('<br><br>').appendTo(tab1);
+
+    $('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
+    
+    if(this.local_selected_contextname) {
+        var catoken_input = $('<input/>')
+            .attr('name', 'contextname_text')
+            .attr('type', 'text')
+            .attr('id', 'contextname_text')
+            .attr('value', this.local_selected_contextname)
+            .attr('placeholder', 'Context Name')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.local_selected_contextname = catoken_input.val();
+            });
+    }
+    else {
+        var catoken_input = $('<input/>')
+            .attr('name', 'contextname_text')
+            .attr('type', 'text')
+            .attr('id', 'contextname_text')
+            .attr('placeholder', 'Context Name')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.local_selected_contextname = catoken_input.val();
             });
     }
 
 
+}
+
+
+SwitchCluster.prototype.create_context = function() {
+    var header = this.modal.find('.modal-header');
+    var html = this.modal.find('.modal-body');
+    var footer = this.modal.find('.modal-footer');
+    var error_div = html.find('#setting-error');
+    error_div.remove();
+
+    footer.find('#select-button').attr('disabled', true);
+    header.find('.close').hide();
+
+    console.log("Selected namespace: " + this.local_selected_namespace);
+    console.log("Selected serviceaccount: " + this.local_selected_svcaccount);
+    console.log("Selected token: " + this.local_selected_token);
+    console.log("Selected catoken: " + this.local_selected_catoken);
+    console.log("Selected context name: " + this.local_selected_contextname);
+    console.log("Selected tab: " + this.selected_tab);
+
+    if(this.selected_tab == "local") {
+        this.send({
+            'action': 'add-context',
+            'namespace': this.local_selected_namespace,
+            'token': this.local_selected_token,
+            'svcaccount': this.local_selected_svcaccount,
+            'catoken': this.local_selected_catoken,
+            'context_name': this.local_selected_contextname,
+
+        });
+    }
+    
 }
 
 
@@ -452,8 +529,8 @@ SwitchCluster.prototype.redirect = function() {
 SwitchCluster.prototype.on_comm_msg = function (msg) {
     if(msg.content.data.msgtype == 'context-select') {
         console.log("Got message from frontend: " + msg.content.data.active_context);
-        this.current_cluster = msg.content.data.active_context;
-        this.clusters = msg.content.data.contexts;
+        this.current_context = msg.content.data.active_context;
+        this.contexts = msg.content.data.contexts;
         this.switch_state(this.states.select);
         // this.switch_state(this.states.select);
     }
@@ -522,6 +599,7 @@ SwitchCluster.prototype.switch_state = function (new_state) {
         // }
     }
 }
+
 
 
 

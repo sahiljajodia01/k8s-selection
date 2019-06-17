@@ -39,9 +39,9 @@
     font-family:
       'Roboto','Helvetica','Arial',sans-serif;
       position: relative;
-      width: 350px;
+      /* width: 350px; */
       margin-top: 15px;
-      margin: auto;
+      /* margin: auto; */
   }
   
   .select-text {

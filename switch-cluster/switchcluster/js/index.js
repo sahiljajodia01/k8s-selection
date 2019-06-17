@@ -379,21 +379,32 @@ SwitchCluster.prototype.get_html_create_context = function () {
 
     console.log(active.html());
 
+    var clusters = this.clusters;
+
     tabs.click(function () {
-        console.log((0, _jquery2.default)(".active").html());
+        this.selected_tab = (0, _jquery2.default)(".active").val();
     });
 
     var tab1 = html.find("#tab1");
 
-    (0, _jquery2.default)('<label for="namespace_text">Namespace</label><br>').appendTo(tab1);
+    var select = html.find(".select-text");
+    for (var i = 0; i < clusters.length; i++) {
+        if (clusters[i] == this.current_cluster) {
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select);
+        } else {
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
+        }
+    }
 
-    if (this.selected_namespace) {
-        var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('value', this.selected_namespace).attr('placeholder', 'Namespace').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_namespace = namespace_input.val();
+    (0, _jquery2.default)('<br><label for="namespace_text">Namespace</label><br>').appendTo(tab1);
+
+    if (this.local_selected_namespace) {
+        var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('value', this.local_selected_namespace).attr('placeholder', 'Namespace').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_namespace = namespace_input.val();
         });
     } else {
         var namespace_input = (0, _jquery2.default)('<input/>').attr('name', 'namespace_text').attr('type', 'text').attr('id', 'namespace_text').attr('placeholder', 'Namespace').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_namespace = namespace_input.val();
+            that.local_selected_namespace = namespace_input.val();
         });
     }
 
@@ -401,13 +412,13 @@ SwitchCluster.prototype.get_html_create_context = function () {
 
     (0, _jquery2.default)('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(tab1);
 
-    if (this.selected_svcaccount) {
-        var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('value', this.selected_svcaccount).attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_svcaccount = svcaccount_input.val();
+    if (this.local_selected_svcaccount) {
+        var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('value', this.local_selected_svcaccount).attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_svcaccount = svcaccount_input.val();
         });
     } else {
         var svcaccount_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('placeholder', 'ServiceAccount').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_svcaccount = svcaccount_input.val();
+            that.local_selected_svcaccount = svcaccount_input.val();
         });
     }
 
@@ -415,13 +426,13 @@ SwitchCluster.prototype.get_html_create_context = function () {
 
     (0, _jquery2.default)('<label for="token_text">Token</label><br>').appendTo(tab1);
 
-    if (this.selected_token) {
-        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr('id', 'token_text').attr('value', this.selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_token = token_input.val();
+    if (this.local_selected_token) {
+        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr('id', 'token_text').attr('value', this.local_selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_token = token_input.val();
         });
     } else {
-        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_token = token_input.val();
+        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_token = token_input.val();
         });
     }
 
@@ -429,13 +440,57 @@ SwitchCluster.prototype.get_html_create_context = function () {
 
     (0, _jquery2.default)('<label for="catoken_text">CA Token</label><br>').appendTo(tab1);
 
-    if (this.selected_catoken) {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('value', this.selected_catoken).attr('placeholder', 'CA Token').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_catoken = catoken_input.val();
+    if (this.local_selected_catoken) {
+        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('value', this.local_selected_catoken).attr('placeholder', 'CA Token').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_catoken = catoken_input.val();
         });
     } else {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'svcaccount_text').attr('type', 'text').attr('id', 'svcaccount_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.selected_catoken = catoken_input.val();
+        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('placeholder', 'CA Token').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_catoken = catoken_input.val();
+        });
+    }
+
+    (0, _jquery2.default)('<br><br>').appendTo(tab1);
+
+    (0, _jquery2.default)('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
+
+    if (this.local_selected_contextname) {
+        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('value', this.local_selected_contextname).attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_contextname = catoken_input.val();
+        });
+    } else {
+        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_contextname = catoken_input.val();
+        });
+    }
+};
+
+SwitchCluster.prototype.create_context = function () {
+    var header = this.modal.find('.modal-header');
+    var html = this.modal.find('.modal-body');
+    var footer = this.modal.find('.modal-footer');
+    var error_div = html.find('#setting-error');
+    error_div.remove();
+
+    footer.find('#select-button').attr('disabled', true);
+    header.find('.close').hide();
+
+    console.log("Selected namespace: " + this.local_selected_namespace);
+    console.log("Selected serviceaccount: " + this.local_selected_svcaccount);
+    console.log("Selected token: " + this.local_selected_token);
+    console.log("Selected catoken: " + this.local_selected_catoken);
+    console.log("Selected context name: " + this.local_selected_contextname);
+    console.log("Selected tab: " + this.selected_tab);
+
+    if (this.selected_tab == "local") {
+        this.send({
+            'action': 'add-context',
+            'namespace': this.local_selected_namespace,
+            'token': this.local_selected_token,
+            'svcaccount': this.local_selected_svcaccount,
+            'catoken': this.local_selected_catoken,
+            'context_name': this.local_selected_contextname
+
         });
     }
 };
@@ -564,13 +619,13 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = "<br> <div class=select id=user_html_inputs> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div>";
+module.exports = "<br> <div id=user_html_inputs class=select> <select id=select_cluster_options class=select-text> </select> <label class=select-label>Select Spark K8s cluster</label> </div>";
 
 /***/ }),
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>Local</a> <a id=tab2-tab href=#tab2 value=openstack>Openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>GCloud</a> <a id=tab4-tab href=#tab4 value=aws>AWS</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>Local</a> <a id=tab2-tab href=#tab2 value=openstack>Openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>GCloud</a> <a id=tab4-tab href=#tab4 value=aws>AWS</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
 
 /***/ }),
 /* 7 */
@@ -612,7 +667,7 @@ exports = module.exports = __webpack_require__(9)(false);
 
 
 // module
-exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 350px;\n      margin-top: 15px;\n      margin: auto;\n  }\n  \n  .select-text {\n      position: relative;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 18px;\n      right: 10px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}\n\n\n\n.container-tabs{\n\theight:500px;\n\twidth:100%;\n\tpadding:0;\n\tmargin:10px;\n\tborder-radius:5px;\n\tbox-shadow: 0 2px 3px rgba(0,0,0,.3)\n\t\n}\n\nheader {\n\t\tposition: relative;\n\t  text-align: center;\n}\n\n.hide {\n\t\tdisplay: none;\n}\n\n.tab-content {\n\t\tpadding:25px;\n}\n\n#material-tabs {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t  /* padding:0; */\n        border-bottom: 1px solid #e0e0e0;\n        /* margin: 0 auto; */\n}\n\n#material-tabs>a {\n\t\tposition: relative;\n\t display:inline-block;\n\t\ttext-decoration: none;\n\t\tpadding: 22px;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 14px;\n\t\tfont-weight: 600;\n\t\tcolor: #424f5a;\n\t\ttext-align: center;\n\t\t/*outline:;*/\n}\n\n#material-tabs>a.active {\n\t\tfont-weight: 700;\n\t\toutline:none;\n}\n\n#material-tabs>a:not(.active):hover {\n\t\tbackground-color: inherit;\n\t\tcolor: #7c848a;\n}\n\n@media only screen and (max-width: 520px) {\n\t\t.nav-tabs#material-tabs>li>a {\n\t\t\t\tfont-size: 11px;\n\t\t}\n}\n\n.yellow-bar {\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t\tbottom: 0;\n\t\theight: 3px;\n\t\tbackground: #458CFF;\n\t\tdisplay: block;\n\t\tleft: 0;\n\t\ttransition: left .2s ease;\n\t\t-webkit-transition: left .2s ease;\n\t\ttransition: width .2s ease;\n\t\t-webkit-transition: width .2s ease;\n}\n\n#tab1-tab.active ~ span.yellow-bar {\n\t\tleft: 0;\n\t\twidth: 90px;\n}\n\n#tab2-tab.active ~ span.yellow-bar {\n\t\tleft:95px;\n\t\twidth: 130px;\n}\n\n#tab3-tab.active ~ span.yellow-bar {\n\t\tleft: 230px;\n\t\twidth: 105px;\n}\n\n#tab4-tab.active ~ span.yellow-bar {\n\t\tleft:340px;\n\t\twidth: 80px;\n}\n\n.back-button {\n    float: left;\n    font-size: 19.5px;\n    font-weight: bold;\n    line-height: 1;\n    color: #000;\n    text-shadow: 0 1px 0 #fff;\n    filter: alpha(opacity=20);\n    opacity: 0.2;\n}\n\nbutton.back-button {\n    padding: 0;\n    cursor: pointer;\n    background: transparent;\n    border: 0;\n    -webkit-appearance: none;\n    appearance: none;\n}", ""]);
+exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      /* width: 350px; */\n      margin-top: 15px;\n      /* margin: auto; */\n  }\n  \n  .select-text {\n      position: relative;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 18px;\n      right: 10px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}\n\n\n\n.container-tabs{\n\theight:500px;\n\twidth:100%;\n\tpadding:0;\n\tmargin:10px;\n\tborder-radius:5px;\n\tbox-shadow: 0 2px 3px rgba(0,0,0,.3)\n\t\n}\n\nheader {\n\t\tposition: relative;\n\t  text-align: center;\n}\n\n.hide {\n\t\tdisplay: none;\n}\n\n.tab-content {\n\t\tpadding:25px;\n}\n\n#material-tabs {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t  /* padding:0; */\n        border-bottom: 1px solid #e0e0e0;\n        /* margin: 0 auto; */\n}\n\n#material-tabs>a {\n\t\tposition: relative;\n\t display:inline-block;\n\t\ttext-decoration: none;\n\t\tpadding: 22px;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 14px;\n\t\tfont-weight: 600;\n\t\tcolor: #424f5a;\n\t\ttext-align: center;\n\t\t/*outline:;*/\n}\n\n#material-tabs>a.active {\n\t\tfont-weight: 700;\n\t\toutline:none;\n}\n\n#material-tabs>a:not(.active):hover {\n\t\tbackground-color: inherit;\n\t\tcolor: #7c848a;\n}\n\n@media only screen and (max-width: 520px) {\n\t\t.nav-tabs#material-tabs>li>a {\n\t\t\t\tfont-size: 11px;\n\t\t}\n}\n\n.yellow-bar {\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t\tbottom: 0;\n\t\theight: 3px;\n\t\tbackground: #458CFF;\n\t\tdisplay: block;\n\t\tleft: 0;\n\t\ttransition: left .2s ease;\n\t\t-webkit-transition: left .2s ease;\n\t\ttransition: width .2s ease;\n\t\t-webkit-transition: width .2s ease;\n}\n\n#tab1-tab.active ~ span.yellow-bar {\n\t\tleft: 0;\n\t\twidth: 90px;\n}\n\n#tab2-tab.active ~ span.yellow-bar {\n\t\tleft:95px;\n\t\twidth: 130px;\n}\n\n#tab3-tab.active ~ span.yellow-bar {\n\t\tleft: 230px;\n\t\twidth: 105px;\n}\n\n#tab4-tab.active ~ span.yellow-bar {\n\t\tleft:340px;\n\t\twidth: 80px;\n}\n\n.back-button {\n    float: left;\n    font-size: 19.5px;\n    font-weight: bold;\n    line-height: 1;\n    color: #000;\n    text-shadow: 0 1px 0 #fff;\n    filter: alpha(opacity=20);\n    opacity: 0.2;\n}\n\nbutton.back-button {\n    padding: 0;\n    cursor: pointer;\n    background: transparent;\n    border: 0;\n    -webkit-appearance: none;\n    appearance: none;\n}", ""]);
 
 // exports
 
