@@ -188,3 +188,99 @@
   padding-bottom: 6px;
   border-bottom: 2px solid #212121;
 }
+
+
+
+.container-tabs{
+	height:500px;
+	width:100%;
+	padding:0;
+	margin:10px;
+	border-radius:5px;
+	box-shadow: 0 2px 3px rgba(0,0,0,.3)
+	
+}
+
+header {
+		position: relative;
+	  text-align: center;
+}
+
+.hide {
+		display: none;
+}
+
+.tab-content {
+		padding:25px;
+}
+
+#material-tabs {
+		position: relative;
+		display: inline-block;
+	  /* padding:0; */
+        border-bottom: 1px solid #e0e0e0;
+        /* margin: 0 auto; */
+}
+
+#material-tabs>a {
+		position: relative;
+	 display:inline-block;
+		text-decoration: none;
+		padding: 22px;
+		text-transform: uppercase;
+		font-size: 14px;
+		font-weight: 600;
+		color: #424f5a;
+		text-align: center;
+		/*outline:;*/
+}
+
+#material-tabs>a.active {
+		font-weight: 700;
+		outline:none;
+}
+
+#material-tabs>a:not(.active):hover {
+		background-color: inherit;
+		color: #7c848a;
+}
+
+@media only screen and (max-width: 520px) {
+		.nav-tabs#material-tabs>li>a {
+				font-size: 11px;
+		}
+}
+
+.yellow-bar {
+		position: absolute;
+		z-index: 10;
+		bottom: 0;
+		height: 3px;
+		background: #458CFF;
+		display: block;
+		left: 0;
+		transition: left .2s ease;
+		-webkit-transition: left .2s ease;
+		transition: width .2s ease;
+		-webkit-transition: width .2s ease;
+}
+
+#tab1-tab.active ~ span.yellow-bar {
+		left: 0;
+		width: 90px;
+}
+
+#tab2-tab.active ~ span.yellow-bar {
+		left:95px;
+		width: 130px;
+}
+
+#tab3-tab.active ~ span.yellow-bar {
+		left: 230px;
+		width: 105px;
+}
+
+#tab4-tab.active ~ span.yellow-bar {
+		left:340px;
+		width: 80px;
+}

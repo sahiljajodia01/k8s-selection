@@ -4,6 +4,7 @@ import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
 
 import user_html from './templates/user.html'
+import create_context_html from './templates/create_context.html'
 import './css/style.css'
 // import './js/materialize.min.js'
 
@@ -24,7 +25,7 @@ function SwitchCluster() {
             buttons: {
                 'Create Context': {
                     class: 'btn-success size-100',
-                    click: $.proxy(this.connect, this)
+                    click: $.proxy(this.create_context, this)
                 }
             }
         },
@@ -199,6 +200,17 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     select.change(function() {
         that.current_cluster = $(this).children("option:selected").val();
     });
+
+
+    
+    $('<button>')
+        .addClass('btn-blue')
+        .attr('id', 'select-button')
+        .text("Add Context")
+        .appendTo(html)
+        .on('click', $.proxy(this.switch_state, this, this.states.create));
+
+
     // $('<button>')
     //     .addClass('btn-blue')
     //     .attr('id', 'select-button')
@@ -248,6 +260,162 @@ SwitchCluster.prototype.change_cluster = function() {
     //     'svcaccount': this.selected_svcaccount
     // })
     
+}
+
+
+SwitchCluster.prototype.get_html_create_context = function() {
+    console.log("Changed state")
+
+    var html = this.modal.find('.modal-body');
+
+    html.append(create_context_html);
+
+    var tabs = html.find("#material-tabs");
+
+    var active = tabs.find(".active");
+
+    console.log(active.html());
+
+    
+    tabs.click(function() {
+        console.log($(".active").html());
+    })
+
+
+    var tab1 = html.find("#tab1");
+
+
+
+    $('<label for="namespace_text">Namespace</label><br>').appendTo(tab1);
+
+    if(this.selected_namespace) {
+        var namespace_input = $('<input/>')
+            .attr('name', 'namespace_text')
+            .attr('type', 'text')
+            .attr('id', 'namespace_text')
+            .attr('value', this.selected_namespace)
+            .attr('placeholder', 'Namespace')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_namespace = namespace_input.val();
+            });
+    }
+    else {
+        var namespace_input = $('<input/>')
+            .attr('name', 'namespace_text')
+            .attr('type', 'text')
+            .attr('id', 'namespace_text')
+            .attr('placeholder', 'Namespace')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_namespace = namespace_input.val();
+            });
+    }
+    
+        
+    $('<br><br>').appendTo(tab1);
+
+    $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(tab1);
+    
+    if(this.selected_svcaccount) {
+        var svcaccount_input = $('<input/>')
+            .attr('name', 'svcaccount_text')
+            .attr('type', 'text')
+            .attr('id', 'svcaccount_text')
+            .attr('value', this.selected_svcaccount)
+            .attr('placeholder', 'ServiceAccount')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_svcaccount = svcaccount_input.val();
+            });
+    }
+    else {
+        var svcaccount_input = $('<input/>')
+            .attr('name', 'svcaccount_text')
+            .attr('type', 'text')
+            .attr('id', 'svcaccount_text')
+            .attr('placeholder', 'ServiceAccount')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_svcaccount = svcaccount_input.val();
+            });
+    }
+
+
+    $('<br><br>').appendTo(tab1);
+
+    $('<label for="token_text">Token</label><br>').appendTo(tab1);
+    
+    if(this.selected_token) {
+        var token_input = $('<input/>')
+            .attr('name', 'token_text')
+            .attr('type', 'text')
+            .attr('id', 'token_text')
+            .attr('value', this.selected_token)
+            .attr('placeholder', 'Token')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_token = token_input.val();
+            });
+    }
+    else {
+        var token_input = $('<input/>')
+            .attr('name', 'svcaccount_text')
+            .attr('type', 'text')
+            .attr('id', 'svcaccount_text')
+            .attr('placeholder', 'Token')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_token = token_input.val();
+            });
+    }
+
+
+    $('<br><br>').appendTo(tab1);
+
+    $('<label for="catoken_text">CA Token</label><br>').appendTo(tab1);
+    
+    if(this.selected_catoken) {
+        var catoken_input = $('<input/>')
+            .attr('name', 'catoken_text')
+            .attr('type', 'text')
+            .attr('id', 'catoken_text')
+            .attr('value', this.selected_catoken)
+            .attr('placeholder', 'CA Token')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_catoken = catoken_input.val();
+            });
+    }
+    else {
+        var catoken_input = $('<input/>')
+            .attr('name', 'svcaccount_text')
+            .attr('type', 'text')
+            .attr('id', 'svcaccount_text')
+            .attr('placeholder', 'Token')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .focus()
+            .change(function() {
+                that.selected_catoken = catoken_input.val();
+            });
+    }
+
+
 }
 
 
