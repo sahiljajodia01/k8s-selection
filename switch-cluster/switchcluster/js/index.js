@@ -192,8 +192,10 @@ SwitchCluster.prototype.open_modal = function () {
 
         this.modal.on('show.bs.modal', function () {
             console.log("Inside 2nd open model");
-            that.switch_state(that.states.select);
+            // that.switch_state(that.states.select);
             // that.get_html_select_cluster();
+
+            that.refresh_modal();
         }).modal('show');
         this.modal.find(".modal-header").unbind("mousedown");
 
@@ -203,17 +205,24 @@ SwitchCluster.prototype.open_modal = function () {
     }
 };
 
+SwitchCluster.prototype.refresh_modal = function () {
+    this.send({ 'action': 'Refresh' });
+};
+
 SwitchCluster.prototype.send = function (msg) {
     this.comm.send(msg);
 };
 
 SwitchCluster.prototype.get_html_select_cluster = function () {
-    this.send({ 'action': 'Refresh' });
+    // this.send({'action': 'Refresh'});
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
+    var header = this.modal.find('.modal-header');
+
+    (0, _jquery2.default)('<h4 class="modal-title">Spark cluster setting</h4>').appendTo(header);
     // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
     var clusters = this.clusters;
-    var current_cluster = this.current_cluster;
+    // var current_cluster = this.current_cluster;
     var template = _user2.default;
     this.hide_close = true;
     html.append(template);
@@ -221,8 +230,8 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
     var that = this;
     var select = html.find("#select_cluster_options");
     for (var i = 0; i < clusters.length; i++) {
-        if (clusters[i] == current_cluster) {
-            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr('selected', 'selected').appendTo(select).change(function () {});
+        if (clusters[i] == this.current_cluster) {
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select);
         } else {
             (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
         }
@@ -312,10 +321,9 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 SwitchCluster.prototype.get_html_view_context = function () {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
+    (0, _jquery2.default)('<h4 class="modal-title">Context: ' + this.current_cluster + '</h4>').appendTo(header);
 
-    header.find(".modal-title").html("Context: " + this.current_cluster);
-
-    (0, _jquery2.default)("<button>").addClass("back-button").attr("type", "button").text("<-").appendTo(header).on("click", _jquery2.default.proxy(this.switch_state, this, this.states.select));
+    (0, _jquery2.default)("<button>").addClass("back-button").attr("type", "button").text("<-").appendTo(header).on("click", _jquery2.default.proxy(this.refresh_modal, this));
 
     html.append('<div id="view_context"></div>');
     var div = html.find("#view_context");
@@ -358,6 +366,10 @@ SwitchCluster.prototype.get_html_create_context = function () {
     console.log("Changed state");
 
     var html = this.modal.find('.modal-body');
+    var header = this.modal.find('.modal-header');
+    (0, _jquery2.default)('<h4 class="modal-title">Add new context</h4>').appendTo(header);
+
+    (0, _jquery2.default)("<button>").addClass("back-button").attr("type", "button").text("<-").appendTo(header).on("click", _jquery2.default.proxy(this.refresh_modal, this));
 
     html.append(_create_context2.default);
 
@@ -437,6 +449,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         console.log("Got message from frontend: " + msg.content.data.active_context);
         this.current_cluster = msg.content.data.active_context;
         this.clusters = msg.content.data.contexts;
+        this.switch_state(this.states.select);
         // this.switch_state(this.states.select);
     } else if (msg.content.data.msgtype == 'authentication-successfull') {
         console.log("Authentication successfull");
@@ -475,8 +488,11 @@ SwitchCluster.prototype.switch_state = function (new_state) {
         var body = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
 
+        header.html('');
         body.html('');
         footer.html('');
+
+        (0, _jquery2.default)('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
 
         new_state.get_html();
 
