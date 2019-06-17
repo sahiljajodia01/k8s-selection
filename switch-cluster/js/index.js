@@ -222,6 +222,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 SwitchCluster.prototype.get_html_view_context = function() {
     var html = this.modal.find('.modal-body');
+    
 
     html.append('<div id="view_context"></div>');
     var div = html.find("#view_context")
@@ -231,7 +232,7 @@ SwitchCluster.prototype.get_html_view_context = function() {
     
     $('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
 
-    $('<h4 id="token">Token: ' + this.view_token + '</h4><br>').appendTo(div);
+    $('<h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 
 }
 

@@ -320,7 +320,7 @@ SwitchCluster.prototype.get_html_view_context = function () {
 
     (0, _jquery2.default)('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
 
-    (0, _jquery2.default)('<h4 id="token">Token: ' + this.view_token + '</h4><br>').appendTo(div);
+    (0, _jquery2.default)('<h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 };
 
 SwitchCluster.prototype.change_cluster = function () {
