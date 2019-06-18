@@ -125,25 +125,33 @@ class SwitchCluster:
                 api_instance = client.CoreV1Api()
                 
                 if context_name in context:
-                    error = 'Context \'{}\' already exist'.format(context_name)
+                    error = error + ' Context \'{}\' already exist.'.format(context_name)
 
                 try:
-                    api_response = api_instance.list_namespace()
-                    namespace_names = [i.metadata.name for i in api_response.items]
+                    if error = '':
+                        api_response = api_instance.list_namespace()
+                        namespace_names = [i.metadata.name for i in api_response.items]
 
-                    if namespace not in namespace_names:
-                        error = 'Namespace \'{}\' does not exist'.format(namespace)
-
-                    api_response = api_instance.list_namespaced_service_account(namespace=namespace)
-                    svcaccount_names = [i.metadata.name for i in api_response.items]
-                    
-                    if svcaccount not in svcaccount_names:
-                        error = 'Service account \'{}\' does not exist'.format(svcaccount)
+                        if namespace not in namespace_names:
+                            error = error + ' Namespace \'{}\' does not exist.'.format(namespace)
 
                 except ApiException as e:
                     error = e
                     self.log.info("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
                 
+                
+                try:
+                    if error = '':
+                        api_response = api_instance.list_namespaced_service_account(namespace=namespace)
+                        svcaccount_names = [i.metadata.name for i in api_response.items]
+                        
+                        if svcaccount not in svcaccount_names:
+                            error = error + ' Service account \'{}\' does not exist.'.format(svcaccount)
+                except ApiException as e:
+                    error = e
+                    self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
+                
+
 
                 if error == '':
 
