@@ -91,24 +91,11 @@ class SwitchCluster:
             namespace = msg['content']['data']['namespace']
             token = msg['content']['data']['token']
             svcaccount = msg['content']['data']['svcaccount']
-            catoken = msg['content']['data']['catoken']
             context_name = msg['content']['data']['context_name']
             cluster = msg['content']['data']['cluster']
             tab = msg['content']['data']['tab']
 
             if tab == 'local':
-
-                if catoken != '':
-                    with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-                        load = yaml.safe_load(stream)
-
-                    for i in load['clusters']:
-                        if i['name'] == cluster:
-                            i['cluster']['certificate-authority-data'] = catoken
-                    
-                    with io.open(os.environ['HOME'] + '/config', 'w', encoding='utf8') as out:
-                        yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
-
                 os.environ['SERVICE_ACCOUNT'] = svcaccount
                 os.environ['TOKEN'] = token
                 os.environ['CONTEXT_NAME'] = context_name
@@ -124,37 +111,40 @@ class SwitchCluster:
 
                 api_instance = client.CoreV1Api()
                 
-                if context_name in context:
+                if context_name in contexts:
                     error = error + ' Context \'{}\' already exist.'.format(context_name)
 
-                try:
-                    if error == '':
+                if error == '':
+                    try:
                         api_response = api_instance.list_namespace()
                         namespace_names = [i.metadata.name for i in api_response.items]
 
                         if namespace not in namespace_names:
                             error = error + ' Namespace \'{}\' does not exist.'.format(namespace)
 
-                except ApiException as e:
-                    error = e
-                    self.log.info("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+                    except ApiException as e:
+                        error = e
+                        self.log.info("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
                 
                 
-                try:
-                    if error == '':
+                if error == '':
+                    try:
                         api_response = api_instance.list_namespaced_service_account(namespace=namespace)
                         svcaccount_names = [i.metadata.name for i in api_response.items]
                         
                         if svcaccount not in svcaccount_names:
                             error = error + ' Service account \'{}\' does not exist.'.format(svcaccount)
-                except ApiException as e:
-                    error = e
-                    self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
+                    except ApiException as e:
+                        error = e
+                        self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
                 
-
+                if error == '':
+                    output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test4.sh', shell=True)
+                    self.log.info("output: ", output)
+                    if output != 0:
+                        error = 'You cannot use these settings. Please contact your admin'
 
                 if error == '':
-
                     self.send({
                     'msgtype': 'added-context-successfully',
                     })
@@ -163,9 +153,91 @@ class SwitchCluster:
                     'msgtype': 'added-context-unsuccessfully',
                     'error': error
                     })
+        elif action == 'add-context-cluster':
+            namespace = msg['content']['data']['namespace']
+            token = msg['content']['data']['token']
+            svcaccount = msg['content']['data']['svcaccount']
+            context_name = msg['content']['data']['context_name']
+            cluster_name = msg['content']['data']['cluster_name']
+            tab = msg['content']['data']['tab']
+            catoken = msg['content']['data']['catoken']
+            ip = msg['content']['data']['ip']
 
 
+            if tab == 'local':
 
+                os.environ['SERVICE_ACCOUNT'] = svcaccount
+                os.environ['TOKEN'] = token
+                os.environ['CONTEXT_NAME'] = context_name
+                os.environ['CLUSTER_NAME'] = cluster_name
+                os.environ['NAMESPACE'] = namespace
+                os.environ['CATOKEN'] = catoken
+                os.environ['SERVER_IP'] = ip
+
+                error = ''
+
+                config.load_kube_config()
+
+                contexts, active_context = config.list_kube_config_contexts()
+                contexts = [i['name'] for i in contexts]
+
+                api_instance = client.CoreV1Api()
+
+                with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                    load = yaml.safe_load(stream)
+                clusters = []
+                for i in load['clusters']:
+                    clusters.append(i['name'])
+
+                if cluster_name in clusters:
+                    error = error + ' Cluster \'{}\' already exist.'.format(cluster_name)
+
+
+                if error == '':
+                    if context_name in contexts:
+                        error = error + ' Context \'{}\' already exist.'.format(context_name)
+                
+                if error == '':
+                    try:
+                        api_response = api_instance.list_namespace()
+                        namespace_names = [i.metadata.name for i in api_response.items]
+
+                        if namespace not in namespace_names:
+                            error = error + ' Namespace \'{}\' does not exist.'.format(namespace)
+
+                    except ApiException as e:
+                        error = e
+                        self.log.info("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+                
+                
+                if error == '':
+                    try:
+                        api_response = api_instance.list_namespaced_service_account(namespace=namespace)
+                        svcaccount_names = [i.metadata.name for i in api_response.items]
+                        
+                        if svcaccount not in svcaccount_names:
+                            error = error + ' Service account \'{}\' does not exist.'.format(svcaccount)
+                    except ApiException as e:
+                        error = e
+                        self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
+
+
+                if error == '':
+                    output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test5.sh', shell=True)
+                    self.log.info("output: ", output)
+                    if output != 0:
+                        error = 'You cannot use these settings. Please contact your admin'
+
+
+                if error == '':
+                    self.send({
+                    'msgtype': 'added-context-successfully',
+                    })
+                else:
+                    self.send({
+                    'msgtype': 'added-context-unsuccessfully',
+                    'error': error
+                    })
 
 
     def register_comm(self):

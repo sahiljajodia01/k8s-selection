@@ -593,16 +593,16 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     } else if (msg.content.data.msgtype == 'added-context-successfully') {
         console.log("Added context successfull");
         this.hide_close = false;
-        this.switch_state(this.states.select);
+        this.refresh_modal();
         console.log("Added context successfull");
     } else if (msg.content.data.msgtype == 'added-context-unsuccessfully') {
         console.log("Added context unsuccessfull");
         this.hide_close = false;
-        // this.open_modal();
         var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
-        (0, _jquery2.default)('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
+        var error = msg.content.data.error;
+        (0, _jquery2.default)('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
 
         console.log("Added context unsuccessfull");
 
