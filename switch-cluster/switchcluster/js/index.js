@@ -155,7 +155,7 @@ function SwitchCluster() {
 
 SwitchCluster.prototype.add_toolbar_button = function () {
     var action = {
-        help: 'Spark clusters connection',
+        help: 'Spark clusters settings',
         icon: 'fa-external-link',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
         handler: _jquery2.default.proxy(this.open_modal, this)
@@ -221,7 +221,7 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 
     (0, _jquery2.default)('<h4 class="modal-title">Spark cluster setting</h4>').appendTo(header);
     // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
-    var clusters = this.clusters;
+    var contexts = this.contexts;
     // var current_cluster = this.current_cluster;
     var template = _user2.default;
     this.hide_close = true;
@@ -229,11 +229,11 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
     // var list = [0, 1, 2, 3, 4, 5, 6];
     var that = this;
     var select = html.find("#select_cluster_options");
-    for (var i = 0; i < clusters.length; i++) {
-        if (clusters[i] == this.current_cluster) {
-            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select);
+    for (var i = 0; i < contexts.length; i++) {
+        if (contexts[i] == this.current_context) {
+            (0, _jquery2.default)('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
         } else {
-            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
+            (0, _jquery2.default)('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).appendTo(select);
         }
     }
 
@@ -305,7 +305,7 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
     // }    
 
     select.change(function () {
-        that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
+        that.current_context = (0, _jquery2.default)(this).children("option:selected").val();
     });
 
     (0, _jquery2.default)('<button>').addClass('btn-blue').attr('id', 'select-button').text("Add Context").appendTo(html).on('click', _jquery2.default.proxy(this.switch_state, this, this.states.create));
@@ -321,7 +321,7 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 SwitchCluster.prototype.get_html_view_context = function () {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
-    (0, _jquery2.default)('<h4 class="modal-title">Context: ' + this.current_cluster + '</h4>').appendTo(header);
+    (0, _jquery2.default)('<h4 class="modal-title">Context: ' + this.current_context + '</h4>').appendTo(header);
 
     (0, _jquery2.default)("<button>").addClass("back-button").attr("type", "button").text("<-").appendTo(header).on("click", _jquery2.default.proxy(this.refresh_modal, this));
 
@@ -338,10 +338,10 @@ SwitchCluster.prototype.get_html_view_context = function () {
 
 SwitchCluster.prototype.change_cluster = function () {
     console.log("Sending msg to kernel to change KUBECONFIG");
-    console.log("Modified cluster: " + this.current_cluster);
+    console.log("Modified cluster: " + this.current_context);
     this.send({
         'action': 'get-context-settings',
-        'context': this.current_cluster
+        'context': this.current_context
     });
     // var header = this.modal.find('.modal-header');
     // var html = this.modal.find('.modal-body');
@@ -377,22 +377,25 @@ SwitchCluster.prototype.get_html_create_context = function () {
 
     var active = tabs.find(".active");
 
+    var that = this;
+
     console.log(active.html());
 
     var clusters = this.clusters;
 
+    this.selected_tab = active.html();
     tabs.click(function () {
-        this.selected_tab = (0, _jquery2.default)(".active").val();
+        that.selected_tab = (0, _jquery2.default)(".active").html();
     });
 
     var tab1 = html.find("#tab1");
 
-    var select = html.find(".select-text");
+    var select1 = html.find(".select-text");
     for (var i = 0; i < clusters.length; i++) {
         if (clusters[i] == this.current_cluster) {
-            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select);
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select1);
         } else {
-            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select);
+            (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
         }
     }
 
@@ -455,14 +458,18 @@ SwitchCluster.prototype.get_html_create_context = function () {
     (0, _jquery2.default)('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
 
     if (this.local_selected_contextname) {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('value', this.local_selected_contextname).attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.local_selected_contextname = catoken_input.val();
+        var contextname_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('value', this.local_selected_contextname).attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_contextname = contextname_input.val();
         });
     } else {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.local_selected_contextname = catoken_input.val();
+        var contextname_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_contextname = contextname_input.val();
         });
     }
+
+    select1.change(function () {
+        that.current_cluster = (0, _jquery2.default)(this).children("option:selected").val();
+    });
 };
 
 SwitchCluster.prototype.create_context = function () {
@@ -481,16 +488,21 @@ SwitchCluster.prototype.create_context = function () {
     console.log("Selected catoken: " + this.local_selected_catoken);
     console.log("Selected context name: " + this.local_selected_contextname);
     console.log("Selected tab: " + this.selected_tab);
+    console.log("Selected cluster: " + this.current_cluster);
 
     if (this.selected_tab == "local") {
+        if (!this.local_selected_catoken) {
+            this.local_selected_catoken = '';
+        }
         this.send({
             'action': 'add-context',
             'namespace': this.local_selected_namespace,
             'token': this.local_selected_token,
             'svcaccount': this.local_selected_svcaccount,
             'catoken': this.local_selected_catoken,
-            'context_name': this.local_selected_contextname
-
+            'context_name': this.local_selected_contextname,
+            'tab': this.selected_tab,
+            'cluster': this.current_cluster
         });
     }
 };
@@ -502,8 +514,10 @@ SwitchCluster.prototype.redirect = function () {
 SwitchCluster.prototype.on_comm_msg = function (msg) {
     if (msg.content.data.msgtype == 'context-select') {
         console.log("Got message from frontend: " + msg.content.data.active_context);
-        this.current_cluster = msg.content.data.active_context;
-        this.clusters = msg.content.data.contexts;
+        this.current_context = msg.content.data.active_context;
+        this.contexts = msg.content.data.contexts;
+        this.current_cluster = msg.content.data.current_cluster;
+        this.clusters = msg.content.data.clusters;
         this.switch_state(this.states.select);
         // this.switch_state(this.states.select);
     } else if (msg.content.data.msgtype == 'authentication-successfull') {
@@ -531,6 +545,24 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.view_token = msg.content.data.token;
 
         this.switch_state(this.states.view);
+    } else if (msg.content.data.msgtype == 'added-context-successfully') {
+        console.log("Added context successfull");
+        this.hide_close = false;
+        this.switch_state(this.states.select);
+        console.log("Added context successfull");
+    } else if (msg.content.data.msgtype == 'added-context-unsuccessfully') {
+        console.log("Added context unsuccessfull");
+        this.hide_close = false;
+        // this.open_modal();
+        var html = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+        var header = this.modal.find('.modal-header');
+        (0, _jquery2.default)('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
+
+        console.log("Added context unsuccessfull");
+
+        footer.find('#select-button').attr('disabled', false);
+        header.find('.close').show();
     }
 };
 
@@ -625,7 +657,7 @@ module.exports = "<br> <div id=user_html_inputs class=select> <select id=select_
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>Local</a> <a id=tab2-tab href=#tab2 value=openstack>Openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>GCloud</a> <a id=tab4-tab href=#tab4 value=aws>AWS</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
 
 /***/ }),
 /* 7 */

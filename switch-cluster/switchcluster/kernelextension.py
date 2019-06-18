@@ -87,6 +87,55 @@ class SwitchCluster:
                 'namespace': namespace_name,
                 'token': token
             })
+        elif action == 'add-context':
+            namespace = msg['content']['data']['namespace']
+            token = msg['content']['data']['token']
+            svcaccount = msg['content']['data']['svcaccount']
+            catoken = msg['content']['data']['catoken']
+            context_name = msg['content']['data']['context_name']
+            cluster = msg['content']['data']['cluster']
+            tab = msg['content']['data']['tab']
+
+            if tab == 'local':
+
+                if catoken != '':
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                        load = yaml.safe_load(stream)
+
+                    for i in load['clusters']:
+                        if i['name'] == cluster:
+                            i['cluster']['certificate-authority-data'] = catoken
+                    
+                    with io.open(os.environ['HOME'] + '/config', 'w', encoding='utf8') as out:
+                        yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
+
+                os.environ['SERVICE_ACCOUNT'] = svcaccount
+                os.environ['TOKEN'] = token
+                os.environ['CONTEXT_NAME'] = context_name
+                os.environ['CLUSTER_NAME'] = cluster
+                os.environ['NAMESPACE'] = namespace
+
+                error = ''
+
+                output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test4.sh', shell=True)
+
+
+                if output != 0:
+                    error = 'Error'
+
+                if error == '':
+                    self.send({
+                    'msgtype': 'added-context-successfully',
+                    })
+                else:
+                    self.send({
+                    'msgtype': 'added-context-unsuccessfully',
+                    'error': error
+                    })
+
+
+
+
 
     def register_comm(self):
         """ Register a comm_target which will be used by frontend to start communication """
@@ -112,26 +161,28 @@ class SwitchCluster:
         if not contexts:
             print("Cannot find any context in kube-config file.")
 
-        # with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-        #     load = yaml.safe_load(stream)
+
+        contexts = [context['name'] for context in contexts]
+        active_context = active_context['name']
+
+        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+            load = yaml.safe_load(stream)
             # self.log.info(load)
         # if len(load['contexts']) == 0:
         #     print("Cannot find any context in kube-config file.")
 
-        # clusters = []
-        # for i in load['clusters']:
-        #     clusters.append(i['name'])
+        clusters = []
+        for i in load['clusters']:
+            clusters.append(i['name'])
 
         # active_context = load['current-context']
 
-        # for i in load['contexts']:
-        #     if i['name'] == active_context:
-        #         current_cluster = i['context']['cluster']
+        for i in load['contexts']:
+            if i['name'] == active_context:
+                current_cluster = i['context']['cluster']
 
         
         # self.log.info(current_cluster)
-        contexts = [context['name'] for context in contexts]
-        active_context = active_context['name']
 
         self.log.info("Contexts:")
         for i in contexts:
@@ -142,7 +193,9 @@ class SwitchCluster:
         self.send({
             'msgtype': 'context-select',
             'contexts': contexts,
-            'active_context': active_context
+            'active_context': active_context,
+            'clusters': clusters,
+            'current_cluster': current_cluster
         })
 
     def check_config(self, cluster, namespace, svcaccount):

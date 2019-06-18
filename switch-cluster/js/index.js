@@ -128,7 +128,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     var that = this;
     var select = html.find("#select_cluster_options");
     for(var i = 0; i < contexts.length; i++) {
-        if(contexts[i] == this.current_cluster) {
+        if(contexts[i] == this.current_context) {
             $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
         }
         else {
@@ -205,7 +205,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     // }    
 
     select.change(function() {
-        that.current_cluster = $(this).children("option:selected").val();
+        that.current_context = $(this).children("option:selected").val();
     });
 
 
@@ -230,7 +230,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 SwitchCluster.prototype.get_html_view_context = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header')
-    $('<h4 class="modal-title">Context: ' + this.current_cluster + '</h4>').appendTo(header);
+    $('<h4 class="modal-title">Context: ' + this.current_context + '</h4>').appendTo(header);
 
     $("<button>")
         .addClass("back-button")
@@ -253,10 +253,10 @@ SwitchCluster.prototype.get_html_view_context = function() {
 
 SwitchCluster.prototype.change_cluster = function() {
     console.log("Sending msg to kernel to change KUBECONFIG")
-    console.log("Modified cluster: " + this.current_cluster);
+    console.log("Modified cluster: " + this.current_context);
     this.send({
         'action': 'get-context-settings',
-        'context': this.current_cluster,
+        'context': this.current_context,
     })
     // var header = this.modal.find('.modal-header');
     // var html = this.modal.find('.modal-body');
@@ -299,25 +299,27 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     var active = tabs.find(".active");
 
+    var that = this;
+
     console.log(active.html());
 
-    var contexts = this.contexts;
+    var clusters = this.clusters;
 
-    
+    this.selected_tab = active.html();
     tabs.click(function() {
-        this.selected_tab = $(".active").val();
+        that.selected_tab = $(".active").html();
     })
 
 
     var tab1 = html.find("#tab1");
 
-    var select = html.find(".select-text");
-    for(var i = 0; i < contexts.length; i++) {
-        if(contexts[i] == this.current_cluster) {
-            $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
+    var select1 = html.find(".select-text");
+    for(var i = 0; i < clusters.length; i++) {
+        if(clusters[i] == this.current_cluster) {
+            $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select1);
         }
         else {
-            $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).appendTo(select);
+            $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
         }
     }
 
@@ -458,7 +460,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
     $('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
     
     if(this.local_selected_contextname) {
-        var catoken_input = $('<input/>')
+        var contextname_input = $('<input/>')
             .attr('name', 'contextname_text')
             .attr('type', 'text')
             .attr('id', 'contextname_text')
@@ -468,11 +470,11 @@ SwitchCluster.prototype.get_html_create_context = function() {
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.local_selected_contextname = catoken_input.val();
+                that.local_selected_contextname = contextname_input.val();
             });
     }
     else {
-        var catoken_input = $('<input/>')
+        var contextname_input = $('<input/>')
             .attr('name', 'contextname_text')
             .attr('type', 'text')
             .attr('id', 'contextname_text')
@@ -481,11 +483,13 @@ SwitchCluster.prototype.get_html_create_context = function() {
             .appendTo(tab1)
             .focus()
             .change(function() {
-                that.local_selected_contextname = catoken_input.val();
+                that.local_selected_contextname = contextname_input.val();
             });
     }
 
-
+    select1.change(function() {
+        that.current_cluster = $(this).children("option:selected").val();
+    });
 }
 
 
@@ -505,8 +509,12 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Selected catoken: " + this.local_selected_catoken);
     console.log("Selected context name: " + this.local_selected_contextname);
     console.log("Selected tab: " + this.selected_tab);
+    console.log("Selected cluster: " + this.current_cluster);
 
     if(this.selected_tab == "local") {
+        if(!this.local_selected_catoken) {
+            this.local_selected_catoken = ''
+        }
         this.send({
             'action': 'add-context',
             'namespace': this.local_selected_namespace,
@@ -514,10 +522,10 @@ SwitchCluster.prototype.create_context = function() {
             'svcaccount': this.local_selected_svcaccount,
             'catoken': this.local_selected_catoken,
             'context_name': this.local_selected_contextname,
-
+            'tab': this.selected_tab,
+            'cluster': this.current_cluster
         });
     }
-    
 }
 
 
@@ -531,6 +539,8 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         console.log("Got message from frontend: " + msg.content.data.active_context);
         this.current_context = msg.content.data.active_context;
         this.contexts = msg.content.data.contexts;
+        this.current_cluster = msg.content.data.current_cluster;
+        this.clusters = msg.content.data.clusters;
         this.switch_state(this.states.select);
         // this.switch_state(this.states.select);
     }
@@ -561,6 +571,26 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.view_token = msg.content.data.token;
 
         this.switch_state(this.states.view);
+    }
+    else if(msg.content.data.msgtype == 'added-context-successfully') {
+        console.log("Added context successfull");
+        this.hide_close = false;
+        this.switch_state(this.states.select);
+        console.log("Added context successfull");
+    }
+    else if(msg.content.data.msgtype == 'added-context-unsuccessfully') {
+        console.log("Added context unsuccessfull");
+        this.hide_close = false;
+        // this.open_modal();
+        var html = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+        var header = this.modal.find('.modal-header');
+        $('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
+
+        console.log("Added context unsuccessfull");
+
+        footer.find('#select-button').attr('disabled', false);
+        header.find('.close').show();
     }
 }
 
