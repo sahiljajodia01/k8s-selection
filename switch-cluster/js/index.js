@@ -310,10 +310,9 @@ SwitchCluster.prototype.get_html_create_context = function() {
         that.selected_tab = $(".active").html();
     })
 
-    
 
-
-    var tab1 = html.find("#tab1");
+    var cluster_settings = html.find("#cluster-settings");
+    var tab1 = html.find("#other-settings");
     var select1 = html.find(".select-text");
     for(var i = 0; i < clusters.length; i++) {
         if(clusters[i] == this.current_cluster) {
@@ -323,6 +322,92 @@ SwitchCluster.prototype.get_html_create_context = function() {
             $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
         }
     }
+
+    var checkbox = html.find("#cluster-mode");
+
+    checkbox.change(function() {
+        if($(this).is(":checked")) {
+            cluster_settings.find(".select").hide();
+
+
+            $('<br>').appendTo(cluster_settings);
+
+            $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(cluster_settings);
+            
+            if(that.local_selected_ip) {
+                var ip_input = $('<input/>')
+                    .attr('name', 'ip_text')
+                    .attr('type', 'text')
+                    .attr('id', 'ip_text')
+                    .attr('value', that.local_selected_ip)
+                    .attr('placeholder', 'CA Token')
+                    .addClass('form__field')
+                    .appendTo(cluster_settings)
+                    .focus()
+                    .change(function() {
+                        that.local_selected_ip = ip_input.val();
+                    });
+            }
+            else {
+                var ip_input = $('<input/>')
+                    .attr('name', 'ip_text')
+                    .attr('type', 'text')
+                    .attr('id', 'ip_text')
+                    .attr('placeholder', 'CA Token')
+                    .addClass('form__field')
+                    .appendTo(cluster_settings)
+                    .focus()
+                    .change(function() {
+                        that.local_selected_ip = ip_input.val();
+                    });
+            }
+
+
+            $('<br><br>').appendTo(cluster_settings);
+
+            $('<label for="catoken_text" id="catoken_text_label">CA Token</label><br>').appendTo(cluster_settings);
+            
+            if(that.local_selected_catoken) {
+                var catoken_input = $('<input/>')
+                    .attr('name', 'catoken_text')
+                    .attr('type', 'text')
+                    .attr('id', 'catoken_text')
+                    .attr('value', that.local_selected_catoken)
+                    .attr('placeholder', 'CA Token')
+                    .addClass('form__field')
+                    .appendTo(cluster_settings)
+                    .focus()
+                    .change(function() {
+                        that.local_selected_catoken = catoken_input.val();
+                    });
+            }
+            else {
+                var catoken_input = $('<input/>')
+                    .attr('name', 'catoken_text')
+                    .attr('type', 'text')
+                    .attr('id', 'catoken_text')
+                    .attr('placeholder', 'CA Token')
+                    .addClass('form__field')
+                    .appendTo(cluster_settings)
+                    .focus()
+                    .change(function() {
+                        that.local_selected_catoken = catoken_input.val();
+                    });
+            }
+
+
+
+        }
+        else {
+            cluster_settings.find("br").remove();
+            cluster_settings.find("#ip_text_label").remove();
+            cluster_settings.find("#ip_text").remove();
+            cluster_settings.find("#catoken_text_label").remove();
+            cluster_settings.find("#catoken_text").remove();
+            $("<br>").appendTo(cluster_settings);
+            cluster_settings.find(".select").show();
+        }
+    })
 
 
 
@@ -423,38 +508,6 @@ SwitchCluster.prototype.get_html_create_context = function() {
             });
     }
 
-
-    $('<br><br>').appendTo(tab1);
-
-    $('<label for="catoken_text">CA Token</label><br>').appendTo(tab1);
-    
-    if(this.local_selected_catoken) {
-        var catoken_input = $('<input/>')
-            .attr('name', 'catoken_text')
-            .attr('type', 'text')
-            .attr('id', 'catoken_text')
-            .attr('value', this.local_selected_catoken)
-            .attr('placeholder', 'CA Token')
-            .addClass('form__field')
-            .appendTo(tab1)
-            .focus()
-            .change(function() {
-                that.local_selected_catoken = catoken_input.val();
-            });
-    }
-    else {
-        var catoken_input = $('<input/>')
-            .attr('name', 'catoken_text')
-            .attr('type', 'text')
-            .attr('id', 'catoken_text')
-            .attr('placeholder', 'CA Token')
-            .addClass('form__field')
-            .appendTo(tab1)
-            .focus()
-            .change(function() {
-                that.local_selected_catoken = catoken_input.val();
-            });
-    }
 
     $('<br><br>').appendTo(tab1);
 

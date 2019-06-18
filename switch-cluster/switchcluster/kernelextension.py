@@ -128,7 +128,7 @@ class SwitchCluster:
                     error = error + ' Context \'{}\' already exist.'.format(context_name)
 
                 try:
-                    if error = '':
+                    if error == '':
                         api_response = api_instance.list_namespace()
                         namespace_names = [i.metadata.name for i in api_response.items]
 
@@ -141,7 +141,7 @@ class SwitchCluster:
                 
                 
                 try:
-                    if error = '':
+                    if error == '':
                         api_response = api_instance.list_namespaced_service_account(namespace=namespace)
                         svcaccount_names = [i.metadata.name for i in api_response.items]
                         

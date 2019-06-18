@@ -388,7 +388,8 @@ SwitchCluster.prototype.get_html_create_context = function () {
         that.selected_tab = (0, _jquery2.default)(".active").html();
     });
 
-    var tab1 = html.find("#tab1");
+    var cluster_settings = html.find("#cluster-settings");
+    var tab1 = html.find("#other-settings");
     var select1 = html.find(".select-text");
     for (var i = 0; i < clusters.length; i++) {
         if (clusters[i] == this.current_cluster) {
@@ -397,6 +398,50 @@ SwitchCluster.prototype.get_html_create_context = function () {
             (0, _jquery2.default)('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
         }
     }
+
+    var checkbox = html.find("#cluster-mode");
+
+    checkbox.change(function () {
+        if ((0, _jquery2.default)(this).is(":checked")) {
+            cluster_settings.find(".select").hide();
+
+            (0, _jquery2.default)('<br>').appendTo(cluster_settings);
+
+            (0, _jquery2.default)('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(cluster_settings);
+
+            if (that.local_selected_ip) {
+                var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr('id', 'ip_text').attr('value', that.local_selected_ip).attr('placeholder', 'CA Token').addClass('form__field').appendTo(cluster_settings).focus().change(function () {
+                    that.local_selected_ip = ip_input.val();
+                });
+            } else {
+                var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr('id', 'ip_text').attr('placeholder', 'CA Token').addClass('form__field').appendTo(cluster_settings).focus().change(function () {
+                    that.local_selected_ip = ip_input.val();
+                });
+            }
+
+            (0, _jquery2.default)('<br><br>').appendTo(cluster_settings);
+
+            (0, _jquery2.default)('<label for="catoken_text" id="catoken_text_label">CA Token</label><br>').appendTo(cluster_settings);
+
+            if (that.local_selected_catoken) {
+                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('value', that.local_selected_catoken).attr('placeholder', 'CA Token').addClass('form__field').appendTo(cluster_settings).focus().change(function () {
+                    that.local_selected_catoken = catoken_input.val();
+                });
+            } else {
+                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('placeholder', 'CA Token').addClass('form__field').appendTo(cluster_settings).focus().change(function () {
+                    that.local_selected_catoken = catoken_input.val();
+                });
+            }
+        } else {
+            cluster_settings.find("br").remove();
+            cluster_settings.find("#ip_text_label").remove();
+            cluster_settings.find("#ip_text").remove();
+            cluster_settings.find("#catoken_text_label").remove();
+            cluster_settings.find("#catoken_text").remove();
+            (0, _jquery2.default)("<br>").appendTo(cluster_settings);
+            cluster_settings.find(".select").show();
+        }
+    });
 
     (0, _jquery2.default)('<br><label for="namespace_text">Namespace</label><br>').appendTo(tab1);
 
@@ -435,20 +480,6 @@ SwitchCluster.prototype.get_html_create_context = function () {
     } else {
         var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
             that.local_selected_token = token_input.val();
-        });
-    }
-
-    (0, _jquery2.default)('<br><br>').appendTo(tab1);
-
-    (0, _jquery2.default)('<label for="catoken_text">CA Token</label><br>').appendTo(tab1);
-
-    if (this.local_selected_catoken) {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('value', this.local_selected_catoken).attr('placeholder', 'CA Token').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.local_selected_catoken = catoken_input.val();
-        });
-    } else {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr('id', 'catoken_text').attr('placeholder', 'CA Token').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.local_selected_catoken = catoken_input.val();
         });
     }
 
@@ -656,7 +687,7 @@ module.exports = "<br> <div id=user_html_inputs class=select> <select id=select_
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <label class=pure-material-checkbox> <input type=checkbox> <span>Checkbox</span> </label> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Create new cluster</span> </label> <br><br> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <div id=other-settings> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
 
 /***/ }),
 /* 7 */
