@@ -310,9 +310,10 @@ SwitchCluster.prototype.get_html_create_context = function() {
         that.selected_tab = $(".active").html();
     })
 
+    
+
 
     var tab1 = html.find("#tab1");
-
     var select1 = html.find(".select-text");
     for(var i = 0; i < clusters.length; i++) {
         if(clusters[i] == this.current_cluster) {
