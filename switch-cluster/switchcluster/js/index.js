@@ -113,6 +113,8 @@ __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 // import './js/materialize.min.js'
 
 function SwitchCluster() {
@@ -400,9 +402,10 @@ SwitchCluster.prototype.get_html_create_context = function () {
     }
 
     var checkbox = html.find("#cluster-mode");
-
+    this.checkbox_status = "unchecked";
     checkbox.change(function () {
         if ((0, _jquery2.default)(this).is(":checked")) {
+            this.checkbox_status = "checked";
             cluster_settings.find(".select").hide();
 
             (0, _jquery2.default)('<br>').appendTo(cluster_settings);
@@ -433,6 +436,7 @@ SwitchCluster.prototype.get_html_create_context = function () {
                 });
             }
         } else {
+            this.checkbox_status = "unchecked";
             cluster_settings.find("br").remove();
             cluster_settings.find("#ip_text_label").remove();
             cluster_settings.find("#ip_text").remove();
@@ -521,19 +525,30 @@ SwitchCluster.prototype.create_context = function () {
     console.log("Selected cluster: " + this.current_cluster);
 
     if (this.selected_tab == "local") {
-        if (!this.local_selected_catoken) {
-            this.local_selected_catoken = '';
+        if (!this.local_selected_catoken && !this.local_selected_ip) {
+            this.send({
+                'action': 'add-context',
+                'namespace': this.local_selected_namespace,
+                'token': this.local_selected_token,
+                'svcaccount': this.local_selected_svcaccount,
+                'context_name': this.local_selected_contextname,
+                'tab': this.selected_tab,
+                'cluster': this.current_cluster
+            });
+        } else {
+            var _send;
+
+            this.send((_send = {
+                'action': 'add-context-cluster',
+                'namespace': this.local_selected_namespace,
+                'token': this.local_selected_token,
+                'svcaccount': this.local_selected_svcaccount,
+                'catoken': this.local_selected_catoken,
+                'context_name': this.local_selected_contextname,
+                'tab': this.selected_tab,
+                'cluster_name': this.local_selected_svcaccount + "-cluster"
+            }, _defineProperty(_send, 'catoken', this.local_selected_catoken), _defineProperty(_send, 'ip', this.local_selected_ip), _send));
         }
-        this.send({
-            'action': 'add-context',
-            'namespace': this.local_selected_namespace,
-            'token': this.local_selected_token,
-            'svcaccount': this.local_selected_svcaccount,
-            'catoken': this.local_selected_catoken,
-            'context_name': this.local_selected_contextname,
-            'tab': this.selected_tab,
-            'cluster': this.current_cluster
-        });
     }
 };
 
@@ -687,7 +702,7 @@ module.exports = "<br> <div id=user_html_inputs class=select> <select id=select_
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Create new cluster</span> </label> <br><br> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <div id=other-settings> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Create new cluster</span> </label> <br><br> <div class=select> <select id=select_cluster_options class=select-text> </select> <span class=select-highlight></span> <span class=select-bar></span> <label class=select-label>Select Spark K8s cluster</label> </div> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> <p>Second tab content.</p> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
 
 /***/ }),
 /* 7 */

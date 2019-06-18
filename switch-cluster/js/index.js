@@ -324,9 +324,10 @@ SwitchCluster.prototype.get_html_create_context = function() {
     }
 
     var checkbox = html.find("#cluster-mode");
-
+    this.checkbox_status = "unchecked";
     checkbox.change(function() {
         if($(this).is(":checked")) {
+            this.checkbox_status = "checked";
             cluster_settings.find(".select").hide();
 
 
@@ -399,6 +400,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
         }
         else {
+            this.checkbox_status = "unchecked";
             cluster_settings.find("br").remove();
             cluster_settings.find("#ip_text_label").remove();
             cluster_settings.find("#ip_text").remove();
@@ -566,19 +568,31 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Selected cluster: " + this.current_cluster);
 
     if(this.selected_tab == "local") {
-        if(!this.local_selected_catoken) {
-            this.local_selected_catoken = ''
+        if(!this.local_selected_catoken && !this.local_selected_ip) {
+            this.send({
+                'action': 'add-context',
+                'namespace': this.local_selected_namespace,
+                'token': this.local_selected_token,
+                'svcaccount': this.local_selected_svcaccount,
+                'context_name': this.local_selected_contextname,
+                'tab': this.selected_tab,
+                'cluster': this.current_cluster,
+            });
         }
-        this.send({
-            'action': 'add-context',
-            'namespace': this.local_selected_namespace,
-            'token': this.local_selected_token,
-            'svcaccount': this.local_selected_svcaccount,
-            'catoken': this.local_selected_catoken,
-            'context_name': this.local_selected_contextname,
-            'tab': this.selected_tab,
-            'cluster': this.current_cluster
-        });
+        else {
+            this.send({
+                'action': 'add-context-cluster',
+                'namespace': this.local_selected_namespace,
+                'token': this.local_selected_token,
+                'svcaccount': this.local_selected_svcaccount,
+                'catoken': this.local_selected_catoken,
+                'context_name': this.local_selected_contextname,
+                'tab': this.selected_tab,
+                'cluster_name': this.local_selected_svcaccount + "-cluster",
+                'catoken': this.local_selected_catoken,
+                'ip': this.local_selected_ip
+            });
+        }
     }
 }
 
