@@ -37,8 +37,10 @@ class SwitchCluster:
         if action == 'Refresh':
             self.cluster_list()
         elif action == 'change-current-context':
-            context = msg['content']['data']['cluster']
-            self.log.info("Changed context for kubeconfig!")
+            context = msg['content']['data']['context']
+            # self.log.info("Changed context for kubeconfig!")
+
+
             self.log.info("Context from frontend: ", context)
 
             with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
@@ -46,8 +48,12 @@ class SwitchCluster:
 
             load['current-context'] = context
 
-            with io.open(os.environ['HOME'] + '/config', 'w', encoding='utf8') as out:
+            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                 yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
+
+            self.send({
+                'msgtype': 'changed-current-context'
+            })
         elif action == 'check-current-settings':
             cluster = msg['content']['data']['cluster']
             namespace = msg['content']['data']['namespace']

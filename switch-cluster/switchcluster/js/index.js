@@ -144,7 +144,7 @@ function SwitchCluster() {
             buttons: {
                 'Select Context': {
                     class: 'btn-danger size-100',
-                    click: _jquery2.default.proxy(this.back_to_config, this)
+                    click: _jquery2.default.proxy(this.select_context, this)
                 }
             }
         }
@@ -336,6 +336,14 @@ SwitchCluster.prototype.get_html_view_context = function () {
     (0, _jquery2.default)('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
 
     (0, _jquery2.default)('<h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
+};
+
+SwitchCluster.prototype.select_context = function () {
+    console.log("Selected cluster: " + this.current_context);
+    this.send({
+        'action': 'change-current-context',
+        'context': this.current_context
+    });
 };
 
 SwitchCluster.prototype.change_cluster = function () {
@@ -624,6 +632,9 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 
         footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
+    } else if (msg.content.data.msgtype == 'changed-current-context') {
+        this.hide_close = false;
+        this.modal.modal('hide');
     }
 };
 

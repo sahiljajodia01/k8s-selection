@@ -35,7 +35,7 @@ function SwitchCluster() {
             buttons: {
                 'Select Context': {
                     class: 'btn-danger size-100',
-                    click: $.proxy(this.back_to_config, this)
+                    click: $.proxy(this.select_context, this)
                 }
             }
         }
@@ -229,7 +229,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 SwitchCluster.prototype.get_html_view_context = function() {
     var html = this.modal.find('.modal-body');
-    var header = this.modal.find('.modal-header')
+    var header = this.modal.find('.modal-header');
     $('<h4 class="modal-title">Context: ' + this.current_context + '</h4>').appendTo(header);
 
     $("<button>")
@@ -250,6 +250,17 @@ SwitchCluster.prototype.get_html_view_context = function() {
     $('<h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 
 }
+
+
+SwitchCluster.prototype.select_context = function() {
+    console.log("Selected cluster: " + this.current_context);
+    this.send({
+        'action': 'change-current-context',
+        'context': this.current_context,
+    })
+}
+
+
 
 SwitchCluster.prototype.change_cluster = function() {
     console.log("Sending msg to kernel to change KUBECONFIG")
@@ -692,6 +703,10 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 
         footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
+    }
+    else if(msg.content.data.msgtype == 'changed-current-context') {
+        this.hide_close = false;
+        this.modal.modal('hide');
     }
 }
 
