@@ -448,3 +448,17 @@ button.back-button {
     border-color: transparent;
     background-color: currentColor;
 }
+
+
+
+.fab-button {
+    position: relative;
+    float: right;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 50%;
+    background-color: #03A9F4;
+    cursor: pointer;
+    box-shadow:0px 3px 3px #BDBDBD;
+    
+  }

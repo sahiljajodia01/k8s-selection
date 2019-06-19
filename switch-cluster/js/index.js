@@ -210,10 +210,14 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 
     
-    $('<button>')
-        .addClass('btn-blue')
-        .attr('id', 'select-button')
-        .text("Add Context")
+    // $('<button>')
+    //     .addClass('btn-blue')
+    //     .attr('id', 'select-button')
+    //     .text("Add Context")
+    //     .appendTo(html)
+    //     .on('click', $.proxy(this.switch_state, this, this.states.create));
+    $('<label for="select-button" style="position: relative; float: right;">Add new context</label><br><br>').appendTo(html);
+    $('<div class="fab-button" id="select-button">+</div><br><br><br>')
         .appendTo(html)
         .on('click', $.proxy(this.switch_state, this, this.states.create));
 
@@ -225,6 +229,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     //     .appendTo(footer)
     //     .on('click', $.proxy(this.change_cluster, this));
 }
+
 
 
 SwitchCluster.prototype.get_html_view_context = function() {
