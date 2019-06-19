@@ -410,6 +410,20 @@ SwitchCluster.prototype.get_html_create_context = function () {
 
             (0, _jquery2.default)('<br>').appendTo(cluster_settings);
 
+            (0, _jquery2.default)('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(cluster_settings);
+
+            if (that.local_selected_clustername) {
+                var clustername_input = (0, _jquery2.default)('<input/>').attr('name', 'clustername_text').attr('type', 'text').attr('id', 'clustername_text').attr('value', that.local_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(cluster_settings).focus().change(function () {
+                    that.local_selected_clustername = clustername_input.val();
+                });
+            } else {
+                var clustername_input = (0, _jquery2.default)('<input/>').attr('name', 'ipclustername_text_text').attr('type', 'text').attr('id', 'clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(cluster_settings).focus().change(function () {
+                    that.local_selected_clustername = clustername_input.val();
+                });
+            }
+
+            (0, _jquery2.default)('<br><br>').appendTo(cluster_settings);
+
             (0, _jquery2.default)('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(cluster_settings);
 
             if (that.local_selected_ip) {
@@ -438,6 +452,8 @@ SwitchCluster.prototype.get_html_create_context = function () {
         } else {
             this.checkbox_status = "unchecked";
             cluster_settings.find("br").remove();
+            cluster_settings.find("#clustername_text_label").remove();
+            cluster_settings.find("#clustername_text").remove();
             cluster_settings.find("#ip_text_label").remove();
             cluster_settings.find("#ip_text").remove();
             cluster_settings.find("#catoken_text_label").remove();
@@ -446,6 +462,20 @@ SwitchCluster.prototype.get_html_create_context = function () {
             cluster_settings.find(".select").show();
         }
     });
+
+    (0, _jquery2.default)('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
+
+    if (this.local_selected_contextname) {
+        var contextname_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('value', this.local_selected_contextname).attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_contextname = contextname_input.val();
+        });
+    } else {
+        var contextname_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
+            that.local_selected_contextname = contextname_input.val();
+        });
+    }
+
+    (0, _jquery2.default)('<br><br>').appendTo(tab1);
 
     (0, _jquery2.default)('<br><label for="namespace_text">Namespace</label><br>').appendTo(tab1);
 
@@ -484,20 +514,6 @@ SwitchCluster.prototype.get_html_create_context = function () {
     } else {
         var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus().change(function () {
             that.local_selected_token = token_input.val();
-        });
-    }
-
-    (0, _jquery2.default)('<br><br>').appendTo(tab1);
-
-    (0, _jquery2.default)('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
-
-    if (this.local_selected_contextname) {
-        var contextname_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('value', this.local_selected_contextname).attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.local_selected_contextname = contextname_input.val();
-        });
-    } else {
-        var contextname_input = (0, _jquery2.default)('<input/>').attr('name', 'contextname_text').attr('type', 'text').attr('id', 'contextname_text').attr('placeholder', 'Context Name').addClass('form__field').appendTo(tab1).focus().change(function () {
-            that.local_selected_contextname = contextname_input.val();
         });
     }
 
@@ -546,7 +562,7 @@ SwitchCluster.prototype.create_context = function () {
                 'catoken': this.local_selected_catoken,
                 'context_name': this.local_selected_contextname,
                 'tab': this.selected_tab,
-                'cluster_name': this.local_selected_svcaccount + "-cluster"
+                'cluster_name': this.local_selected_clustername
             }, _defineProperty(_send, 'catoken', this.local_selected_catoken), _defineProperty(_send, 'ip', this.local_selected_ip), _send));
         }
     }
