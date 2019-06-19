@@ -430,7 +430,6 @@ SwitchCluster.prototype.get_html_create_context = function() {
             }
 
 
-
         }
         else {
             this.checkbox_status = "unchecked";

@@ -221,6 +221,20 @@ class SwitchCluster:
                         error = e
                         self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
 
+                if error == '':
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                        load = yaml.safe_load(stream)
+
+                    load['clusters'].append({
+                        'cluster': {
+                            'certificate-authority-data': catoken,
+                            'server': ip
+                        },
+                        'name': cluster_name
+                    })
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
 
                 if error == '':
                     output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test5.sh', shell=True)
