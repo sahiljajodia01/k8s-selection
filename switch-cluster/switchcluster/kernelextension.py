@@ -167,9 +167,11 @@ class SwitchCluster:
             context_name = msg['content']['data']['context_name']
             cluster_name = msg['content']['data']['cluster_name']
             tab = msg['content']['data']['tab']
-            catoken = msg['content']['data']['catoken']
             ip = msg['content']['data']['ip']
+            insecure_server = msg['content']['data']['insecure_server']
 
+            if insecure_server == "false":
+                catoken = msg['content']['data']['catoken']
 
             if tab == 'local':
 
@@ -178,8 +180,11 @@ class SwitchCluster:
                 os.environ['CONTEXT_NAME'] = context_name
                 os.environ['CLUSTER_NAME'] = cluster_name
                 os.environ['NAMESPACE'] = namespace
-                os.environ['CATOKEN'] = catoken
                 os.environ['SERVER_IP'] = ip
+
+
+                if insecure_server == "false":
+                    os.environ['CATOKEN'] = catoken
 
                 error = ''
 
@@ -231,14 +236,23 @@ class SwitchCluster:
                 if error == '':
                     with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                         load = yaml.safe_load(stream)
-
-                    load['clusters'].append({
-                        'cluster': {
-                            'certificate-authority-data': catoken,
-                            'server': ip
-                        },
-                        'name': cluster_name
-                    })
+                    
+                    if insecure_server == "false":
+                        load['clusters'].append({
+                            'cluster': {
+                                'certificate-authority-data': catoken,
+                                'server': ip
+                            },
+                            'name': cluster_name
+                        })
+                    else:
+                        load['clusters'].append({
+                            'cluster': {
+                                'insecure-skip-tls-verify': True,
+                                'server': ip
+                            },
+                            'name': cluster_name
+                        })
 
                     with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                         yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
