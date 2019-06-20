@@ -670,6 +670,17 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 
         this.switch_state(this.states.view);
     } else if (msg.content.data.msgtype == 'added-context-successfully') {
+
+        this.local_selected_namespace = undefined;
+        this.local_selected_svcaccount = undefined;
+        this.local_selected_token = undefined;
+        this.local_selected_catoken = undefined;
+        this.local_selected_contextname = undefined;
+        this.selected_tab = undefined;
+        this.checkbox_status = undefined;
+        this.insecure_server = undefined;
+        this.local_selected_clustername = undefined;
+        this.local_selected_ip = undefined;
         console.log("Added context successfull");
         this.hide_close = false;
         this.refresh_modal();
