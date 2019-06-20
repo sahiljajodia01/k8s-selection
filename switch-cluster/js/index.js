@@ -216,8 +216,8 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     //     .text("Add Context")
     //     .appendTo(html)
     //     .on('click', $.proxy(this.switch_state, this, this.states.create));
-    $('<label for="select-button" style="position: relative; float: right;">Add new context</label><br><br>').appendTo(html);
-    $('<div class="fab-button" id="select-button">+</div><br><br><br>')
+    // $('<label for="select-button" style="position: relative; float: right;">Add new context</label><br><br>').appendTo(html);
+    $('<div class="fab-button" id="select-button"><i class="fa fa-plus"></i></div><br><br><br>')
         .appendTo(html)
         .on('click', $.proxy(this.switch_state, this, this.states.create));
 
@@ -456,7 +456,6 @@ SwitchCluster.prototype.get_html_create_context = function() {
             cluster_settings.find("#ip_text").remove();
             cluster_settings.find("#catoken_text_label").remove();
             cluster_settings.find("#catoken_text").remove();
-            $("<br>").appendTo(cluster_settings);
             cluster_settings.find(".select").show();
         }
     })
@@ -729,6 +728,7 @@ SwitchCluster.prototype.switch_state = function (new_state) {
         header.html('');
         body.html('');
         footer.html('');
+        // $('<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">').appendTo(header);
 
         $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
 

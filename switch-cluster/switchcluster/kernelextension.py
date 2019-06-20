@@ -10,6 +10,7 @@ import subprocess
 import time
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
+import base64
 
 
 class SwitchCluster:
@@ -83,8 +84,8 @@ class SwitchCluster:
             os.environ['SERVICE_ACCOUNT'] = user_name
 
             token = subprocess.check_output('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test3.sh', shell=True)
-
-            self.log.info("Token: ", token)
+            token = base64.b64decode(token)
+            self.log.info("Token: ", str(token))
 
             self.send({
                 'msgtype': 'context-info',
