@@ -329,96 +329,33 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     var cluster_settings = html.find("#cluster-settings");
     var tab1 = html.find("#other-settings");
-    var select1 = html.find(".select-text");
-    for(var i = 0; i < clusters.length; i++) {
-        if(clusters[i] == this.current_cluster) {
-            $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select1);
-        }
-        else {
-            $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
-        }
-    }
+    // var select1 = html.find(".select-text");
+    // for(var i = 0; i < clusters.length; i++) {
+    //     if(clusters[i] == this.current_cluster) {
+    //         $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select1);
+    //     }
+    //     else {
+    //         $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
+    //     }
+    // }
 
     var checkbox = html.find("#cluster-mode");
     this.checkbox_status = "unchecked";
     checkbox.change(function() {
         if($(this).is(":checked")) {
             that.checkbox_status = "checked";
-            cluster_settings.find(".select").hide();
+            tab1.find("#br1").remove();
+            tab1.find("#br2").remove();
+            tab1.find("#br3").remove();
+            tab1.find("#catoken_text_label").remove();
+            tab1.find("#catoken_text").remove();
 
+        }
+        else {
+            that.checkbox_status = "unchecked";
+            $('<br id="br1"><br id="br2">').appendTo(tab1);
 
-            $('<br><label class="pure-material-checkbox" id="insecure-checkbox"><input type="checkbox" id="insecure-mode"><span>Insecure</span></label>').appendTo(cluster_settings);
-
-
-            $('<br><br>').appendTo(cluster_settings);
-
-            $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(cluster_settings);
-            
-            if(that.local_selected_clustername) {
-                var clustername_input = $('<input/>')
-                    .attr('name', 'clustername_text')
-                    .attr('type', 'text')
-                    .attr("required", true)
-                    .attr('id', 'clustername_text')
-                    .attr('value', that.local_selected_clustername)
-                    .attr('placeholder', 'Cluster name')
-                    .addClass('form__field')
-                    .appendTo(cluster_settings)
-                    .change(function() {
-                        that.local_selected_clustername = clustername_input.val();
-                    });
-            }
-            else {
-                var clustername_input = $('<input/>')
-                    .attr('name', 'clustername_text')
-                    .attr('type', 'text')
-                    .attr("required", true)
-                    .attr('id', 'clustername_text')
-                    .attr('placeholder', 'Cluster name')
-                    .addClass('form__field')
-                    .appendTo(cluster_settings)
-                    .change(function() {
-                        that.local_selected_clustername = clustername_input.val();
-                    });
-            }
-
-
-            $('<br><br>').appendTo(cluster_settings);
-
-            $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(cluster_settings);
-            
-            if(that.local_selected_ip) {
-                var ip_input = $('<input/>')
-                    .attr('name', 'ip_text')
-                    .attr('type', 'text')
-                    .attr("required", true)
-                    .attr('id', 'ip_text')
-                    .attr('value', that.local_selected_ip)
-                    .attr('placeholder', 'CA Token')
-                    .addClass('form__field')
-                    .appendTo(cluster_settings)
-                    .change(function() {
-                        that.local_selected_ip = ip_input.val();
-                    });
-            }
-            else {
-                var ip_input = $('<input/>')
-                    .attr('name', 'ip_text')
-                    .attr('type', 'text')
-                    .attr("required", true)
-                    .attr('id', 'ip_text')
-                    .attr('placeholder', 'CA Token')
-                    .addClass('form__field')
-                    .appendTo(cluster_settings)
-                    .change(function() {
-                        that.local_selected_ip = ip_input.val();
-                    });
-            }
-
-
-            $('<br id="br1"><br id="br2">').appendTo(cluster_settings);
-
-            $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(cluster_settings);
+            $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
             
             if(that.local_selected_catoken) {
                 var catoken_input = $('<input/>')
@@ -429,7 +366,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
                     .attr('value', that.local_selected_catoken)
                     .attr('placeholder', 'CA Token (Base64)')
                     .addClass('form__field')
-                    .appendTo(cluster_settings)
+                    .appendTo(tab1)
                     .change(function() {
                         that.local_selected_catoken = catoken_input.val();
                     });
@@ -442,175 +379,78 @@ SwitchCluster.prototype.get_html_create_context = function() {
                     .attr('id', 'catoken_text')
                     .attr('placeholder', 'CA Token (Base64)')
                     .addClass('form__field')
-                    .appendTo(cluster_settings)
+                    .appendTo(tab1)
                     .change(function() {
                         that.local_selected_catoken = catoken_input.val();
                     });
             }
-
-
-
-            var insecure_checkbox = html.find("#insecure-mode");
-            that.insecure_server = false;
-            insecure_checkbox.change(function() {
-                if($(this).is(":checked")) {
-                    that.insecure_server = true;
-                    cluster_settings.find("#br1").remove();
-                    cluster_settings.find("#br2").remove();
-                    cluster_settings.find("#br3").remove();
-                    cluster_settings.find("#catoken_text_label").remove();
-                    cluster_settings.find("#catoken_text").remove();
-                }
-                else {
-                    that.insecure_server = false;
-                    $('<br id="br1"><br id="br2">').appendTo(cluster_settings);
-
-                    $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(cluster_settings);
-                    
-                    if(that.local_selected_catoken) {
-                        var catoken_input = $('<input/>')
-                            .attr('name', 'catoken_text')
-                            .attr('type', 'text')
-                            .attr("required", true)
-                            .attr('id', 'catoken_text')
-                            .attr('value', that.local_selected_catoken)
-                            .attr('placeholder', 'CA Token (Base64)')
-                            .addClass('form__field')
-                            .appendTo(cluster_settings)
-                            .change(function() {
-                                that.local_selected_catoken = catoken_input.val();
-                            });
-                    }
-                    else {
-                        var catoken_input = $('<input/>')
-                            .attr('name', 'catoken_text')
-                            .attr('type', 'text')
-                            .attr("required", true)
-                            .attr('id', 'catoken_text')
-                            .attr('placeholder', 'CA Token (Base64)')
-                            .addClass('form__field')
-                            .appendTo(cluster_settings)
-                            .change(function() {
-                                that.local_selected_catoken = catoken_input.val();
-                            });
-                    }
-
-                }
-            })
-
-
-        }
-        else {
-            that.checkbox_status = "unchecked";
-            cluster_settings.find("br").remove();
-            cluster_settings.find("#insecure-checkbox").remove();
-            cluster_settings.find("#clustername_text_label").remove();
-            cluster_settings.find("#clustername_text").remove();
-            cluster_settings.find("#ip_text_label").remove();
-            cluster_settings.find("#ip_text").remove();
-            cluster_settings.find("#catoken_text_label").remove();
-            cluster_settings.find("#catoken_text").remove();
-            cluster_settings.find(".select").show();
         }
     })
 
 
 
-    $('<label for="contextname_text">Context Name</label><br>').appendTo(tab1);
+    $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
     
-    if(this.local_selected_contextname) {
-        var contextname_input = $('<input/>')
-            .attr('name', 'contextname_text')
+    if(this.local_selected_clustername) {
+        var clustername_input = $('<input/>')
+            .attr('name', 'clustername_text')
             .attr('type', 'text')
             .attr("required", true)
-            .attr('id', 'contextname_text')
-            .attr('value', this.local_selected_contextname)
-            .attr('placeholder', 'Context Name')
+            .attr('id', 'clustername_text')
+            .attr('value', this.local_selected_clustername)
+            .attr('placeholder', 'Cluster name')
             .addClass('form__field')
             .appendTo(tab1)
             .change(function() {
-                that.local_selected_contextname = contextname_input.val();
+                that.local_selected_clustername = clustername_input.val();
             });
     }
     else {
-        var contextname_input = $('<input/>')
-            .attr('name', 'contextname_text')
+        var clustername_input = $('<input/>')
+            .attr('name', 'clustername_text')
             .attr('type', 'text')
             .attr("required", true)
-            .attr('id', 'contextname_text')
-            .attr('placeholder', 'Context Name')
+            .attr('id', 'clustername_text')
+            .attr('placeholder', 'Cluster name')
             .addClass('form__field')
             .appendTo(tab1)
             .change(function() {
-                that.local_selected_contextname = contextname_input.val();
+                that.local_selected_clustername = clustername_input.val();
             });
     }
 
     $('<br><br>').appendTo(tab1);
 
-    $('<br><label for="namespace_text">Namespace</label><br>').appendTo(tab1);
-
-    if(this.local_selected_namespace) {
-        var namespace_input = $('<input/>')
-            .attr('name', 'namespace_text')
+    $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab1);
+    
+    if(this.local_selected_ip) {
+        var ip_input = $('<input/>')
+            .attr('name', 'ip_text')
             .attr('type', 'text')
             .attr("required", true)
-            .attr('id', 'namespace_text')
-            .attr('value', this.local_selected_namespace)
-            .attr('placeholder', 'Namespace')
+            .attr('id', 'ip_text')
+            .attr('value', this.local_selected_ip)
+            .attr('placeholder', 'CA Token')
             .addClass('form__field')
             .appendTo(tab1)
             .change(function() {
-                that.local_selected_namespace = namespace_input.val();
+                that.local_selected_ip = ip_input.val();
             });
     }
     else {
-        var namespace_input = $('<input/>')
-            .attr('name', 'namespace_text')
+        var ip_input = $('<input/>')
+            .attr('name', 'ip_text')
             .attr('type', 'text')
             .attr("required", true)
-            .attr('id', 'namespace_text')
-            .attr('placeholder', 'Namespace')
+            .attr('id', 'ip_text')
+            .attr('placeholder', 'CA Token')
             .addClass('form__field')
             .appendTo(tab1)
             .change(function() {
-                that.local_selected_namespace = namespace_input.val();
+                that.local_selected_ip = ip_input.val();
             });
     }
     
-    
-    $('<br><br>').appendTo(tab1);
-
-    $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(tab1);
-    
-    if(this.local_selected_svcaccount) {
-        var svcaccount_input = $('<input/>')
-            .attr('name', 'svcaccount_text')
-            .attr('type', 'text')
-            .attr("required", true)
-            .attr('id', 'svcaccount_text')
-            .attr('value', this.local_selected_svcaccount)
-            .attr('placeholder', 'ServiceAccount')
-            .addClass('form__field')
-            .appendTo(tab1)
-            .change(function() {
-                that.local_selected_svcaccount = svcaccount_input.val();
-            });
-    }
-    else {
-        var svcaccount_input = $('<input/>')
-            .attr('name', 'svcaccount_text')
-            .attr('type', 'text')
-            .attr("required", true)
-            .attr('id', 'svcaccount_text')
-            .attr('placeholder', 'ServiceAccount')
-            .addClass('form__field')
-            .appendTo(tab1)
-            .change(function() {
-                that.local_selected_svcaccount = svcaccount_input.val();
-            });
-    }
-
 
     $('<br><br>').appendTo(tab1);
 
@@ -645,11 +485,43 @@ SwitchCluster.prototype.get_html_create_context = function() {
     }
 
 
-    select1.change(function() {
-        that.current_cluster = $(this).children("option:selected").val();
-    });
-}
 
+    $('<br id="br1"><br id="br2">').appendTo(tab1);
+
+    $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
+    
+    if(this.local_selected_catoken) {
+        var catoken_input = $('<input/>')
+            .attr('name', 'catoken_text')
+            .attr('type', 'text')
+            .attr("required", true)
+            .attr('id', 'catoken_text')
+            .attr('value', this.local_selected_catoken)
+            .attr('placeholder', 'CA Token (Base64)')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .change(function() {
+                that.local_selected_catoken = catoken_input.val();
+            });
+    }
+    else {
+        var catoken_input = $('<input/>')
+            .attr('name', 'catoken_text')
+            .attr('type', 'text')
+            .attr("required", true)
+            .attr('id', 'catoken_text')
+            .attr('placeholder', 'CA Token (Base64)')
+            .addClass('form__field')
+            .appendTo(tab1)
+            .change(function() {
+                that.local_selected_catoken = catoken_input.val();
+            });
+    }
+
+    // select1.change(function() {
+    //     that.current_cluster = $(this).children("option:selected").val();
+    // });
+}
 
 SwitchCluster.prototype.create_context = function() {
     var header = this.modal.find('.modal-header');
@@ -667,53 +539,35 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Selected catoken: " + this.local_selected_catoken);
     console.log("Selected context name: " + this.local_selected_contextname);
     console.log("Selected tab: " + this.selected_tab);
-    console.log("Selected cluster: " + this.current_cluster);
+    // console.log("Selected cluster: " + this.current_cluster);
     console.log("Create new cluster: ", this.checkbox_status);
-    console.log("Insecure server: ", this.insecure_server);
+    // console.log("Insecure server: ", this.insecure_server);
 
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             this.send({
-                'action': 'add-context',
+                'action': 'add-context-cluster',
                 'namespace': this.local_selected_namespace,
                 'token': this.local_selected_token,
                 'svcaccount': this.local_selected_svcaccount,
                 'context_name': this.local_selected_contextname,
                 'tab': this.selected_tab,
-                'cluster': this.current_cluster,
+                'catoken': this.local_selected_catoken,
+                'cluster_name': this.local_selected_clustername,
+                'ip': this.local_selected_ip,
             });
         }
         else {
-
-            if(this.insecure_server == true) {
-                this.send({
-                    'action': 'add-context-cluster',
-                    'namespace': this.local_selected_namespace,
-                    'token': this.local_selected_token,
-                    'svcaccount': this.local_selected_svcaccount,
-                    'catoken': this.local_selected_catoken,
-                    'context_name': this.local_selected_contextname,
-                    'tab': this.selected_tab,
-                    'cluster_name': this.local_selected_clustername,
-                    'ip': this.local_selected_ip,
-                    'insecure_server': "true"
-                });
-            }
-            else {
-                this.send({
-                    'action': 'add-context-cluster',
-                    'namespace': this.local_selected_namespace,
-                    'token': this.local_selected_token,
-                    'svcaccount': this.local_selected_svcaccount,
-                    'catoken': this.local_selected_catoken,
-                    'context_name': this.local_selected_contextname,
-                    'tab': this.selected_tab,
-                    'cluster_name': this.local_selected_clustername,
-                    'catoken': this.local_selected_catoken,
-                    'ip': this.local_selected_ip,
-                    'insecure_server': "false"
-                });
-            }
+            this.send({
+                'action': 'add-context-cluster',
+                'namespace': this.local_selected_namespace,
+                'token': this.local_selected_token,
+                'svcaccount': this.local_selected_svcaccount,
+                'context_name': this.local_selected_contextname,
+                'tab': this.selected_tab,
+                'cluster_name': this.local_selected_clustername,
+                'ip': this.local_selected_ip,
+            });
         }
     }
 }
