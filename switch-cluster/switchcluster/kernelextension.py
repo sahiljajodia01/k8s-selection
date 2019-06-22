@@ -273,6 +273,12 @@ class SwitchCluster:
                     'msgtype': 'added-context-unsuccessfully',
                     'error': error
                     })
+        elif action == "show-error":
+            error = "Please fill all the required fields."
+            self.send({
+                'msgtype': 'added-context-unsuccessfully',
+                'error': error
+            })
 
 
     def register_comm(self):

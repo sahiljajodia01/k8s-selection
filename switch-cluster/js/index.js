@@ -531,6 +531,26 @@ SwitchCluster.prototype.create_context = function() {
     var error_div = html.find('#setting-error');
     error_div.remove();
 
+
+    if(this.checkbox_status == "unchecked") {
+        if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
+            this.send({
+                'action': 'show-error',
+            })
+            return;
+        }
+    }
+    else {
+        if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
+            this.send({
+                'action': 'show-error',
+            })
+            return;
+        }
+    }
+    // var form = html.find("#local-form");
+    // form.submit();
+
     footer.find('#select-button').attr('disabled', true);
     header.find('.close').hide();
 
