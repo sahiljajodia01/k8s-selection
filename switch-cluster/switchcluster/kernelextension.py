@@ -205,33 +205,33 @@ class SwitchCluster:
                     error = error + ' Cluster \'{}\' already exist.'.format(cluster_name)
 
 
-                if error == '':
-                    if context_name in contexts:
-                        error = error + ' Context \'{}\' already exist.'.format(context_name)
+                # if error == '':
+                #     if context_name in contexts:
+                #         error = error + ' Context \'{}\' already exist.'.format(context_name)
                 
-                if error == '':
-                    try:
-                        api_response = api_instance.list_namespace()
-                        namespace_names = [i.metadata.name for i in api_response.items]
+                # if error == '':
+                #     try:
+                #         api_response = api_instance.list_namespace()
+                #         namespace_names = [i.metadata.name for i in api_response.items]
 
-                        if namespace not in namespace_names:
-                            error = error + ' Namespace \'{}\' does not exist.'.format(namespace)
+                #         if namespace not in namespace_names:
+                #             error = error + ' Namespace \'{}\' does not exist.'.format(namespace)
 
-                    except ApiException as e:
-                        error = e
-                        self.log.info("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+                #     except ApiException as e:
+                #         error = e
+                #         self.log.info("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
                 
                 
-                if error == '':
-                    try:
-                        api_response = api_instance.list_namespaced_service_account(namespace=namespace)
-                        svcaccount_names = [i.metadata.name for i in api_response.items]
+                # if error == '':
+                #     try:
+                #         api_response = api_instance.list_namespaced_service_account(namespace=namespace)
+                #         svcaccount_names = [i.metadata.name for i in api_response.items]
                         
-                        if svcaccount not in svcaccount_names:
-                            error = error + ' Service account \'{}\' does not exist.'.format(svcaccount)
-                    except ApiException as e:
-                        error = e
-                        self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
+                #         if svcaccount not in svcaccount_names:
+                #             error = error + ' Service account \'{}\' does not exist.'.format(svcaccount)
+                #     except ApiException as e:
+                #         error = e
+                #         self.log.info("Exception when calling CoreV1Api->list_namespace: %s\n" % e)
 
                 if error == '':
                     with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
@@ -261,7 +261,7 @@ class SwitchCluster:
                     output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test5.sh', shell=True)
                     self.log.info("output: ", output)
                     if output != 0:
-                        error = 'You cannot use these settings. Please contact your admin'
+                        error = 'There is some error. You cannot use these settings. Please contact your admin'
 
 
                 if error == '':

@@ -233,6 +233,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 
 SwitchCluster.prototype.get_html_view_context = function() {
+    console.log("Inside view modal!!");
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
     $('<h4 class="modal-title">Context: ' + this.current_context + '</h4>').appendTo(header);
@@ -361,7 +362,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
                 var catoken_input = $('<input/>')
                     .attr('name', 'catoken_text')
                     .attr('type', 'text')
-                    .attr("required", true)
+                    .attr("required", "required")
                     .attr('id', 'catoken_text')
                     .attr('value', that.local_selected_catoken)
                     .attr('placeholder', 'CA Token (Base64)')
@@ -375,7 +376,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
                 var catoken_input = $('<input/>')
                     .attr('name', 'catoken_text')
                     .attr('type', 'text')
-                    .attr("required", true)
+                    .attr("required", "required")
                     .attr('id', 'catoken_text')
                     .attr('placeholder', 'CA Token (Base64)')
                     .addClass('form__field')
@@ -392,10 +393,10 @@ SwitchCluster.prototype.get_html_create_context = function() {
     $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
     
     if(this.local_selected_clustername) {
-        var clustername_input = $('<input/>')
+        var clustername_input = $('<input required/>')
             .attr('name', 'clustername_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'clustername_text')
             .attr('value', this.local_selected_clustername)
             .attr('placeholder', 'Cluster name')
@@ -406,10 +407,10 @@ SwitchCluster.prototype.get_html_create_context = function() {
             });
     }
     else {
-        var clustername_input = $('<input/>')
+        var clustername_input = $('<input required/>')
             .attr('name', 'clustername_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'clustername_text')
             .attr('placeholder', 'Cluster name')
             .addClass('form__field')
@@ -427,7 +428,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
         var ip_input = $('<input/>')
             .attr('name', 'ip_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'ip_text')
             .attr('value', this.local_selected_ip)
             .attr('placeholder', 'CA Token')
@@ -441,7 +442,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
         var ip_input = $('<input/>')
             .attr('name', 'ip_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'ip_text')
             .attr('placeholder', 'CA Token')
             .addClass('form__field')
@@ -460,7 +461,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
         var token_input = $('<input/>')
             .attr('name', 'token_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'token_text')
             .attr('value', this.local_selected_token)
             .attr('placeholder', 'Token')
@@ -474,7 +475,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
         var token_input = $('<input/>')
             .attr('name', 'token_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'token_text')
             .attr('placeholder', 'Token')
             .addClass('form__field')
@@ -494,7 +495,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
         var catoken_input = $('<input/>')
             .attr('name', 'catoken_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'catoken_text')
             .attr('value', this.local_selected_catoken)
             .attr('placeholder', 'CA Token (Base64)')
@@ -508,7 +509,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
         var catoken_input = $('<input/>')
             .attr('name', 'catoken_text')
             .attr('type', 'text')
-            .attr("required", true)
+            .attr("required", "required")
             .attr('id', 'catoken_text')
             .attr('placeholder', 'CA Token (Base64)')
             .addClass('form__field')
@@ -533,6 +534,11 @@ SwitchCluster.prototype.create_context = function() {
     footer.find('#select-button').attr('disabled', true);
     header.find('.close').hide();
 
+
+    this.local_selected_namespace = "sahil";
+    this.local_selected_svcaccount = "sahil";
+    this.local_selected_contextname = this.local_selected_clustername + "-" + this.local_selected_namespace + "-" + this.local_selected_svcaccount + "-context";
+
     console.log("Selected namespace: " + this.local_selected_namespace);
     console.log("Selected serviceaccount: " + this.local_selected_svcaccount);
     console.log("Selected token: " + this.local_selected_token);
@@ -555,6 +561,7 @@ SwitchCluster.prototype.create_context = function() {
                 'catoken': this.local_selected_catoken,
                 'cluster_name': this.local_selected_clustername,
                 'ip': this.local_selected_ip,
+                'insecure_server': "false"
             });
         }
         else {
@@ -567,6 +574,7 @@ SwitchCluster.prototype.create_context = function() {
                 'tab': this.selected_tab,
                 'cluster_name': this.local_selected_clustername,
                 'ip': this.local_selected_ip,
+                'insecure_server': "true"
             });
         }
     }
