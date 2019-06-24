@@ -161,14 +161,14 @@ class SwitchCluster:
                     'error': error
                     })
         elif action == 'add-context-cluster':
-            namespace = msg['content']['data']['namespace']
+            namespace = "sahil"
             token = msg['content']['data']['token']
-            svcaccount = msg['content']['data']['svcaccount']
-            context_name = msg['content']['data']['context_name']
+            svcaccount = "sahil"
             cluster_name = msg['content']['data']['cluster_name']
             tab = msg['content']['data']['tab']
             ip = msg['content']['data']['ip']
             insecure_server = msg['content']['data']['insecure_server']
+            context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
 
             if insecure_server == "false":
                 catoken = msg['content']['data']['catoken']

@@ -555,28 +555,25 @@ SwitchCluster.prototype.create_context = function() {
     header.find('.close').hide();
 
 
-    this.local_selected_namespace = "sahil";
-    this.local_selected_svcaccount = "sahil";
-    this.local_selected_contextname = this.local_selected_clustername + "-" + this.local_selected_namespace + "-" + this.local_selected_svcaccount + "-context";
+    // this.local_selected_namespace = "sahil";
+    // this.local_selected_svcaccount = "sahil";
+    // this.local_selected_contextname = this.local_selected_clustername + "-" + this.local_selected_namespace + "-" + this.local_selected_svcaccount + "-context";
 
-    console.log("Selected namespace: " + this.local_selected_namespace);
-    console.log("Selected serviceaccount: " + this.local_selected_svcaccount);
+    // console.log("Selected namespace: " + this.local_selected_namespace);
+    // console.log("Selected serviceaccount: " + this.local_selected_svcaccount);
     console.log("Selected token: " + this.local_selected_token);
     console.log("Selected catoken: " + this.local_selected_catoken);
-    console.log("Selected context name: " + this.local_selected_contextname);
+    // console.log("Selected context name: " + this.local_selected_contextname);
     console.log("Selected tab: " + this.selected_tab);
     // console.log("Selected cluster: " + this.current_cluster);
-    console.log("Create new cluster: ", this.checkbox_status);
+    console.log("Insecure server: ", this.checkbox_status);
     // console.log("Insecure server: ", this.insecure_server);
 
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             this.send({
                 'action': 'add-context-cluster',
-                'namespace': this.local_selected_namespace,
                 'token': this.local_selected_token,
-                'svcaccount': this.local_selected_svcaccount,
-                'context_name': this.local_selected_contextname,
                 'tab': this.selected_tab,
                 'catoken': this.local_selected_catoken,
                 'cluster_name': this.local_selected_clustername,
@@ -587,10 +584,7 @@ SwitchCluster.prototype.create_context = function() {
         else {
             this.send({
                 'action': 'add-context-cluster',
-                'namespace': this.local_selected_namespace,
                 'token': this.local_selected_token,
-                'svcaccount': this.local_selected_svcaccount,
-                'context_name': this.local_selected_contextname,
                 'tab': this.selected_tab,
                 'cluster_name': this.local_selected_clustername,
                 'ip': this.local_selected_ip,
