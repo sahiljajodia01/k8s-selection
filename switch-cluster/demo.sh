@@ -4,7 +4,7 @@
 make
 # printf "c.InteractiveShellApp.extensions.append('switchcluster.kernelextension')\n" > /Users/sahiljajodia/.ipython/profile_default/ipython_kernel_config.py
 pip3 install .
-# pip install .
+pip install .
 jupyter nbextension install --py switchcluster
 # jupyter serverextension enable --py switchcluster
 # jupyter nbextension enable --py switchcluster

@@ -121,9 +121,9 @@ function SwitchCluster() {
         select: {
             get_html: _jquery2.default.proxy(this.get_html_select_cluster, this),
             buttons: {
-                'View Context': {
+                'Select Context': {
                     class: 'btn-success size-100 auth-button',
-                    click: _jquery2.default.proxy(this.change_cluster, this)
+                    click: _jquery2.default.proxy(this.select_context, this)
                 }
             }
         },
@@ -731,7 +731,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = "<br> <div id=user_html_inputs class=select> <label for=select_cluster_options style=font-size:15px>Select Spark K8s cluster</label> <br> <div style=display:flex;margin:0> <select id=select_cluster_options class=select-text> </select> <button class=btn-blue id=view-context-btn style=margin-left:0>View</button> </div> <span class=select-highlight></span> <span class=select-bar></span> </div>";
+module.exports = "<br> <div id=user_html_inputs class=select> <label for=select_cluster_options style=font-size:15px>Select KUEBCONFIG context</label> <br> <div style=display:flex;margin:0> <select id=select_cluster_options class=select-text> </select> <button class=btn-blue id=view-context-btn style=margin-left:0>View</button> </div> <span class=select-highlight></span> <span class=select-bar></span> </div>";
 
 /***/ }),
 /* 6 */

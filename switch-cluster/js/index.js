@@ -14,9 +14,9 @@ function SwitchCluster() {
         select: {
             get_html: $.proxy(this.get_html_select_cluster, this),
             buttons: {
-                'View Context': {
+                'Select Context': {
                     class: 'btn-success size-100 auth-button',
-                    click: $.proxy(this.change_cluster, this)
+                    click: $.proxy(this.select_context, this)
                 }
             }
         },

@@ -50,7 +50,7 @@ class SwitchCluster:
             load['current-context'] = context
 
             with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
+                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
             self.send({
                 'msgtype': 'changed-current-context'
@@ -255,7 +255,7 @@ class SwitchCluster:
                         })
 
                     with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                        yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
                 if error == '':
                     output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test5.sh', shell=True)
