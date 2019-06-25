@@ -209,7 +209,9 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     });
 
 
-    
+    var view_btn = html.find("#view-context-btn");
+    view_btn.on('click', $.proxy(this.change_cluster, this));
+
     // $('<button>')
     //     .addClass('btn-blue')
     //     .attr('id', 'select-button')

@@ -39,13 +39,13 @@
     font-family:
       'Roboto','Helvetica','Arial',sans-serif;
       position: relative;
-      /* width: 350px; */
+      width: 410px;
       margin-top: 15px;
-      /* margin: auto; */
+      margin: auto;
   }
   
   .select-text {
-      position: relative;
+      position: flex;
       font-family: inherit;
       background-color: transparent;
       width: 350px;
@@ -70,8 +70,8 @@
   
   .select:after {
       position: absolute;
-      top: 18px;
-      right: 330px;
+      top: 45px;
+      right: 75px;
       /* Styling the down arrow */
       width: 0;
       height: 0;
