@@ -590,36 +590,35 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     $('<br><br>').appendTo(tab2);
 
-    $('<label for="openstack_token_text" id="openstack_token_text_label">Token</label><br>').appendTo(tab2);
+    $('<label for="openstack_ostoken_text" id="openstack_ostoken_text_label">OS Token</label><br>').appendTo(tab2);
     
-    if(this.openstack_selected_token) {
-        var openstack_token_input = $('<input/>')
-            .attr('name', 'openstack_token_text')
+    if(this.openstack_selected_ostoken) {
+        var openstack_ostoken_input = $('<input/>')
+            .attr('name', 'openstack_ostoken_text')
             .attr('type', 'text')
             .attr("required", "required")
-            .attr('id', 'openstack_token_text')
-            .attr('value', this.openstack_selected_token)
-            .attr('placeholder', 'Token')
+            .attr('id', 'openstack_ostoken_text')
+            .attr('value', this.openstack_selected_ostoken)
+            .attr('placeholder', 'OS Token')
             .addClass('form__field')
             .appendTo(tab2)
             .change(function() {
-                that.openstack_selected_token = openstack_token_input.val();
+                that.openstack_selected_ostoken = openstack_ostoken_input.val();
             });
     }
     else {
-        var openstack_token_input = $('<input/>')
-            .attr('name', 'openstack_token_text')
+        var openstack_ostoken_input = $('<input/>')
+            .attr('name', 'openstack_ostoken_text')
             .attr('type', 'text')
             .attr("required", "required")
-            .attr('id', 'openstack_token_text')
-            .attr('placeholder', 'Token')
+            .attr('id', 'openstack_ostoken_text')
+            .attr('placeholder', 'OS Token')
             .addClass('form__field')
             .appendTo(tab2)
             .change(function() {
-                that.openstack_selected_token = openstack_token_input.val();
+                that.openstack_selected_ostoken = openstack_ostoken_input.val();
             });
     }
-
 
 
     $('<br><br>').appendTo(tab2);
@@ -668,17 +667,26 @@ SwitchCluster.prototype.create_context = function() {
     var error_div = html.find('#setting-error');
     error_div.remove();
 
-
-    if(this.checkbox_status == "unchecked") {
-        if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
-            this.send({
-                'action': 'show-error',
-            })
-            return;
+    if(this.selected_tab == "local") {
+        if(this.checkbox_status == "unchecked") {
+            if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
+                this.send({
+                    'action': 'show-error',
+                })
+                return;
+            }
+        }
+        else {
+            if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
+                this.send({
+                    'action': 'show-error',
+                })
+                return;
+            }
         }
     }
-    else {
-        if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
+    else if(this.selected_tab == "openstack") {
+        if(!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip || !this.openstack_selected_ostoken) {
             this.send({
                 'action': 'show-error',
             })
@@ -706,6 +714,11 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Insecure server: ", this.checkbox_status);
     // console.log("Insecure server: ", this.insecure_server);
 
+    console.log("Selected openstack os token: ", this.openstack_selected_ostoken);
+    console.log("Selected openstack cluster: ", this.openstack_selected_clustername);
+    console.log("Selected openstack server ip: ", this.openstack_selected_ip);
+    console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
+
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             this.send({
@@ -728,6 +741,16 @@ SwitchCluster.prototype.create_context = function() {
                 'insecure_server': "true"
             });
         }
+    }
+    else if(this.selected_tab == "openstack") {
+        this.send({
+            'action': 'add-context-cluster',
+            'ostoken': this.openstack_selected_ostoken,
+            'tab': this.selected_tab,
+            'catoken': this.openstack_selected_catoken,
+            'cluster_name': this.openstack_selected_clustername,
+            'ip': this.openstack_selected_ip
+        });
     }
 }
 

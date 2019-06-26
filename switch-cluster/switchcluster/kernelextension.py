@@ -284,6 +284,8 @@ class SwitchCluster:
                     'msgtype': 'added-context-unsuccessfully',
                     'error': error
                     })
+            elif tab == 'openstack':
+                user_exec_command = {'exec': {'args': ['-c', 'if [ -z ${OS_TOKEN} ]; then\n    echo \'Error: Missing OpenStack credential from environment variable $OS_TOKEN\' > /dev/stderr\n    exit 1\nelse\n    echo \'{ "apiVersion": "client.authentication.k8s.io/v1alpha1", "kind": "ExecCredential", "status": { "token": "\'"${OS_TOKEN}"\'"}}\'\nfi\n'], 'command': '/bin/bash', 'apiVersion': 'client.authentication.k8s.io/v1alpha1'}}
         elif action == "show-error":
             error = "Please fill all the required fields."
             self.send({
