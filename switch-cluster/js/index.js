@@ -255,7 +255,7 @@ SwitchCluster.prototype.get_html_view_context = function() {
     
     $('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
 
-    $('<h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
+    $('<div class="content"><h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 
 }
 
@@ -303,7 +303,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
-    $('<h4 class="modal-title">Add new context</h4>').appendTo(header);
+    $('<h4 class="modal-title">Add new cluster & context</h4>').appendTo(header);
 
     $("<button>")
     .addClass("back-button")
@@ -329,9 +329,10 @@ SwitchCluster.prototype.get_html_create_context = function() {
         that.selected_tab = $(".active").html();
     })
 
+    var tab1 = html.find("#tab1");
+    var tab1 = tab1.find("#other-settings");
 
-    var cluster_settings = html.find("#cluster-settings");
-    var tab1 = html.find("#other-settings");
+    var tab2 = html.find("#tab2");
     // var select1 = html.find(".select-text");
     // for(var i = 0; i < clusters.length; i++) {
     //     if(clusters[i] == this.current_cluster) {
@@ -433,7 +434,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
             .attr("required", "required")
             .attr('id', 'ip_text')
             .attr('value', this.local_selected_ip)
-            .attr('placeholder', 'CA Token')
+            .attr('placeholder', 'Server IP')
             .addClass('form__field')
             .appendTo(tab1)
             .change(function() {
@@ -446,7 +447,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
             .attr('type', 'text')
             .attr("required", "required")
             .attr('id', 'ip_text')
-            .attr('placeholder', 'CA Token')
+            .attr('placeholder', 'Server IP')
             .addClass('form__field')
             .appendTo(tab1)
             .change(function() {
@@ -457,7 +458,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
     $('<br><br>').appendTo(tab1);
 
-    $('<label for="token_text">Token</label><br>').appendTo(tab1);
+    $('<label for="token_text" id="token_text_label">Token</label><br>').appendTo(tab1);
     
     if(this.local_selected_token) {
         var token_input = $('<input/>')
@@ -520,6 +521,140 @@ SwitchCluster.prototype.get_html_create_context = function() {
                 that.local_selected_catoken = catoken_input.val();
             });
     }
+
+
+
+
+    $('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
+    
+    if(this.openstack_selected_clustername) {
+        var openstack_clustername_input = $('<input required/>')
+            .attr('name', 'openstack_clustername_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_clustername_text')
+            .attr('value', this.openstack_selected_clustername)
+            .attr('placeholder', 'Cluster name')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_clustername = openstack_clustername_input.val();
+            });
+    }
+    else {
+        var openstack_clustername_input = $('<input required/>')
+            .attr('name', 'openstack_clustername_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_clustername_text')
+            .attr('placeholder', 'Cluster name')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_clustername = openstack_clustername_input.val();
+            });
+    }
+
+    $('<br><br>').appendTo(tab2);
+
+    $('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab2);
+    
+    if(this.openstack_selected_ip) {
+        var openstack_ip_input = $('<input/>')
+            .attr('name', 'openstack_ip_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_ip_text')
+            .attr('value', this.openstack_selected_ip)
+            .attr('placeholder', 'Server IP')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_ip = openstack_ip_input.val();
+            });
+    }
+    else {
+        var openstack_ip_input = $('<input/>')
+            .attr('name', 'openstack_ip_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_ip_text')
+            .attr('placeholder', 'Server IP')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_ip = openstack_ip_input.val();
+            });
+    }
+    
+
+    $('<br><br>').appendTo(tab2);
+
+    $('<label for="openstack_token_text" id="openstack_token_text_label">Token</label><br>').appendTo(tab2);
+    
+    if(this.openstack_selected_token) {
+        var openstack_token_input = $('<input/>')
+            .attr('name', 'openstack_token_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_token_text')
+            .attr('value', this.openstack_selected_token)
+            .attr('placeholder', 'Token')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_token = openstack_token_input.val();
+            });
+    }
+    else {
+        var openstack_token_input = $('<input/>')
+            .attr('name', 'openstack_token_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_token_text')
+            .attr('placeholder', 'Token')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_token = openstack_token_input.val();
+            });
+    }
+
+
+
+    $('<br><br>').appendTo(tab2);
+
+    $('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab2);
+    
+    if(this.openstack_selected_catoken) {
+        var openstack_catoken_input = $('<input/>')
+            .attr('name', 'openstack_catoken_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_catoken_text')
+            .attr('value', this.openstack_selected_catoken)
+            .attr('placeholder', 'CA Token (Base64)')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_catoken = openstack_catoken_input.val();
+            });
+    }
+    else {
+        var openstack_catoken_input = $('<input/>')
+            .attr('name', 'openstack_catoken_text')
+            .attr('type', 'text')
+            .attr("required", "required")
+            .attr('id', 'openstack_catoken_text')
+            .attr('placeholder', 'CA Token (Base64)')
+            .addClass('form__field')
+            .appendTo(tab2)
+            .change(function() {
+                that.openstack_selected_catoken = openstack_catoken_input.val();
+            });
+    }
+
+
 
     // select1.change(function() {
     //     that.current_cluster = $(this).children("option:selected").val();
