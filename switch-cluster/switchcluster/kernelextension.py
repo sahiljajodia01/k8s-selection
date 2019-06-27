@@ -161,19 +161,23 @@ class SwitchCluster:
                     'error': error
                     })
         elif action == 'add-context-cluster':
-            namespace = "sahil"
-            token = msg['content']['data']['token']
-            svcaccount = "sahil"
-            cluster_name = msg['content']['data']['cluster_name']
+            
             tab = msg['content']['data']['tab']
-            ip = msg['content']['data']['ip']
-            insecure_server = msg['content']['data']['insecure_server']
-            context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
-
-            if insecure_server == "false":
-                catoken = msg['content']['data']['catoken']
 
             if tab == 'local':
+
+                token = msg['content']['data']['token']
+                cluster_name = msg['content']['data']['cluster_name']
+                insecure_server = msg['content']['data']['insecure_server']
+                ip = msg['content']['data']['ip']
+                namespace = "sahil"
+                svcaccount = "sahil"
+                context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
+
+
+                if insecure_server == "false":
+                    catoken = msg['content']['data']['catoken']
+
 
                 os.environ['SERVICE_ACCOUNT'] = svcaccount
                 os.environ['TOKEN'] = token
@@ -285,7 +289,62 @@ class SwitchCluster:
                     'error': error
                     })
             elif tab == 'openstack':
-                user_exec_command = {'exec': {'args': ['-c', 'if [ -z ${OS_TOKEN} ]; then\n    echo \'Error: Missing OpenStack credential from environment variable $OS_TOKEN\' > /dev/stderr\n    exit 1\nelse\n    echo \'{ "apiVersion": "client.authentication.k8s.io/v1alpha1", "kind": "ExecCredential", "status": { "token": "\'"${OS_TOKEN}"\'"}}\'\nfi\n'], 'command': '/bin/bash', 'apiVersion': 'client.authentication.k8s.io/v1alpha1'}}
+                ostoken = msg['content']['data']['ostoken']
+                cluster_name = msg['content']['data']['cluster_name']
+                ip = msg['content']['data']['ip']
+                catoken = msg['content']['data']['catoken']
+                namespace = "sahil"
+                svcaccount = "sahil"
+                context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
+
+                error = ''
+
+                with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                    load = yaml.safe_load(stream)
+                clusters = []
+                for i in load['clusters']:
+                    clusters.append(i['name'])
+
+                if cluster_name in clusters:
+                    error = error + ' Cluster \'{}\' already exist.'.format(cluster_name)
+
+                if error == '':
+                    user_exec_command = {'exec': {'args': ['-c', 'if [ -z ${OS_TOKEN} ]; then\n    echo \'Error: Missing OpenStack credential from environment variable $OS_TOKEN\' > /dev/stderr\n    exit 1\nelse\n    echo \'{ "apiVersion": "client.authentication.k8s.io/v1alpha1", "kind": "ExecCredential", "status": { "token": "\'"${OS_TOKEN}"\'"}}\'\nfi\n'], 'command': '/bin/bash', 'apiVersion': 'client.authentication.k8s.io/v1alpha1'}}
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                        load = yaml.safe_load(stream)
+
+                    load['clusters'].append({
+                        'cluster': {
+                            'certificate-authority-data': catoken,
+                            'server': ip
+                        },
+                        'name': cluster_name
+                    })
+
+                    load['contexts'].append({
+                        'context': {
+                            'cluster': cluster_name,
+                            'namespace': namespace,
+                            'user': svcaccount
+                        },
+                        'name': context_name
+                    })
+
+                    # load['users'].append({
+                    #     'user': user_exec_command,
+                    #     'name': context_name
+                    # })
+
+                if error == '':
+                    self.send({
+                    'msgtype': 'added-context-successfully',
+                })
+                else:
+                    self.send({
+                    'msgtype': 'added-context-unsuccessfully',
+                    'error': error
+                })
         elif action == "show-error":
             error = "Please fill all the required fields."
             self.send({

@@ -7,13 +7,13 @@ services:
       - 8888:8888
     environment:
       - SERVER_HOSTNAME=localhost
-      - KUBECONFIG=/Users/sahiljajodia/.kube/config
+      - KUBECONFIG=/home/jovyan/config
     volumes:
-      - /Users/sahiljajodia/SWAN/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
-      - /Users/sahiljajodia/SWAN/switch-cluster/run.sh:/home/jovyan/run.sh
-      - /Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules
-      - /Users/sahiljajodia/.kube/config:/Users/sahiljajodia/.kube/config
-      - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
+      - /afs/cern.ch/user/s/sjajodia/switch-cluster/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
+      - /afs/cern.ch/user/s/sjajodia/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh
+      - /afs/cern.ch/user/s/sjajodia/switch-cluster/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules
+      - /afs/cern.ch/user/s/sjajodia/config:/home/jovyan/config
+      # - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
     entrypoint:
       - bash
       - -c
