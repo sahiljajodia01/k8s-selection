@@ -331,10 +331,14 @@ class SwitchCluster:
                         'name': context_name
                     })
 
-                    # load['users'].append({
-                    #     'user': user_exec_command,
-                    #     'name': context_name
-                    # })
+                    load['users'].append({
+                        'user': user_exec_command,
+                        'name': svcaccount
+                    })
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
 
                 if error == '':
                     self.send({
