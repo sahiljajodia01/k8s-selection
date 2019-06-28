@@ -9,10 +9,10 @@ services:
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/config
     volumes:
-      - /afs/cern.ch/user/s/sjajodia/switch-cluster/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
-      - /afs/cern.ch/user/s/sjajodia/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh
-      - /afs/cern.ch/user/s/sjajodia/switch-cluster/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules
-      - /afs/cern.ch/user/s/sjajodia/config:/home/jovyan/config
+      - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
+      - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh
+      - /root/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules
+      - /root/tutorial-keystone-creds/config:/home/jovyan/config
       # - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
     entrypoint:
       - bash
