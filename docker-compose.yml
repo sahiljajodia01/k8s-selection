@@ -8,6 +8,7 @@ services:
     environment:
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/config
+      - OS_TOKEN=${OS_TOKEN}
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
       - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh
