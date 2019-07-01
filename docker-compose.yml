@@ -4,16 +4,16 @@ services:
     image: custom_extension
     container_name: custom_jupyter
     ports:
-      - 8888:8888
+      - 9999:8888
     environment:
       - SERVER_HOSTNAME=localhost
-      - KUBECONFIG=/home/jovyan/config
+      - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}
     volumes:
-      - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster
-      - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh
-      - /root/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules
-      - /root/tutorial-keystone-creds/config:/home/jovyan/config
+      - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
+      - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z
+      - /root/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules:Z
+      - /root/tutorial-keystone-creds/config:/home/jovyan/.kube/config:Z
       # - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
     entrypoint:
       - bash
