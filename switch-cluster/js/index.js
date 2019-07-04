@@ -50,17 +50,20 @@ function SwitchCluster() {
 SwitchCluster.prototype.add_toolbar_button = function() {
     var action = {
         help: 'Spark clusters settings',
-        icon: 'fa-external-link',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
         handler: $.proxy(this.open_modal, this)
     };
+
+
 
     var prefix = 'SwitchCluster';
     var action_name = 'show-sparkcluster-conf';
 
     var full_action_name = Jupyter.actions.register(action, action_name, prefix);
     this.toolbar_button = Jupyter.toolbar.add_buttons_group([full_action_name]).find('.btn');
-    // this.toolbar_button.addClass('fa-external-link');
+    this.toolbar_button.text('Not Connected');
+    // this.toolbar_button.addClass("kubernetes-icon");
+    this.toolbar_button.attr("style", "width: 150px; text-overflow: ellipsis; overflow: hidden;");
     this.enabled = true;
 };
 
@@ -768,12 +771,18 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
         this.switch_state(this.states.select);
+        this.send({
+            'action': 'get-connection-detail',
+        });
         // this.switch_state(this.states.select);
     }
     else if(msg.content.data.msgtype == 'authentication-successfull') {
         console.log("Authentication successfull");
         this.hide_close = false;
         this.modal.modal('hide');
+        this.send({
+            'action': 'get-connection-detail',
+        });
         console.log("Authentication successfull");
     }
     else if(msg.content.data.msgtype == 'authentication-unsuccessfull') {
@@ -813,6 +822,9 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         console.log("Added context successfull");
         this.hide_close = false;
         this.refresh_modal();
+        this.send({
+            'action': 'get-connection-detail',
+        });
         console.log("Added context successfull");
     }
     else if(msg.content.data.msgtype == 'added-context-unsuccessfully') {
@@ -832,6 +844,16 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     else if(msg.content.data.msgtype == 'changed-current-context') {
         this.hide_close = false;
         this.modal.modal('hide');
+        this.send({
+            'action': 'get-connection-detail',
+        });
+    }
+    else if(msg.content.data.msgtype == 'connection-details') {
+        var context = msg.content.data.context;
+        this.toolbar_button.text("Connected: " + context);
+    }
+    else if(msg.content.data.msgtype == 'connection-details-error') {
+        this.toolbar_button.text("Not connected");
     }
 }
 
@@ -901,6 +923,9 @@ function load_ipython_extension() {
 
     var conn = new SwitchCluster();
     conn.add_toolbar_button();
+    // conn.send({
+    //     'action': 'get-connection-detail',
+    // });
 }
 
 export {load_ipython_extension}

@@ -460,5 +460,9 @@ button.back-button {
     background-color: #03A9F4;
     cursor: pointer;
     box-shadow:0px 3px 3px #BDBDBD;
-    
   }
+
+/* .kubernetes-icon {
+    background-image: url('../images/2e23992c9d.png');
+    background-size: 100%;
+} */

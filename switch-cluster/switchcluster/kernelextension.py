@@ -355,6 +355,37 @@ class SwitchCluster:
                 'msgtype': 'added-context-unsuccessfully',
                 'error': error
             })
+        elif action == "get-connection-detail":
+            self.log.info("INSIDE CONNECTION DETAIL")
+            error = ''
+
+            try:
+                config.load_kube_config()
+                contexts, active_context = config.list_kube_config_contexts()
+                if 'namespace' in active_context.keys():
+                    namespace = active_context['namespace']
+                else:
+                    namespace = 'default'
+                self.log.info("ACTIVE CONTEXT: ", active_context)
+            except:
+                error = 'Cannot load kubeconfig'
+            
+            if error == '':
+                try:
+                    api_instance = client.CoreV1Api()
+                    api_response = api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=15)
+                except:
+                    error = 'Cannot list pods'
+            
+            if error == '':
+                self.send({
+                    'msgtype': 'connection-details',
+                    'context': active_context['name']
+                })
+            else:
+                self.send({
+                    'msgtype': 'connection-details-error',
+                })
 
 
     def register_comm(self):
