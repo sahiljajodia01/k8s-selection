@@ -129,12 +129,18 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     html.append(template);
     // var list = [0, 1, 2, 3, 4, 5, 6];
     var that = this;
-    
+
 
 
     var list_div = html.find("#user_html_inputs");
     
-
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
     $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
     // for(var i = 0; i < contexts.length; i++) {
     //     if(contexts[i] == this.current_context) {

@@ -587,3 +587,9 @@ button.back-button {
 .pure-material-button-text:disabled::after {
     opacity: 0;
 }
+
+
+#user_html_inputs {
+    max-height: 350px;
+    overflow-y: auto;
+}
