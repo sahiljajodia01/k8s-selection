@@ -36,6 +36,7 @@ class SwitchCluster:
         action = msg['content']['data']['action']
 
         if action == 'Refresh':
+            pass
             self.cluster_list()
         elif action == 'change-current-context':
             context = msg['content']['data']['context']
@@ -407,14 +408,48 @@ class SwitchCluster:
         self.cluster_list()
 
     def cluster_list(self):
-        contexts, active_context = config.list_kube_config_contexts()
+        error = ''
+        try:
+            contexts, active_context = config.list_kube_config_contexts()
+            # if 'namespace' in active_context.keys():
+            #     namespace = active_context['namespace']
+            # else:
+            #     namespace = 'default'
+            # self.log.info("ACTIVE CONTEXT: ", active_context)
+        except:
+            error = 'Cannot load kubeconfig'
 
-        if not contexts:
-            print("Cannot find any context in kube-config file.")
-
-
+        
+        
+        namespaces = []
+        for i in contexts:
+            if 'namespace' in i.keys():
+                namespace = i['namespace']
+                namespaces.append(namespace)
+            else:
+                namespace = 'default'
+                namespaces.append(namespace)
+            # self.log.info("ACTIVE CONTEXT: ", active_context)
         contexts = [context['name'] for context in contexts]
         active_context = active_context['name']
+        delete_list = []
+        if error == '':
+            self.log.info("Inside delete list if")
+            for i in range(len(contexts)):
+                try:
+                    self.log.info("INSIDE TRY")
+                    config.load_kube_config(context=contexts[i])
+                    api_instance = client.CoreV1Api()
+                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=15)
+                    delete_list.append("False")
+                except:
+                    self.log.info("INSIDE EXCEPT")
+                    delete_list.append("True")
+        
+        self.log.info("DELETE LIST: ")
+        for i in delete_list:
+            self.log.info(i)
+        self.log.info("TEST STATEMENT")
 
         with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
             load = yaml.safe_load(stream)
@@ -446,7 +481,8 @@ class SwitchCluster:
             'contexts': contexts,
             'active_context': active_context,
             'clusters': clusters,
-            'current_cluster': current_cluster
+            'current_cluster': current_cluster,
+            'delete_list': delete_list
         })
 
     def check_config(self, cluster, namespace, svcaccount):

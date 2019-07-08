@@ -127,21 +127,34 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     var template = user_html;
     this.hide_close = true;
     html.append(template);
+    var delete_list = this.delete_list;
+    console.log("DELETE LIST: " + delete_list);
     // var list = [0, 1, 2, 3, 4, 5, 6];
+
     var that = this;
-
-
-
     var list_div = html.find("#user_html_inputs");
+
+    for(var i = 0; i < contexts.length; i++) {
+        if(delete_list[i] == "True") {
+            $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+        }
+        else {
+            $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+        }
+
+        // $('<div class="cluster-list-div"><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+    }
     
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
-    $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text">X</button><div class="list-item-text">Context name</div><button class="list-item-share pure-material-button-text">Share</button><button class="list-item-select pure-material-button-text">Select</button></div><hr>').appendTo(list_div);
+    list_div.find(".list-item-select").on('click', function() {
+        var button_id = $(this).attr('id');
+        var current_context = button_id.split('.')[1];
+        console.log("Selected cluster: " + current_context);
+        
+        that.send({
+            'action': 'change-current-context',
+            'context': current_context,
+        });
+    });
     // for(var i = 0; i < contexts.length; i++) {
     //     if(contexts[i] == this.current_context) {
     //         $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
@@ -276,11 +289,14 @@ SwitchCluster.prototype.get_html_view_context = function() {
 
 
 SwitchCluster.prototype.select_context = function() {
-    console.log("Selected cluster: " + this.current_context);
+    var button_id = $(this).attr('id');
+    var current_context = button_id.split('.')[1];
+    console.log("Selected cluster: " + current_context);
+
     this.send({
         'action': 'change-current-context',
-        'context': this.current_context,
-    })
+        'context': current_context,
+    });
 }
 
 
@@ -782,6 +798,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.contexts = msg.content.data.contexts;
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
+        this.delete_list = msg.content.data.delete_list;
         this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail',
