@@ -387,6 +387,43 @@ class SwitchCluster:
                 self.send({
                     'msgtype': 'connection-details-error',
                 })
+        elif action == "delete-current-context":
+            error = ''
+
+            context = msg['content']['data']['context']
+
+
+            try:
+                with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                    load = yaml.safe_load(stream)
+            except:
+                error = "Cannot open KUBECONFIG file"
+
+            if error == '':
+                for i in range(len(load['contexts'])):
+                    if load['contexts'][i]['name'] == context:
+                        load['contexts'].pop(i)
+                        break
+
+                try:
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+                except:
+                    error = "Cannot save KUBECONFIG file"
+
+            
+            
+            if error == '':
+                self.send({
+                    'msgtype': 'deleted-context-successfully',
+                })
+            else:
+                self.send({
+                    'msgtype': 'deleted-context-unsuccessfully',
+                })
+            
+
+
 
 
     def register_comm(self):

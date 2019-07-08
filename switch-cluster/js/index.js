@@ -136,7 +136,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
     for(var i = 0; i < contexts.length; i++) {
         if(delete_list[i] == "True") {
-            $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
         }
         else {
             $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
@@ -152,6 +152,18 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
         
         that.send({
             'action': 'change-current-context',
+            'context': current_context,
+        });
+    });
+
+    list_div.find(".list-item-delete").on('click', function() {
+        var button_id = $(this).attr('id');
+        var current_context = button_id.split('.')[1];
+        console.log("ID: " + button_id);
+        console.log("Selected cluster: " + current_context);
+        
+        that.send({
+            'action': 'delete-current-context',
             'context': current_context,
         });
     });
@@ -883,6 +895,12 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'connection-details-error') {
         this.toolbar_button.text("Not connected");
+    }
+    else if(msg.content.data.msgtype == 'deleted-context-successfully') {
+        this.modal.modal('hide');
+        this.send({
+            'action': 'get-connection-detail',
+        });
     }
 }
 
