@@ -171,8 +171,8 @@ class SwitchCluster:
                 cluster_name = msg['content']['data']['cluster_name']
                 insecure_server = msg['content']['data']['insecure_server']
                 ip = msg['content']['data']['ip']
-                namespace = "sahil"
-                svcaccount = "sahil"
+                namespace = "jajodia"
+                svcaccount = "demo"
                 context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
 
 
@@ -271,7 +271,7 @@ class SwitchCluster:
                 if error == '':
                     try:
                         api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
-                        api_response = api_instance2.list_namespaced_pod(namespace="sahil")
+                        api_response = api_instance2.list_namespaced_pod(namespace="jajodia")
                         self.log.info(api_response)
                     except ApiException as e:
                         error = 'You cannot request resources using these settings. Please contact your admin'
@@ -446,30 +446,48 @@ class SwitchCluster:
 
     def cluster_list(self):
         error = ''
+        # try:
+        #     contexts, active_context = config.list_kube_config_contexts()
+        #     # if 'namespace' in active_context.keys():
+        #     #     namespace = active_context['namespace']
+        #     # else:
+        #     #     namespace = 'default'
+        #     # self.log.info("ACTIVE CONTEXT: ", active_context)
+        # except:
+        #     error = 'Cannot load kubeconfig'
+
         try:
-            contexts, active_context = config.list_kube_config_contexts()
-            # if 'namespace' in active_context.keys():
-            #     namespace = active_context['namespace']
-            # else:
-            #     namespace = 'default'
-            # self.log.info("ACTIVE CONTEXT: ", active_context)
+            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                load = yaml.safe_load(stream)
         except:
             error = 'Cannot load kubeconfig'
 
+        contexts = load['contexts']
         
+        for i in range(len(contexts)):
+            if contexts[i]['name'] == load['current-context']:
+                active_context = contexts[i]
+                break
+
+        self.log.info(contexts)
         
         namespaces = []
         for i in contexts:
-            if 'namespace' in i.keys():
-                namespace = i['namespace']
+            # self.log.info(i)
+            if 'namespace' in i['context'].keys():
+                namespace = i['context']['namespace']
                 namespaces.append(namespace)
             else:
                 namespace = 'default'
                 namespaces.append(namespace)
             # self.log.info("ACTIVE CONTEXT: ", active_context)
+        self.log.info("NAMESPACES: ")
+        for i in namespaces:
+            self.log.info(i)
         contexts = [context['name'] for context in contexts]
         active_context = active_context['name']
         delete_list = []
+        admin_list = []
         if error == '':
             self.log.info("Inside delete list if")
             for i in range(len(contexts)):
@@ -477,11 +495,24 @@ class SwitchCluster:
                     self.log.info("INSIDE TRY")
                     config.load_kube_config(context=contexts[i])
                     api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=15)
+                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=10)
                     delete_list.append("False")
                 except:
                     self.log.info("INSIDE EXCEPT")
                     delete_list.append("True")
+
+        if error == '':
+            self.log.info("Inside admin list if")
+            for i in range(len(contexts)):
+                try:
+                    self.log.info("INSIDE TRY")
+                    config.load_kube_config(context=contexts[i])
+                    api_instance = client.CoreV1Api()
+                    api_response = api_instance.list_namespaced_pod(namespace='default', timeout_seconds=10)
+                    admin_list.append("True")
+                except:
+                    self.log.info("INSIDE EXCEPT")
+                    admin_list.append("False")
         
         self.log.info("DELETE LIST: ")
         for i in delete_list:
@@ -519,7 +550,8 @@ class SwitchCluster:
             'active_context': active_context,
             'clusters': clusters,
             'current_cluster': current_cluster,
-            'delete_list': delete_list
+            'delete_list': delete_list,
+            'admin_list': admin_list,
         })
 
     def check_config(self, cluster, namespace, svcaccount):

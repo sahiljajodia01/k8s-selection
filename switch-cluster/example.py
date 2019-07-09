@@ -16,7 +16,7 @@ import json
 # current_context = 'docker-for-desktop'
 # load = {}
 # # Write YAML file
-with io.open('config', 'r', encoding='utf8') as stream:
+with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
     load = yaml.safe_load(stream)
 
 print(load)

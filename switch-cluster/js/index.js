@@ -128,6 +128,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     this.hide_close = true;
     html.append(template);
     var delete_list = this.delete_list;
+    var admin_list = this.admin_list;
     console.log("DELETE LIST: " + delete_list);
     // var list = [0, 1, 2, 3, 4, 5, 6];
 
@@ -139,7 +140,12 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
             $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
         }
         else {
-            $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            if(admin_list[i] == "True") {
+                $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '">Share</button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            }
+            else {
+                $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            }
         }
 
         // $('<div class="cluster-list-div"><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
@@ -811,6 +817,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
         this.delete_list = msg.content.data.delete_list;
+        this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail',
