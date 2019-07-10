@@ -38,6 +38,15 @@ function SwitchCluster() {
                     click: $.proxy(this.select_context, this)
                 }
             }
+        },
+        create_users: {
+            get_html: $.proxy(this.get_html_create_users, this),
+            buttons: {
+                'Create User': {
+                    class: 'btn-success size-100',
+                    click: $.proxy(this.create_users, this)
+                }
+            }
         }
     }
 
@@ -137,7 +146,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
     for(var i = 0; i < contexts.length; i++) {
         if(delete_list[i] == "True") {
-            $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
         }
         else {
             if(admin_list[i] == "True") {
@@ -172,6 +181,14 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
             'action': 'delete-current-context',
             'context': current_context,
         });
+    });
+
+
+    list_div.find(".list-item-share").on('click', function() {
+        var button_id = $(this).attr('id');
+        var current_context = button_id.split('.')[1];
+        that.user_create_context_name = current_context;
+        that.switch_state(that.states.create_users);
     });
     // for(var i = 0; i < contexts.length; i++) {
     //     if(contexts[i] == this.current_context) {
@@ -801,6 +818,39 @@ SwitchCluster.prototype.create_context = function() {
             'ip': this.openstack_selected_ip
         });
     }
+}
+
+
+SwitchCluster.prototype.get_html_create_users = function() {
+    var html = this.modal.find('.modal-body');
+    var header = this.modal.find('.modal-header');
+    $('<h4 class="modal-title">Add new user and send email</h4>').appendTo(header);
+
+    $("<button>")
+    .addClass("back-button")
+    .attr("type", "button")
+    .text("<-")
+    .appendTo(header)
+    .on("click", $.proxy(this.refresh_modal, this));
+
+
+    $('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(html);
+
+    
+    var user_create_input = $('<input/>')
+        .attr('name', 'user_create_input')
+        .attr('type', 'text')
+        .attr("required", "required")
+        .attr('id', 'user_create_input')
+        .attr('value', this.user_create_input)
+        .attr('placeholder', 'CA Token (Base64)')
+        .addClass('form__field')
+        .appendTo(html)
+        .change(function() {
+            that.user_create_input = user_create_input.val();
+        });
+
+    $('<br>').appendTo(html);
 }
 
 
