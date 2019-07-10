@@ -5,6 +5,7 @@ import events from 'base/js/events';
 
 import user_html from './templates/user.html'
 import create_context_html from './templates/create_context.html'
+import user_create from './templates/user_create.html'
 import './css/style.css'
 // import './js/materialize.min.js'
 
@@ -826,6 +827,9 @@ SwitchCluster.prototype.get_html_create_users = function() {
     var header = this.modal.find('.modal-header');
     $('<h4 class="modal-title">Add new user and send email</h4>').appendTo(header);
 
+    html.append(user_create);
+
+    var user_create_div = html.find("#user_create_div");
     $("<button>")
     .addClass("back-button")
     .attr("type", "button")
@@ -834,7 +838,7 @@ SwitchCluster.prototype.get_html_create_users = function() {
     .on("click", $.proxy(this.refresh_modal, this));
 
 
-    $('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(html);
+    $('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);
 
     
     var user_create_input = $('<input/>')
@@ -842,15 +846,41 @@ SwitchCluster.prototype.get_html_create_users = function() {
         .attr('type', 'text')
         .attr("required", "required")
         .attr('id', 'user_create_input')
-        .attr('value', this.user_create_input)
-        .attr('placeholder', 'CA Token (Base64)')
+        .attr('placeholder', 'Username')
         .addClass('form__field')
-        .appendTo(html)
+        .appendTo(user_create_div)
         .change(function() {
             that.user_create_input = user_create_input.val();
         });
 
-    $('<br>').appendTo(html);
+    $('<br><br>').appendTo(user_create_div);
+
+
+    $('<label for="user_email_create_input" id="user_email_create_input_label">Email</label><br>').appendTo(user_create_div);
+    
+    var user_email_create_input = $('<input/>')
+        .attr('name', 'user_email_create_input')
+        .attr('type', 'text')
+        .attr("required", "required")
+        .attr('id', 'user_email_create_input')
+        .attr('placeholder', 'Email')
+        .addClass('form__field')
+        .appendTo(user_create_div)
+        .change(function() {
+            that.user_email_create_input = user_email_create_input.val();
+        });
+};
+
+
+SwitchCluster.prototype.create_users = function() {
+    console.log("Username: " + this.user_create_input);
+    console.log("Email: " + this.user_email_create_input);
+
+    this.send({
+        'action': 'create-user',
+        'username': this.user_create_input,
+        'email': this.user_email_create_input
+    });
 }
 
 

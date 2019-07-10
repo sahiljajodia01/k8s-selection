@@ -421,7 +421,11 @@ class SwitchCluster:
                 self.send({
                     'msgtype': 'deleted-context-unsuccessfully',
                 })
-            
+        elif action == "create-user":
+			username = msg['content']['data']['username']
+			email = msg['content']['data']['email']
+
+			
 
 
 

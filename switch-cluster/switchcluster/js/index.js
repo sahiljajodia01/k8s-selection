@@ -109,7 +109,11 @@ var _create_context = __webpack_require__(6);
 
 var _create_context2 = _interopRequireDefault(_create_context);
 
-__webpack_require__(7);
+var _user_create = __webpack_require__(7);
+
+var _user_create2 = _interopRequireDefault(_user_create);
+
+__webpack_require__(8);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -720,12 +724,23 @@ SwitchCluster.prototype.get_html_create_users = function () {
     var header = this.modal.find('.modal-header');
     (0, _jquery2.default)('<h4 class="modal-title">Add new user and send email</h4>').appendTo(header);
 
+    html.append(_user_create2.default);
+
+    var user_create_div = html.find("#user_create_div");
     (0, _jquery2.default)("<button>").addClass("back-button").attr("type", "button").text("<-").appendTo(header).on("click", _jquery2.default.proxy(this.refresh_modal, this));
 
-    (0, _jquery2.default)('<label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(html);
+    (0, _jquery2.default)('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);
 
-    var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_create_input').attr('value', this.user_create_input).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(html).change(function () {
+    var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_create_input').attr('placeholder', 'Username').addClass('form__field').appendTo(user_create_div).change(function () {
         that.user_create_input = user_create_input.val();
+    });
+
+    (0, _jquery2.default)('<br><br>').appendTo(user_create_div);
+
+    (0, _jquery2.default)('<label for="user_email_create_input" id="user_email_create_input_label">Email</label><br>').appendTo(user_create_div);
+
+    var user_email_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_email_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_email_create_input').attr('placeholder', 'Email').addClass('form__field').appendTo(user_create_div).change(function () {
+        that.user_email_create_input = user_email_create_input.val();
     });
 };
 
@@ -925,12 +940,18 @@ module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 cla
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports) {
+
+module.exports = "<div id=user_create_div style=\"margin:0 auto\"> </div>";
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(8);
+var content = __webpack_require__(9);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -938,7 +959,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(10)(content, options);
+var update = __webpack_require__(11)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -955,10 +976,10 @@ if(false) {
 }
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(9)(false);
+exports = module.exports = __webpack_require__(10)(false);
 // imports
 
 
@@ -969,7 +990,7 @@ exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: 
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1051,7 +1072,7 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -1097,7 +1118,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(11);
+var	fixUrls = __webpack_require__(12);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -1410,7 +1431,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
