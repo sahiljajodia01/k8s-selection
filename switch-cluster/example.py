@@ -2,7 +2,7 @@ import yaml
 import io
 
 
-from kubernetes import client, config
+from kubernetes import client, config, utils
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 import json
@@ -16,15 +16,54 @@ import json
 # current_context = 'docker-for-desktop'
 # load = {}
 # # Write YAML file
-with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
-    load = yaml.safe_load(stream)
+# with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
+#     load = yaml.safe_load(stream)
 
-print(load)
+# print(load)
     
 # load['current-context'] = current_context
 
 # with io.open('config', 'w', encoding='utf8') as out:
 #     yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
+
+namespace = 'swan-sjajodia'
+username = 'sjajodia'
+rolebinding_name = 'edit-cluster-' + namespace
+
+config.load_kube_config()
+api_instance = client.CoreV1Api()
+# obj = client.V1ObjectMeta(name=namespace)
+# body = client.V1Namespace(metadata=obj)
+# api_instance.create_namespace(body)
+
+
+# with io.open('role-binding-template.yaml', 'r', encoding='utf8') as stream:
+#     load = yaml.safe_load(stream)
+
+# load['metadata']['name'] = rolebinding_name
+# load['metadata']['namespace'] = namespace
+# load['subjects'][0]['name'] = username
+
+# with io.open('role-binding-template.yaml', 'w', encoding='utf8') as out:
+#     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
+rbac_client = client.RbacAuthorizationV1Api()
+k8s_client = client.ApiClient()
+utils.create_from_yaml(k8s_client, "role-binding-template.yaml")
+rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace)
+role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
+rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref)
+
+# rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
+try:
+    api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
+    for i in api_response.items:
+        print(i.metadata.name)
+    # print(api_response)
+except:
+    error = 'Cannot list namespaced role binding'
+
+
 
 
 
@@ -47,16 +86,16 @@ print(load)
 # configuration.api_key_prefix['authorization'] = 'Bearer'
 # configuration.host = 'https://192.168.99.103:8443'
 
-config.load_kube_config()
-namespace = "sahil"
-api_instance = client.CoreV1Api()
+# config.load_kube_config()
+# namespace = "sahil"
+# api_instance = client.CoreV1Api()
 
-try:
-    api_response = api_instance.list_namespace()
-    # api_response = json.loads(api_response)
-    pprint(api_response)
-    print("Namespace")
-    for i in api_response.items:
-        print(i.metadata.name)
-except ApiException as e:
-    pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+# try:
+#     api_response = api_instance.list_namespace()
+#     # api_response = json.loads(api_response)
+#     pprint(api_response)
+#     print("Namespace")
+#     for i in api_response.items:
+#         print(i.metadata.name)
+# except ApiException as e:
+#     pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)

@@ -8,7 +8,7 @@ import os, logging, tempfile, subprocess
 import io, yaml
 import subprocess
 import time
-from kubernetes import client, config
+from kubernetes import client, config, util
 from kubernetes.client.rest import ApiException
 import base64
 
@@ -425,7 +425,88 @@ class SwitchCluster:
 			username = msg['content']['data']['username']
 			email = msg['content']['data']['email']
 
-			
+			namespace = 'swan-' + username
+			username = username
+			rolebinding_name = 'edit-cluster-' + namespace
+
+			# with io.open('role-binding-template.yaml', 'r', encoding='utf8') as stream:
+			# 	load = yaml.safe_load(stream)
+
+			# load['metadata']['name'] = rolebinding_name
+			# load['metadata']['namespace'] = namespace
+			# load['subjects'][0]['name'] = username
+
+			# with io.open('role-binding-template.yaml', 'w', encoding='utf8') as out:
+			# 	yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+            try:
+                config.load_kube_config()
+            except:
+                error = 'Cannot load KUBECONFIG'
+            
+            api_instance = client.CoreV1Api()
+            rbac_client = client.RbacAuthorizationV1Api()
+            flag = 0
+            flag1 = 0
+            if error == '':
+                try:
+                    api_response = api_instance.list_namespace()
+                    for i in api_response.items:
+                        if i.metadata.name == namespace:
+                            flag = 1
+                            break 
+                except:
+                    error = 'Cannot list namespace'
+
+            if error == '':
+                if flag == 1:
+                    try:
+                        api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
+                        for i in api_response.items:
+                            if i.metadata.name == rolebinding_name:
+                                flag1 = 1
+                                break
+                    except:
+                        error = 'Cannot list namespaced role binding'
+
+                    if error == '' and flag1 == 0:
+                        rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace)
+                        role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
+                        rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref)
+
+                        try:
+                            rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
+                        except:
+                            error = 'Cannot create role binding'
+                else:
+                    obj = client.V1ObjectMeta(name=namespace)
+                    body = client.V1Namespace(metadata=obj)
+
+                    try:
+                        api_instance.create_namespace(body)
+                    except:
+                        error = 'Cannot create namespace'
+
+                    
+                    if error == '':
+                        rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace)
+                        role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
+                        rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref)
+
+                        try:
+                            rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
+                        except:
+                            error = 'Cannot create role binding'
+
+            if error == '':
+                
+
+
+
+			try:
+				api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
+				print(api_response)
+			except:
+				error = 'Cannot list namespaced role binding'
 
 
 
