@@ -2,10 +2,12 @@ import yaml
 import io
 
 
-from kubernetes import client, config, utils
+from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 import json
+import os
+from __future__ import print_function
 
 # Define data
 # data = {'a list': [1, 42, 3.141, 1337, 'help', u'€'],
@@ -26,11 +28,11 @@ import json
 # with io.open('config', 'w', encoding='utf8') as out:
 #     yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
 
-namespace = 'swan-sjajodia'
+namespace = 'sahil'
 username = 'sjajodia'
 rolebinding_name = 'edit-cluster-' + namespace
 
-config.load_kube_config()
+config.load_kube_config(config_file=os.getenv('HOME') + '/tutorial-keystone-creds/config')
 api_instance = client.CoreV1Api()
 # obj = client.V1ObjectMeta(name=namespace)
 # body = client.V1Namespace(metadata=obj)
@@ -47,21 +49,21 @@ api_instance = client.CoreV1Api()
 # with io.open('role-binding-template.yaml', 'w', encoding='utf8') as out:
 #     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-rbac_client = client.RbacAuthorizationV1Api()
-k8s_client = client.ApiClient()
-utils.create_from_yaml(k8s_client, "role-binding-template.yaml")
-rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace)
-role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
-rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref)
+# rbac_client = client.RbacAuthorizationV1Api()
+# k8s_client = client.ApiClient()
+# utils.create_from_yaml(k8s_client, "role-binding-template.yaml")
+# rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace)
+# role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
+# rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref)
 
 # rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
-try:
-    api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
-    for i in api_response.items:
-        print(i.metadata.name)
-    # print(api_response)
-except:
-    error = 'Cannot list namespaced role binding'
+# try:
+#     api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
+#     for i in api_response.items:
+#         print(i.metadata.name)
+#     # print(api_response)
+# except:
+#     error = 'Cannot list namespaced role binding'
 
 
 
@@ -90,12 +92,12 @@ except:
 # namespace = "sahil"
 # api_instance = client.CoreV1Api()
 
-# try:
-#     api_response = api_instance.list_namespace()
-#     # api_response = json.loads(api_response)
-#     pprint(api_response)
-#     print("Namespace")
-#     for i in api_response.items:
-#         print(i.metadata.name)
-# except ApiException as e:
-#     pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+try:
+    api_response = api_instance.list_namespaced_pod(namespace=namespace)
+    # api_response = json.loads(api_response)
+    pprint(api_response)
+    print("Pods: ")
+    for i in api_response.items:
+        print(i.metadata.name)
+except ApiException as e:
+    pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)

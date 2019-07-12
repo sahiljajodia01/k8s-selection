@@ -14,12 +14,6 @@ function SwitchCluster() {
     this.states = {
         select: {
             get_html: $.proxy(this.get_html_select_cluster, this),
-            buttons: {
-                'Select Context': {
-                    class: 'btn-success size-100 auth-button',
-                    click: $.proxy(this.select_context, this)
-                }
-            }
         },
         create: {
             get_html: $.proxy(this.get_html_create_context, this),
@@ -875,11 +869,13 @@ SwitchCluster.prototype.get_html_create_users = function() {
 SwitchCluster.prototype.create_users = function() {
     console.log("Username: " + this.user_create_input);
     console.log("Email: " + this.user_email_create_input);
+    console.log("Selected context: " + this.user_create_context_name);
 
     this.send({
         'action': 'create-user',
         'username': this.user_create_input,
-        'email': this.user_email_create_input
+        'email': this.user_email_create_input,
+        'context': this.user_create_context_name
     });
 }
 

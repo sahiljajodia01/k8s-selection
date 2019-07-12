@@ -123,13 +123,7 @@ function SwitchCluster() {
 
     this.states = {
         select: {
-            get_html: _jquery2.default.proxy(this.get_html_select_cluster, this),
-            buttons: {
-                'Select Context': {
-                    class: 'btn-success size-100 auth-button',
-                    click: _jquery2.default.proxy(this.select_context, this)
-                }
-            }
+            get_html: _jquery2.default.proxy(this.get_html_select_cluster, this)
         },
         create: {
             get_html: _jquery2.default.proxy(this.get_html_create_context, this),
@@ -741,6 +735,17 @@ SwitchCluster.prototype.get_html_create_users = function () {
 
     var user_email_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_email_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_email_create_input').attr('placeholder', 'Email').addClass('form__field').appendTo(user_create_div).change(function () {
         that.user_email_create_input = user_email_create_input.val();
+    });
+};
+
+SwitchCluster.prototype.create_users = function () {
+    console.log("Username: " + this.user_create_input);
+    console.log("Email: " + this.user_email_create_input);
+
+    this.send({
+        'action': 'create-user',
+        'username': this.user_create_input,
+        'email': this.user_email_create_input
     });
 };
 
