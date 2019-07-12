@@ -447,11 +447,14 @@ class SwitchCluster:
             except:
                 error = 'Cannot load kubeconfig'
 
+            self.log.info("SELECTED CONTEXT: ", selected_context)
             if error == '':
                 for i in load['contexts']:
                     if i['name'] == selected_context:
                         selected_cluster = i['context']['cluster']
                         break
+
+            self.log.info("SELECTED CLUSTER: ", selected_cluster)
 
             api_instance = client.CoreV1Api()
             rbac_client = client.RbacAuthorizationV1Api()
