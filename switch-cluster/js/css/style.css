@@ -475,7 +475,7 @@ button.back-button {
 }
 
 .cluster-list-div > .list-item-delete {
-    width: 1rem;
+    width: 5px;
 }
 
 .cluster-list-div > .list-item-text {
@@ -486,12 +486,18 @@ button.back-button {
 
 .cluster-list-div > .list-item-share {
     margin-top: 2px;
-    width: 4rem;
+    width: 5px;
 }
 
 .cluster-list-div > .list-item-select {
     margin-top: 2px;
     width: 7rem;
+}
+
+.cluster-list-div > .connect-symbol {
+    margin-top: 10px;
+    width: 3rem;
+    color: #008017;
 }
 
 

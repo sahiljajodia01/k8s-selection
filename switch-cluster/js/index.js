@@ -127,7 +127,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     $('<h4 class="modal-title">Spark cluster setting</h4>').appendTo(header);
     // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
     var contexts = this.contexts;
-    // var current_cluster = this.current_cluster;
+    var current_cluster = this.current_cluster;
     var template = user_html;
     this.hide_close = true;
     html.append(template);
@@ -141,17 +141,26 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
     for(var i = 0; i < contexts.length; i++) {
         if(delete_list[i] == "True") {
-            $('<div class="cluster-list-div"><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button style="visibility: hidden;" class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
         }
         else {
             if(admin_list[i] == "True") {
-                $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '">Share</button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                if(contexts[i] == current_cluster) {
+                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                }
+                else {
+                    $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                }
             }
             else {
-                $('<div class="cluster-list-div"><button style="visibility: hidden;" class="list-item-delete pure-material-button-text" id="delete-' + contexts[i] + '">X</button><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                if(contexts[i] == current_cluster) {
+                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                }
+                else {
+                    $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                }
             }
         }
-
         // $('<div class="cluster-list-div"><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
     }
     
