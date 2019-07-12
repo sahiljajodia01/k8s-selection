@@ -440,7 +440,7 @@ class SwitchCluster:
 				error = 'Cannot load KUBECONFIG'
 
 
-            if error == '':
+			if error == '':
 				for i in load['contexts']:
 					if i['name'] == selected_context:
 						selected_cluster = i['context']['cluster']
@@ -466,7 +466,7 @@ class SwitchCluster:
 						api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
 						for i in api_response.items:
 							if i.metadata.name == rolebinding_name:
-                                # error = 'A user \'{}\' already exists for this cluster'.format(username)
+								# error = 'A user \'{}\' already exists for this cluster'.format(username)
 								flag1 = 1
 								break
 					except:
@@ -504,7 +504,7 @@ class SwitchCluster:
 							rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
 						except:
 							error = 'Cannot create role binding'
-			
+
 			try:
 				with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
 					load = yaml.safe_load(stream)
@@ -548,13 +548,13 @@ class SwitchCluster:
 
 			if error == '':
 				self.send({
-                    'msgtype': 'added-user-successfully',
-                })
-            else:
-                self.send({
-                    'msgtype': 'added-user-unsuccessfully',
+					'msgtype': 'added-user-successfully',
+				})
+			else:
+				self.send({
+					'msgtype': 'added-user-unsuccessfully',
 					'error': error
-                })
+				})
 
 			# try:
 			# 	api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
