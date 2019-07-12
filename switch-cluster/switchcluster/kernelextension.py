@@ -14,7 +14,7 @@ import base64
 from os.path import join, dirname
 from dotenv import load_dotenv
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import Mail, To, From
 
 
 class SwitchCluster:
@@ -430,7 +430,7 @@ class SwitchCluster:
             error = ''
             username = msg['content']['data']['username']
             email = msg['content']['data']['email']
-            selected_context = msg['content']['data']['email']
+            selected_context = msg['content']['data']['context']
 
             namespace = 'swan-' + username
             username = username
@@ -447,6 +447,7 @@ class SwitchCluster:
             except:
                 error = 'Cannot load kubeconfig'
 
+            self.log.info("Yaml load: ", load)
             self.log.info("SELECTED CONTEXT: ", selected_context)
             if error == '':
                 for i in load['contexts']:
@@ -532,14 +533,14 @@ class SwitchCluster:
                 dotenv_path = join(dirname(__file__), '.env')
                 load_dotenv(dotenv_path)
 
-                sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
+                # sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
                 
-                html_body = '<strong>Cluster name: </strong>' + selected_cluster + '<br><br><strong>CA Cert: </strong>' + ca_cert + '<br><br><strong>Server IP: </strong>' + server_ip
+                # html_body = '<strong>Cluster name: </strong>' + selected_cluster + '<br><br><strong>CA Cert: </strong>' + ca_cert + '<br><br><strong>Server IP: </strong>' + server_ip
                 message = Mail(
-                    from_email='sahil.jajodia@gmail.com',
-                    to_emails=email,
+                    from_email=From('sahil.jajodia@gmail.com'),
+                    to_emails=To(email),
                     subject='Credentials for cluster: ' + selected_cluster,
-                    html_content=html_body)
+                    html_content='<strong>Cluster name: </strong>' + selected_cluster + '<br><br><strong>CA Cert: </strong>' + ca_cert + '<br><br><strong>Server IP: </strong>' + server_ip)
 
                 try:
                     sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))

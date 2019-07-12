@@ -18,10 +18,10 @@ from __future__ import print_function
 # current_context = 'docker-for-desktop'
 # load = {}
 # # Write YAML file
-# with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
-#     load = yaml.safe_load(stream)
+with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
+    load = yaml.safe_load(stream)
 
-# print(load)
+print(load)
     
 # load['current-context'] = current_context
 
