@@ -820,6 +820,7 @@ SwitchCluster.prototype.get_html_create_users = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
     $('<h4 class="modal-title">Add new user and send email</h4>').appendTo(header);
+    var that = this;
 
     html.append(user_create);
 
