@@ -7,7 +7,7 @@ from kubernetes.client.rest import ApiException
 from pprint import pprint
 import json
 import os
-from __future__ import print_function
+# from __future__ import print_function
 
 # Define data
 # data = {'a list': [1, 42, 3.141, 1337, 'help', u'€'],
@@ -18,22 +18,60 @@ from __future__ import print_function
 # current_context = 'docker-for-desktop'
 # load = {}
 # # Write YAML file
-with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
-    load = yaml.safe_load(stream)
+# with io.open('/Users/sahiljajodia/.kube/config', 'r', encoding='utf8') as stream:
+#     load = yaml.safe_load(stream)
 
-print(load)
+# print(load)
     
 # load['current-context'] = current_context
 
 # with io.open('config', 'w', encoding='utf8') as out:
 #     yaml.dump(load, out, default_flow_style=False, allow_unicode=True)
 
-namespace = 'sahil'
-username = 'sjajodia'
-rolebinding_name = 'edit-cluster-' + namespace
+# namespace = 'sahil'
+# username = 'sjajodia'
+# rolebinding_name = 'edit-cluster-' + namespace
 
-config.load_kube_config(config_file=os.getenv('HOME') + '/tutorial-keystone-creds/config')
-api_instance = client.CoreV1Api()
+# config.load_kube_config(config_file=os.getenv('HOME') + '/tutorial-keystone-creds/config')
+# api_instance = client.CoreV1Api()
+
+
+
+
+
+
+
+# os.makedirs(os.getenv('HOME') + '/.hello')
+
+# load = {}
+# load['apiVersion'] = 'v1'
+# load['clusters'] = []
+# load['contexts'] = []
+# load['current-context'] = ''
+# load['kind'] = 'Config'
+# load['preferences'] = {}
+# load['users'] = []
+
+# load['clusters'].append({
+#                             'cluster': {
+#                                 'certificate-authority-data': 'yr87rhwekjkjfns',
+#                                 'server': '127.0.0.1'
+#                             },
+#                             'name': 'Hello'
+#                         })
+
+# with io.open(os.environ['HOME'] + '/.hello/config', 'w', encoding='utf8') as out:
+#     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
+
+
+
+
+
+
+
+
+
 # obj = client.V1ObjectMeta(name=namespace)
 # body = client.V1Namespace(metadata=obj)
 # api_instance.create_namespace(body)
@@ -92,12 +130,12 @@ api_instance = client.CoreV1Api()
 # namespace = "sahil"
 # api_instance = client.CoreV1Api()
 
-try:
-    api_response = api_instance.list_namespaced_pod(namespace=namespace)
-    # api_response = json.loads(api_response)
-    pprint(api_response)
-    print("Pods: ")
-    for i in api_response.items:
-        print(i.metadata.name)
-except ApiException as e:
-    pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+# try:
+#     api_response = api_instance.list_namespaced_pod(namespace=namespace)
+#     # api_response = json.loads(api_response)
+#     pprint(api_response)
+#     print("Pods: ")
+#     for i in api_response.items:
+#         print(i.metadata.name)
+# except ApiException as e:
+#     pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
