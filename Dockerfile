@@ -10,7 +10,9 @@ RUN apt-get -y install git curl
 
 RUN pip install \
         jupyter_nbextensions_configurator \
-        kubernetes==9.0.0
+        kubernetes==9.0.0 \
+        sendgrid \
+        python-dotenv
 
 RUN npm install -g yarn
 
