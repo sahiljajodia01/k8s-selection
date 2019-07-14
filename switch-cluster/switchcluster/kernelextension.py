@@ -174,8 +174,8 @@ class SwitchCluster:
                 cluster_name = msg['content']['data']['cluster_name']
                 insecure_server = msg['content']['data']['insecure_server']
                 ip = msg['content']['data']['ip']
-                namespace = "swan-sjajodia"
-                svcaccount = "sjajodia"
+                namespace = "swan-" + os.getenv('USER')
+                svcaccount = os.getenv('USER')
                 context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
 
                 if insecure_server == "false":
@@ -273,16 +273,10 @@ class SwitchCluster:
                         error = 'There is some error. You cannot use these settings. Please contact your admin'
 
                 if error == '':
-                    try:
-                        try:
-                            config.load_kube_config()
-                        except:
-                            error = 'Cannot load KUBECONFIG'
-                        
-                        if error == ''
-                            api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
-                            api_response = api_instance2.list_namespaced_pod(namespace="swan-sjajodia")
-                            self.log.info(api_response)
+                    try:        
+                        api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
+                        api_response = api_instance2.list_namespaced_pod(namespace=namespace)
+                        self.log.info(api_response)
                     except ApiException as e:
                         error = 'You cannot request resources using these settings. Please contact your admin'
                         output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test6.sh', shell=True)
@@ -305,8 +299,8 @@ class SwitchCluster:
                 cluster_name = msg['content']['data']['cluster_name']
                 ip = msg['content']['data']['ip']
                 catoken = msg['content']['data']['catoken']
-                namespace = "sahil"
-                svcaccount = "sahil"
+                namespace = "swan-" + os.getenv('USER')
+                svcaccount = os.getenv('USER')
                 context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
 
                 error = ''
@@ -382,6 +376,18 @@ class SwitchCluster:
                                 yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
                         except:
                             error = 'Cannot write to KUBECONFIG'
+
+                    if error == '':
+                        try:        
+                            api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
+                            api_response = api_instance2.list_namespaced_pod(namespace=namespace)
+                            self.log.info(api_response)
+                        except ApiException as e:
+                            error = 'You cannot request resources using these settings. Please contact your admin'
+                            output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test6.sh', shell=True)
+                            self.log.info("output: ", output)
+                            if output != 0:
+                                error = 'There is some error. You cannot use these settings. Please contact your admin'
 
                 if error == '':
                     self.send({
