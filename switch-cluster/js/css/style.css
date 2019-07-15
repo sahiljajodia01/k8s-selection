@@ -601,28 +601,6 @@ button.back-button {
 }
 
 
-
-.dbl-spinner {
-    position: absolute;
-    width: 75px;
-    height: 75px;
-    border-radius: 50%;
-    background-color: transparent;
-    border: 4px solid transparent;
-    border-top: 4px solid #222;
-    border-left: 4px solid #222;
-    -webkit-animation: 2s spin linear infinite;
-    animation: 2s spin linear infinite;
-}
-  
-.dbl-spinner--2 {
-    border: 4px solid transparent;
-    border-right: 4px solid #009688;
-    border-bottom: 4px solid #009688;
-    -webkit-animation: 1s spin linear infinite;
-    animation: 1s spin linear infinite;
-}
-
 .nb-spinner {
     width: 75px;
     height: 75px;
