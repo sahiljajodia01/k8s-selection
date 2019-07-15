@@ -47,7 +47,7 @@ function SwitchCluster() {
             get_html: $.proxy(this.get_html_loading, this),
             hide_close: true,
         }
-    }
+    };
 
     this.comm = null;
 
@@ -110,17 +110,17 @@ SwitchCluster.prototype.open_modal = function () {
             return true;
         });
     }
-}
+};
 
 SwitchCluster.prototype.refresh_modal = function() {
     this.switch_state(this.states.loading);
     this.send({'action': 'Refresh'});
-}
+};
 
 
 SwitchCluster.prototype.send = function (msg) {
     this.comm.send(msg);
-}
+};
 
 
 SwitchCluster.prototype.get_html_select_cluster = function() {
@@ -303,7 +303,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     //     .text("Select Settings")
     //     .appendTo(footer)
     //     .on('click', $.proxy(this.change_cluster, this));
-}
+};
 
 
 
@@ -330,7 +330,7 @@ SwitchCluster.prototype.get_html_view_context = function() {
 
     $('<div class="content"><h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 
-}
+};
 
 
 
@@ -343,12 +343,12 @@ SwitchCluster.prototype.select_context = function() {
         'action': 'change-current-context',
         'context': current_context,
     });
-}
+};
 
 
 
 SwitchCluster.prototype.change_cluster = function() {
-    console.log("Sending msg to kernel to change KUBECONFIG")
+    console.log("Sending msg to kernel to change KUBECONFIG");
     console.log("Modified cluster: " + this.current_context);
     this.switch_state(this.states.loading);
     this.send({
@@ -373,11 +373,11 @@ SwitchCluster.prototype.change_cluster = function() {
     //     'svcaccount': this.selected_svcaccount
     // })
     
-}
+};
 
 
 SwitchCluster.prototype.get_html_create_context = function() {
-    console.log("Changed state")
+    console.log("Changed state");
 
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
@@ -405,7 +405,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
     this.selected_tab = active.html();
     tabs.click(function() {
         that.selected_tab = $(".active").html();
-    })
+    });
 
     var tab1 = html.find("#tab1");
     var tab1 = tab1.find("#other-settings");
@@ -467,7 +467,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
                     });
             }
         }
-    })
+    });
 
 
 
@@ -736,7 +736,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
     // select1.change(function() {
     //     that.current_cluster = $(this).children("option:selected").val();
     // });
-}
+};
 
 SwitchCluster.prototype.create_context = function() {
     var header = this.modal.find('.modal-header');
@@ -750,7 +750,7 @@ SwitchCluster.prototype.create_context = function() {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
                 this.send({
                     'action': 'show-error',
-                })
+                });
                 return;
             }
         }
@@ -758,7 +758,7 @@ SwitchCluster.prototype.create_context = function() {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
                 this.send({
                     'action': 'show-error',
-                })
+                });
                 return;
             }
         }
@@ -767,7 +767,7 @@ SwitchCluster.prototype.create_context = function() {
         if(!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip || !this.openstack_selected_ostoken) {
             this.send({
                 'action': 'show-error',
-            })
+            });
             return;
         }
     }
@@ -831,7 +831,7 @@ SwitchCluster.prototype.create_context = function() {
             'ip': this.openstack_selected_ip
         });
     }
-}
+};
 
 
 SwitchCluster.prototype.get_html_create_users = function() {
@@ -899,7 +899,7 @@ SwitchCluster.prototype.create_users = function() {
         'email': this.user_email_create_input,
         'context': this.user_create_context_name
     });
-}
+};
 
 
 
@@ -923,7 +923,7 @@ SwitchCluster.prototype.get_html_loading = function() {
     // $('<div>')
     //     .addClass('dbl-spinner--2')
     //     .appendTo(loading);
-}
+};
 
 
 SwitchCluster.prototype.redirect = function() {
@@ -1004,6 +1004,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
         var error = msg.content.data.error;
+        this.switch_state(this.states.create);
         $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
 
         console.log("Added context unsuccessfull");
@@ -1027,11 +1028,12 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'deleted-context-successfully') {
         this.modal.modal('hide');
+        this.switch_state(this.states.create);
         this.send({
             'action': 'get-connection-detail',
         });
     }
-}
+};
 
 
 
@@ -1039,7 +1041,7 @@ SwitchCluster.prototype.switch_state = function (new_state) {
     this.state = new_state;
 
     if (this.modal) {
-        Jupyter.keyboard_manager.disable()
+        Jupyter.keyboard_manager.disable();
         var header = this.modal.find('.modal-header');
         var body = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
@@ -1068,7 +1070,7 @@ SwitchCluster.prototype.switch_state = function (new_state) {
         //     header.find('.close').show();
         // }
     }
-}
+};
 
 
 
@@ -1080,12 +1082,12 @@ SwitchCluster.prototype.start_comm = function () {
         this.comm.close()
     }
 
-    console.log('SwitchCluster: Starting Comm with kernel')
+    console.log('SwitchCluster: Starting Comm with kernel');
 
     var that = this;
 
     if (Jupyter.notebook.kernel) {
-        console.log("Inside if statement!!")
+        console.log("Inside if statement!!");
         this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SwitchCluster',
             {'msgtype': 'switchcluster-conn-open'});
         this.comm.on_msg($.proxy(that.on_comm_msg, that));
@@ -1093,7 +1095,7 @@ SwitchCluster.prototype.start_comm = function () {
     } else {
         console.log("SwitchCluster: No communication established, kernel null");
     }
-}
+};
 
 function load_ipython_extension() {
 

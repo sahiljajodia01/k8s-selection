@@ -176,7 +176,8 @@ class SwitchCluster:
                 ip = msg['content']['data']['ip']
                 namespace = "swan-" + os.getenv('USER')
                 svcaccount = os.getenv('USER')
-                context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
+                # context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
+                context_name = cluster_name
 
                 if insecure_server == "false":
                     catoken = msg['content']['data']['catoken']
@@ -301,7 +302,8 @@ class SwitchCluster:
                 catoken = msg['content']['data']['catoken']
                 namespace = "swan-" + os.getenv('USER')
                 svcaccount = os.getenv('USER')
-                context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
+                # context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
+                context_name = cluster_name
 
                 error = ''
                 if os.path.isdir(os.getenv('HOME') + '/.kube'):
@@ -408,20 +410,14 @@ class SwitchCluster:
             self.log.info("INSIDE CONNECTION DETAIL")
             error = ''
             namespace = 'default'
-            # try:
-            #     config.load_kube_config()
-            #     contexts, active_context = config.list_kube_config_contexts()
-            #     if 'namespace' in active_context.keys():
-            #         namespace = active_context['namespace']
-            # except:
-            #     error = 'Cannot load kubeconfig'
 
             try:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                     load = yaml.safe_load(stream)
             except:
                 error = 'Cannot load KUBECONFIG'
-            # self.log.info(load)
+
+
             if error == '':
                 contexts = load['contexts']
                 for i in contexts:
@@ -726,7 +722,7 @@ class SwitchCluster:
             delete_list = []
             admin_list = []
 
-            self.log.info("Current context: ", active_context['name'])
+            self.log.info("Current context: ", active_context)
 
             self.log.info("Inside delete list if")
             for i in range(len(contexts)):
