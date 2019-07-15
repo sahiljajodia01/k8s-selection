@@ -339,7 +339,7 @@ class SwitchCluster:
                     error = 'Cannot load KUBECONFIG'
                 
                 clusters = []
-                if error == ''
+                if error == '':
                     for i in load['clusters']:
                         clusters.append(i['name'])
 
@@ -378,7 +378,7 @@ class SwitchCluster:
                             error = 'Cannot write to KUBECONFIG'
 
                     if error == '':
-                        try:        
+                        try:
                             api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
                             api_response = api_instance2.list_namespaced_pod(namespace=namespace)
                             self.log.info(api_response)

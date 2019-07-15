@@ -42,6 +42,10 @@ function SwitchCluster() {
                     click: $.proxy(this.create_users, this)
                 }
             }
+        },
+        loading: {
+            get_html: $.proxy(this.get_html_loading, this),
+            hide_close: true,
         }
     }
 
@@ -96,7 +100,7 @@ SwitchCluster.prototype.open_modal = function () {
             console.log("Inside 2nd open model");
             // that.switch_state(that.states.select);
             // that.get_html_select_cluster();
-
+            that.switch_state(that.states.loading);
             that.refresh_modal();
             
         }).modal('show');
@@ -109,6 +113,7 @@ SwitchCluster.prototype.open_modal = function () {
 }
 
 SwitchCluster.prototype.refresh_modal = function() {
+    this.switch_state(this.states.loading);
     this.send({'action': 'Refresh'});
 }
 
@@ -168,7 +173,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
         var button_id = $(this).attr('id');
         var current_context = button_id.split('.')[1];
         console.log("Selected cluster: " + current_context);
-        
+        that.switch_state(that.states.loading);
         that.send({
             'action': 'change-current-context',
             'context': current_context,
@@ -180,7 +185,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
         var current_context = button_id.split('.')[1];
         console.log("ID: " + button_id);
         console.log("Selected cluster: " + current_context);
-        
+        that.switch_state(that.states.loading);
         that.send({
             'action': 'delete-current-context',
             'context': current_context,
@@ -331,7 +336,7 @@ SwitchCluster.prototype.select_context = function() {
     var button_id = $(this).attr('id');
     var current_context = button_id.split('.')[1];
     console.log("Selected cluster: " + current_context);
-
+    this.switch_state(this.states.loading);
     this.send({
         'action': 'change-current-context',
         'context': current_context,
@@ -343,6 +348,7 @@ SwitchCluster.prototype.select_context = function() {
 SwitchCluster.prototype.change_cluster = function() {
     console.log("Sending msg to kernel to change KUBECONFIG")
     console.log("Modified cluster: " + this.current_context);
+    this.switch_state(this.states.loading);
     this.send({
         'action': 'get-context-settings',
         'context': this.current_context,
@@ -736,7 +742,7 @@ SwitchCluster.prototype.create_context = function() {
     var footer = this.modal.find('.modal-footer');
     var error_div = html.find('#setting-error');
     error_div.remove();
-
+    // this.switch_state(this.states.loading);
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
@@ -789,6 +795,7 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Selected openstack server ip: ", this.openstack_selected_ip);
     console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
 
+    this.switch_state(this.states.loading);
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             this.send({
@@ -828,7 +835,7 @@ SwitchCluster.prototype.create_context = function() {
 SwitchCluster.prototype.get_html_create_users = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
-    $('<h4 class="modal-title">Add new user and send email</h4>').appendTo(header);
+    
     var that = this;
 
     html.append(user_create);
@@ -837,9 +844,11 @@ SwitchCluster.prototype.get_html_create_users = function() {
     $("<button>")
     .addClass("back-button")
     .attr("type", "button")
-    .text("<-")
+    .text("<span><-</span>")
     .appendTo(header)
     .on("click", $.proxy(this.refresh_modal, this));
+
+    $('<h4 class="modal-title"><span>Add new user and send email</span></h4>').appendTo(header);
 
 
     $('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);
@@ -881,12 +890,37 @@ SwitchCluster.prototype.create_users = function() {
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
 
+    this.switch_state(this.states.loading);
     this.send({
         'action': 'create-user',
         'username': this.user_create_input,
         'email': this.user_email_create_input,
         'context': this.user_create_context_name
     });
+}
+
+
+
+
+
+SwitchCluster.prototype.get_html_loading = function() {
+    var html = this.modal.find('.modal-body');
+
+    var flexbox = $('<div>')
+        .addClass('loading-flexbox')
+        .appendTo(html);
+
+    var loading = $('<div>')
+        .addClass('loading-div')
+        .appendTo(flexbox);
+
+    $('<div>')
+        .addClass('nb-spinner')
+        .appendTo(loading);
+
+    // $('<div>')
+    //     .addClass('dbl-spinner--2')
+    //     .appendTo(loading);
 }
 
 
