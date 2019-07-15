@@ -892,6 +892,12 @@ SwitchCluster.prototype.create_users = function() {
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
 
+    var header = this.modal.find('.modal-header');
+    var html = this.modal.find('.modal-body');
+    var footer = this.modal.find('.modal-footer');
+    var error_div = html.find('#setting-error');
+    error_div.remove();
+
     this.switch_state(this.states.loading);
     this.send({
         'action': 'create-user',
@@ -1009,7 +1015,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 
         console.log("Added context unsuccessfull");
 
-        footer.find('#select-button').attr('disabled', false);
+        // footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
     }
     else if(msg.content.data.msgtype == 'changed-current-context') {
@@ -1032,6 +1038,20 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.send({
             'action': 'get-connection-detail',
         });
+    }
+    else if(msg.content.data.msgtype == 'added-user-unsuccessfully') {
+        var html = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+        var header = this.modal.find('.modal-header');
+        var error = msg.content.data.error;
+        this.switch_state(this.states.create_users);
+        $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
+    }
+    else if(msg.content.data.msgtype == 'added-user-successfully') {
+        this.user_create_input = undefined;
+        this.user_email_create_input = undefined;
+        this.user_create_context_name = undefined;
+        this.switch_state(this.states.create_users);
     }
 };
 
