@@ -407,29 +407,44 @@ class SwitchCluster:
         elif action == "get-connection-detail":
             self.log.info("INSIDE CONNECTION DETAIL")
             error = ''
+            namespace = 'default'
+            # try:
+            #     config.load_kube_config()
+            #     contexts, active_context = config.list_kube_config_contexts()
+            #     if 'namespace' in active_context.keys():
+            #         namespace = active_context['namespace']
+            # except:
+            #     error = 'Cannot load kubeconfig'
 
             try:
-                config.load_kube_config()
-                contexts, active_context = config.list_kube_config_contexts()
-                if 'namespace' in active_context.keys():
-                    namespace = active_context['namespace']
-                else:
-                    namespace = 'default'
-                self.log.info("ACTIVE CONTEXT: ", active_context)
+                with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                    load = yaml.safe_load(stream)
             except:
-                error = 'Cannot load kubeconfig'
+                error = 'Cannot load KUBECONFIG'
+            # self.log.info(load)
+            if error == '':
+                contexts = load['contexts']
+                for i in contexts:
+                    if i['name'] == load['current-context']:
+                        if 'namespace' in i['context'].keys():
+                            namespace = i['context']['namespace']
+                            break
+
+            self.log.info("NAMESPACE: ", namespace)
             
             if error == '':
                 try:
+                    config.load_kube_config()
                     api_instance = client.CoreV1Api()
                     api_response = api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=15)
                 except:
+                    self.log.info("CANNOT LIST PODS")
                     error = 'Cannot list pods'
             
             if error == '':
                 self.send({
                     'msgtype': 'connection-details',
-                    'context': active_context['name']
+                    'context': load['current-context']
                 })
             else:
                 self.send({
@@ -635,15 +650,34 @@ class SwitchCluster:
 
     def cluster_list(self):
         error = ''
-        # try:
-        #     contexts, active_context = config.list_kube_config_contexts()
-        #     # if 'namespace' in active_context.keys():
-        #     #     namespace = active_context['namespace']
-        #     # else:
-        #     #     namespace = 'default'
-        #     # self.log.info("ACTIVE CONTEXT: ", active_context)
-        # except:
-        #     error = 'Cannot load kubeconfig'
+
+        if os.path.isdir(os.getenv('HOME') + '/.kube'):
+            if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+                load = {}
+                load['apiVersion'] = 'v1'
+                load['clusters'] = []
+                load['contexts'] = []
+                load['current-context'] = ''
+                load['kind'] = 'Config'
+                load['preferences'] = {}
+                load['users'] = []
+
+                with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                    yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)                        
+        else:
+            os.makedirs(os.getenv('HOME') + '/.kube')
+
+            load = {}
+            load['apiVersion'] = 'v1'
+            load['clusters'] = []
+            load['contexts'] = []
+            load['current-context'] = ''
+            load['kind'] = 'Config'
+            load['preferences'] = {}
+            load['users'] = []
+
+            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
         try:
             with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
@@ -651,33 +685,49 @@ class SwitchCluster:
         except:
             error = 'Cannot load kubeconfig'
 
-        contexts = load['contexts']
-        
-        for i in range(len(contexts)):
-            if contexts[i]['name'] == load['current-context']:
-                active_context = contexts[i]
-                break
 
-        self.log.info(contexts)
-        
-        namespaces = []
-        for i in contexts:
-            # self.log.info(i)
-            if 'namespace' in i['context'].keys():
-                namespace = i['context']['namespace']
-                namespaces.append(namespace)
-            else:
-                namespace = 'default'
-                namespaces.append(namespace)
-            # self.log.info("ACTIVE CONTEXT: ", active_context)
-        self.log.info("NAMESPACES: ")
-        for i in namespaces:
-            self.log.info(i)
-        contexts = [context['name'] for context in contexts]
-        active_context = active_context['name']
-        delete_list = []
-        admin_list = []
         if error == '':
+            contexts = load['contexts']
+            for i in range(len(contexts)):
+                if contexts[i]['name'] == load['current-context']:
+                    active_context = contexts[i]
+                    break
+
+            self.log.info("Contexts:")
+            for i in contexts:
+                self.log.info(i)
+
+
+            clusters = []
+            for i in load['clusters']:
+                clusters.append(i['name'])
+
+            # active_context = load['current-context']
+
+            for i in load['contexts']:
+                if i['name'] == load['current-context']:
+                    current_cluster = i['context']['cluster']
+            
+            namespaces = []
+            for i in contexts:
+                # self.log.info(i)
+                if 'namespace' in i['context'].keys():
+                    namespace = i['context']['namespace']
+                    namespaces.append(namespace)
+                else:
+                    namespace = 'default'
+                    namespaces.append(namespace)
+                # self.log.info("ACTIVE CONTEXT: ", active_context)
+            self.log.info("NAMESPACES: ")
+            for i in namespaces:
+                self.log.info(i)
+            contexts = [context['name'] for context in contexts]
+            active_context = active_context['name']
+            delete_list = []
+            admin_list = []
+
+            self.log.info("Current context: ", active_context['name'])
+
             self.log.info("Inside delete list if")
             for i in range(len(contexts)):
                 try:
@@ -690,8 +740,7 @@ class SwitchCluster:
                     self.log.info("INSIDE EXCEPT")
                     delete_list.append("True")
 
-        if error == '':
-            self.log.info("Inside admin list if")
+
             for i in range(len(contexts)):
                 try:
                     self.log.info("INSIDE TRY")
@@ -703,45 +752,20 @@ class SwitchCluster:
                     self.log.info("INSIDE EXCEPT")
                     admin_list.append("False")
         
-        self.log.info("DELETE LIST: ")
-        for i in delete_list:
-            self.log.info(i)
-        self.log.info("TEST STATEMENT")
+            self.log.info("DELETE LIST: ")
+            for i in delete_list:
+                self.log.info(i)
+            self.log.info("TEST STATEMENT")
 
-        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-            load = yaml.safe_load(stream)
-            # self.log.info(load)
-        # if len(load['contexts']) == 0:
-        #     print("Cannot find any context in kube-config file.")
-
-        clusters = []
-        for i in load['clusters']:
-            clusters.append(i['name'])
-
-        # active_context = load['current-context']
-
-        for i in load['contexts']:
-            if i['name'] == active_context:
-                current_cluster = i['context']['cluster']
-
-        
-        # self.log.info(current_cluster)
-
-        self.log.info("Contexts:")
-        for i in contexts:
-            self.log.info(i)
-
-        self.log.info("Current context: ", active_context)
-
-        self.send({
-            'msgtype': 'context-select',
-            'contexts': contexts,
-            'active_context': active_context,
-            'clusters': clusters,
-            'current_cluster': current_cluster,
-            'delete_list': delete_list,
-            'admin_list': admin_list,
-        })
+            self.send({
+                'msgtype': 'context-select',
+                'contexts': contexts,
+                'active_context': active_context,
+                'clusters': clusters,
+                'current_cluster': current_cluster,
+                'delete_list': delete_list,
+                'admin_list': admin_list,
+            })
 
     def check_config(self, cluster, namespace, svcaccount):
         # def run_command(command):

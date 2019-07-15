@@ -133,6 +133,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
     var contexts = this.contexts;
     var current_cluster = this.current_cluster;
+    var current_context = this.current_context;
     var template = user_html;
     this.hide_close = true;
     html.append(template);
@@ -150,7 +151,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
         }
         else {
             if(admin_list[i] == "True") {
-                if(contexts[i] == current_cluster) {
+                if(contexts[i] == current_context) {
                     $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
                 }
                 else {
@@ -158,7 +159,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
                 }
             }
             else {
-                if(contexts[i] == current_cluster) {
+                if(contexts[i] == current_context) {
                     $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
                 }
                 else {
@@ -320,7 +321,7 @@ SwitchCluster.prototype.get_html_view_context = function() {
         .on("click", $.proxy(this.refresh_modal, this));
 
     html.append('<div id="view_context"></div>');
-    var div = html.find("#view_context")
+    var div = html.find("#view_context");
     $('<h4 id="cluster_name">Cluster name: ' + this.view_cluster_name + '</h4><br>').appendTo(div);
 
     $('<h4 id="namespace">Namespace: ' + this.view_namespace + '</h4><br>').appendTo(div);
@@ -330,6 +331,7 @@ SwitchCluster.prototype.get_html_view_context = function() {
     $('<div class="content"><h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
 
 }
+
 
 
 SwitchCluster.prototype.select_context = function() {
@@ -844,7 +846,7 @@ SwitchCluster.prototype.get_html_create_users = function() {
     $("<button>")
     .addClass("back-button")
     .attr("type", "button")
-    .text("<span><-</span>")
+    .text("<-")
     .appendTo(header)
     .on("click", $.proxy(this.refresh_modal, this));
 
