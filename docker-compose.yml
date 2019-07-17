@@ -3,6 +3,7 @@ services:
   jupyter:
     image: custom_extension
     container_name: custom_jupyter
+    hostname: swan-gsoc19
     ports:
       - 9999:8888
       - 5201:5001
