@@ -16,7 +16,7 @@ RUN pip install \
         kubernetes==9.0.0 \
         sendgrid \
         python-dotenv \
-        pyspark
+        pyspark==2.4.0
 
 RUN npm install -g yarn
 
