@@ -5,6 +5,9 @@ services:
     container_name: custom_jupyter
     ports:
       - 9999:8888
+      - 5201:5001
+      - 5202:5002
+      - 5203:5003
     environment:
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/.kube/config
