@@ -739,7 +739,7 @@ SwitchCluster.prototype.get_html_create_users = function () {
 
     (0, _jquery2.default)("<button>").attr("type", "button").addClass("back-button").html("<i class='fa fa-arrow-left' aria-hidden='true'></i>").appendTo(header).on("click", _jquery2.default.proxy(this.refresh_modal, this));
 
-    (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Add new user and send email</span></h4>').appendTo(header);
+    (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Grant access</span></h4>').appendTo(header);
 
     var user_create_div = html.find("#user_create_div");
     (0, _jquery2.default)('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);

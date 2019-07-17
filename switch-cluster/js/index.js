@@ -850,7 +850,7 @@ SwitchCluster.prototype.get_html_create_users = function() {
     .appendTo(header)
     .on("click", $.proxy(this.refresh_modal, this));
 
-    $('<h4 class="modal-title">&nbsp;&nbsp;<span>Add new user and send email</span></h4>').appendTo(header);
+    $('<h4 class="modal-title">&nbsp;&nbsp;<span>Grant access</span></h4>').appendTo(header);
 
     var user_create_div = html.find("#user_create_div");
     $('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);
