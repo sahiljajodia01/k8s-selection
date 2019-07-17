@@ -797,7 +797,7 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Selected openstack server ip: ", this.openstack_selected_ip);
     console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
 
-    this.switch_state(this.states.loading);
+    // this.switch_state(this.states.loading);
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             this.send({
@@ -1005,17 +1005,43 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'added-context-unsuccessfully') {
         console.log("Added context unsuccessfull");
+        // this.switch_state(this.states.create);
         this.hide_close = false;
         var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
-        var error = msg.content.data.error;
-        this.switch_state(this.states.create);
-        $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
+
+        var that = this;
+        // var tab = msg.content.data.tab;
+
+        // if(tab == 'local')
+        //     var tab_html = html.find("#tab1");
+        // else if(tab == 'openstack')
+        //     var tab_html = html.find("#tab2");
+        // else if(tab == 'gcloud')
+        //     var tab_html = html.find("#tab3");
+        // else
+        //     var tab_html = html.find("#tab4");
+        
+        this.modal.find(".modal-content").attr("style", "opacity: 0;");
+
+        this.modal2 = dialog.modal({
+            notebook: Jupyter.notebook,
+            keyboard_manager: Jupyter.keyboard_manager,
+            title: 'Error',
+            body: msg.content.data.error,
+        });
+
+        this.modal2.on('hide.bs.modal', function () {
+            that.modal.find(".modal-content").attr("style", "opacity: 1;");
+        });
+
+        // var error = msg.content.data.error;
+        // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(tab_html);
 
         console.log("Added context unsuccessfull");
 
-        // footer.find('#select-button').attr('disabled', false);
+        footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
     }
     else if(msg.content.data.msgtype == 'changed-current-context') {
@@ -1040,12 +1066,26 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         });
     }
     else if(msg.content.data.msgtype == 'added-user-unsuccessfully') {
+        // this.switch_state(this.states.create_users);
         var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
-        var error = msg.content.data.error;
-        this.switch_state(this.states.create_users);
-        $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
+        var that = this;
+
+        this.modal.find(".modal-content").attr("style", "opacity: 0;");
+
+        this.modal2 = dialog.modal({
+            notebook: Jupyter.notebook,
+            keyboard_manager: Jupyter.keyboard_manager,
+            title: 'Error',
+            body: msg.content.data.error,
+        });
+
+        this.modal2.on('hide.bs.modal', function () {
+            that.modal.find(".modal-content").attr("style", "opacity: 1;");
+        });
+        // var error = msg.content.data.error;
+        // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
     }
     else if(msg.content.data.msgtype == 'added-user-successfully') {
         this.user_create_input = undefined;

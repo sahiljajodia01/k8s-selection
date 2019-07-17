@@ -694,7 +694,7 @@ SwitchCluster.prototype.create_context = function () {
     console.log("Selected openstack server ip: ", this.openstack_selected_ip);
     console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
 
-    this.switch_state(this.states.loading);
+    // this.switch_state(this.states.loading);
     if (this.selected_tab == "local") {
         if (this.checkbox_status == "unchecked") {
             this.send({
@@ -760,6 +760,12 @@ SwitchCluster.prototype.create_users = function () {
     console.log("Username: " + this.user_create_input);
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
+
+    var header = this.modal.find('.modal-header');
+    var html = this.modal.find('.modal-body');
+    var footer = this.modal.find('.modal-footer');
+    var error_div = html.find('#setting-error');
+    error_div.remove();
 
     this.switch_state(this.states.loading);
     this.send({
@@ -851,12 +857,39 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         console.log("Added context successfull");
     } else if (msg.content.data.msgtype == 'added-context-unsuccessfully') {
         console.log("Added context unsuccessfull");
+        // this.switch_state(this.states.create);
         this.hide_close = false;
         var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
-        var error = msg.content.data.error;
-        (0, _jquery2.default)('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
+
+        var that = this;
+        // var tab = msg.content.data.tab;
+
+        // if(tab == 'local')
+        //     var tab_html = html.find("#tab1");
+        // else if(tab == 'openstack')
+        //     var tab_html = html.find("#tab2");
+        // else if(tab == 'gcloud')
+        //     var tab_html = html.find("#tab3");
+        // else
+        //     var tab_html = html.find("#tab4");
+
+        this.modal.find(".modal-content").attr("style", "opacity: 0;");
+
+        this.modal2 = _dialog2.default.modal({
+            notebook: _namespace2.default.notebook,
+            keyboard_manager: _namespace2.default.keyboard_manager,
+            title: 'Error',
+            body: msg.content.data.error
+        });
+
+        this.modal2.on('hide.bs.modal', function () {
+            that.modal.find(".modal-content").attr("style", "opacity: 1;");
+        });
+
+        // var error = msg.content.data.error;
+        // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(tab_html);
 
         console.log("Added context unsuccessfull");
 
@@ -875,9 +908,36 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         this.toolbar_button.text("Not connected");
     } else if (msg.content.data.msgtype == 'deleted-context-successfully') {
         this.modal.modal('hide');
+        this.switch_state(this.states.create);
         this.send({
             'action': 'get-connection-detail'
         });
+    } else if (msg.content.data.msgtype == 'added-user-unsuccessfully') {
+        // this.switch_state(this.states.create_users);
+        var html = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+        var header = this.modal.find('.modal-header');
+        var that = this;
+
+        this.modal.find(".modal-content").attr("style", "opacity: 0;");
+
+        this.modal2 = _dialog2.default.modal({
+            notebook: _namespace2.default.notebook,
+            keyboard_manager: _namespace2.default.keyboard_manager,
+            title: 'Error',
+            body: msg.content.data.error
+        });
+
+        this.modal2.on('hide.bs.modal', function () {
+            that.modal.find(".modal-content").attr("style", "opacity: 1;");
+        });
+        // var error = msg.content.data.error;
+        // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
+    } else if (msg.content.data.msgtype == 'added-user-successfully') {
+        this.user_create_input = undefined;
+        this.user_email_create_input = undefined;
+        this.user_create_context_name = undefined;
+        this.switch_state(this.states.create_users);
     }
 };
 

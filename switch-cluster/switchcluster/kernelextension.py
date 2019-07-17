@@ -292,7 +292,8 @@ class SwitchCluster:
                 else:
                     self.send({
                     'msgtype': 'added-context-unsuccessfully',
-                    'error': error
+                    'error': error,
+                    'tab': 'local'
                     })
 
             elif tab == 'openstack':
@@ -398,7 +399,8 @@ class SwitchCluster:
                 else:
                     self.send({
                     'msgtype': 'added-context-unsuccessfully',
-                    'error': error
+                    'error': error,
+                    'tab': 'openstack'
                 })
         elif action == "show-error":
             error = "Please fill all the required fields."
@@ -432,7 +434,7 @@ class SwitchCluster:
                 try:
                     config.load_kube_config()
                     api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=15)
+                    api_response = api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
                 except:
                     self.log.info("CANNOT LIST PODS")
                     error = 'Cannot list pods'
@@ -730,7 +732,7 @@ class SwitchCluster:
                     self.log.info("INSIDE TRY")
                     config.load_kube_config(context=contexts[i])
                     api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=10)
+                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=2)
                     delete_list.append("False")
                 except:
                     self.log.info("INSIDE EXCEPT")
@@ -742,7 +744,7 @@ class SwitchCluster:
                     self.log.info("INSIDE TRY")
                     config.load_kube_config(context=contexts[i])
                     api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=10)
+                    api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=2)
                     admin_list.append("True")
                 except:
                     self.log.info("INSIDE EXCEPT")
