@@ -757,6 +757,14 @@ SwitchCluster.prototype.get_html_create_users = function () {
 };
 
 SwitchCluster.prototype.create_users = function () {
+
+    if (!this.user_create_input || !this.user_email_create_input) {
+        this.send({
+            'action': 'show-error'
+        });
+        return;
+    }
+
     console.log("Username: " + this.user_create_input);
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
