@@ -12,7 +12,6 @@ RUN apt-get -y install \
         krb5-user git curl openjdk-8-jdk
 
 RUN pip install \
-        jupyter \
         jupyter_nbextensions_configurator \
         kubernetes==9.0.0 \
         sendgrid \
