@@ -19,8 +19,6 @@ services:
       - bash
       - -c
       - |
-          pip install sendgrid
-          pip install python-dotenv
           # if true; then
             cd /home/jovyan/switch-cluster && \
             rm -rf ./switchcluster/js && \

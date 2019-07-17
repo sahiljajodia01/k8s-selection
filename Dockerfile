@@ -12,7 +12,8 @@ RUN pip install \
         jupyter_nbextensions_configurator \
         kubernetes==9.0.0 \
         sendgrid \
-        python-dotenv
+        python-dotenv \
+        pyspark
 
 RUN npm install -g yarn
 
