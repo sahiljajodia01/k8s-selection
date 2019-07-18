@@ -6,7 +6,9 @@ services:
     hostname: swan-gsoc19
     ports:
       - 9999:8888
-      
+      - 5001:5001
+      - 5002:5002
+      - 5003:5003
     environment:
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/.kube/config
