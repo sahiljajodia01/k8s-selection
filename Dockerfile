@@ -2,12 +2,14 @@ FROM jupyter/minimal-notebook:7f1482f5a136
 
 MAINTAINER Sahil Jajodia <sahil.jajodia@gmail.com>
 
-RUN conda create --quiet --yes -p $CONDA_DIR/envs/python2 python=2.7 ipython ipykernel kernda && \
-    conda clean -tipsy
+# RUN conda create --quiet --yes -p $CONDA_DIR/envs/python2 python=2.7 ipython ipykernel kernda && \
+#     conda clean -tipsy
 
 USER root
 
 RUN apt-get update
+
+RUN apt-get install python2.7 python-pip
 
 RUN apt-get -y install git curl
 
@@ -21,17 +23,26 @@ RUN pip install \
         python-dotenv \
         pyspark==2.4.0
 
+
+RUN pip2 install \
+        jupyter \
+        jupyter_nbextensions_configurator \
+        kubernetes==9.0.0 \
+        sendgrid \
+        python-dotenv \
+        pyspark==2.4.0
+
 RUN npm install -g yarn
 
 RUN rm /bin/sh && \
     ln -s /bin/bash /bin/sh
 
-ADD requirements.txt /requirements.txt
+# ADD requirements.txt /requirements.txt
 
-RUN $CONDA_DIR/envs/python2/bin/python -m ipykernel install && \
-    $CONDA_DIR/envs/python2/bin/kernda -o -y /usr/local/share/jupyter/kernels/python2/kernel.json && \
-    pip install -r /requirements.txt && \
-    rm /requirements.txt
+# RUN $CONDA_DIR/envs/python2/bin/python -m ipykernel install && \
+#     $CONDA_DIR/envs/python2/bin/kernda -o -y /usr/local/share/jupyter/kernels/python2/kernel.json && \
+#     pip install -r /requirements.txt && \
+#     rm /requirements.txt
 
 RUN mkdir /home/jovyan/switch_cluster
 
@@ -42,6 +53,7 @@ COPY switch-cluster/ /home/jovyan/switch-cluster/
 
 RUN cd /home/jovyan/switch-cluster && \
     pip install . && \
+    pip2 install . && \
     jupyter nbextension install --py --system switchcluster && \
     jupyter nbextension enable --py --system switchcluster && \
     jupyter nbextensions_configurator enable --system
