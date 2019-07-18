@@ -31,7 +31,7 @@ ADD requirements.txt /requirements.txt
 RUN $CONDA_DIR/envs/python2/bin/python -m ipykernel install && \
     $CONDA_DIR/envs/python2/bin/kernda -o -y /usr/local/share/jupyter/kernels/python2/kernel.json && \
     pip install -r /requirements.txt && \
-    rm /requirements.txt && \
+    rm /requirements.txt
 
 RUN mkdir /home/jovyan/switch_cluster
 
