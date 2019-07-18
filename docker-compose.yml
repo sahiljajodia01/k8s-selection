@@ -29,7 +29,7 @@ services:
           source activate ipykernel_py2   
           python -m ipykernel install --user
 
-          /usr/bin/python2 -m pip install jupyter_nbextensions_configurator kubernetes==9.0.0 sendgrid python-dotenv pyspark==2.4.0
+          # /usr/bin/python2 -m pip install jupyter_nbextensions_configurator kubernetes==9.0.0 sendgrid python-dotenv pyspark==2.4.0
           # if true; then
             cd /home/jovyan/switch-cluster && \
             rm -rf ./switchcluster/js && \
