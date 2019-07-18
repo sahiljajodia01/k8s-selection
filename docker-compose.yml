@@ -35,6 +35,7 @@ services:
             rm -rf ./switchcluster/js && \
             make && \
             pip install . && \
+            pip2 install . && \
             jupyter nbextension install --py --system switchcluster
           # fi
 

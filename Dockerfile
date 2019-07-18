@@ -9,7 +9,7 @@ USER root
 
 RUN apt-get update
 
-RUN apt-get install python2.7 python-pip
+RUN apt-get -y install python2.7 python-pip
 
 RUN apt-get -y install git curl
 
