@@ -25,6 +25,9 @@ services:
       - bash
       - -c
       - |
+          conda create -n ipykernel_py2 python=2 ipykernel
+          activate ipykernel_py2    
+          python -m ipykernel install --user
           # if true; then
             cd /home/jovyan/switch-cluster && \
             rm -rf ./switchcluster/js && \
