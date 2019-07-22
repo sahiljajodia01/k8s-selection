@@ -15,12 +15,17 @@ RUN apt-get -y install git curl
 RUN apt-get -y install \
         krb5-user git curl openjdk-8-jdk
 
+RUN pip uninstall tornado \
+        nbconvert
+
 RUN pip install \
         jupyter_nbextensions_configurator \
         kubernetes==9.0.0 \
         sendgrid \
         python-dotenv \
-        pyspark==2.4.0
+        pyspark==2.4.0 \
+        nbconvert==5.3.1 \
+        tornado==4.2
 
 
 # RUN pip2 install \
