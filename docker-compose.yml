@@ -17,7 +17,7 @@ services:
       # - SPARK_HOME=/home/jovyan/spark/spark-2.4.0-bin-hadoop2.7
       # - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       # - JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
-      - PYSPARK_PYTHON=/opt/conda/bin/python3
+      # - PYSPARK_PYTHON=/opt/conda/bin/python3
       # - PATH=/opt/conda/bin/python3:$PATH
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
