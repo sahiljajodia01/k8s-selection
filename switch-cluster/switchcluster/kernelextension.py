@@ -174,8 +174,8 @@ class SwitchCluster:
                 cluster_name = msg['content']['data']['cluster_name']
                 insecure_server = msg['content']['data']['insecure_server']
                 ip = msg['content']['data']['ip']
-                namespace = "swan-" + os.getenv('USER')
-                svcaccount = os.getenv('USER')
+                namespace = "swan-" + str(os.getenv('USER'))
+                svcaccount = str(os.getenv('USER'))
                 # context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
                 context_name = cluster_name
 
@@ -301,8 +301,8 @@ class SwitchCluster:
                 cluster_name = msg['content']['data']['cluster_name']
                 ip = msg['content']['data']['ip']
                 catoken = msg['content']['data']['catoken']
-                namespace = "swan-" + os.getenv('USER')
-                svcaccount = os.getenv('USER')
+                namespace = "swan-" + str(os.getenv('USER'))
+                svcaccount = str(os.getenv('USER'))
                 # context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
                 context_name = cluster_name
 
