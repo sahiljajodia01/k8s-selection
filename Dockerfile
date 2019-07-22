@@ -35,11 +35,13 @@ RUN rm /bin/sh && \
     ln -s /bin/bash /bin/sh
 
 RUN mkdir /home/jovyan/switch_cluster
+RUN mkdir /home/jovyan/spark
 
 WORKDIR /Users/sahiljajodia/SWAN/switch-cluster
 
 COPY switch-cluster/ /home/jovyan/switch-cluster/
 
+COPY switch-cluster/spark/ /home/jovyan/spark/
 
 RUN cd /home/jovyan/switch-cluster && \
     pip install . && \
