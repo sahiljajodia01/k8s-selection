@@ -41,7 +41,7 @@ WORKDIR /Users/sahiljajodia/SWAN/switch-cluster
 
 COPY switch-cluster/ /home/jovyan/switch-cluster/
 
-COPY switch-cluster/spark/ /home/jovyan/spark/
+COPY spark/ /home/jovyan/spark/
 
 RUN cd /home/jovyan/switch-cluster && \
     pip install . && \
