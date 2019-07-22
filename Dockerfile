@@ -4,6 +4,8 @@ MAINTAINER Sahil Jajodia <sahil.jajodia@gmail.com>
 
 USER root
 
+RUN conda install python=3.6
+
 RUN apt-get update
 
 RUN apt-get -y install python2.7 python-pip
