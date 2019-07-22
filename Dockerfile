@@ -15,7 +15,7 @@ RUN apt-get -y install git curl
 RUN apt-get -y install \
         krb5-user git curl openjdk-8-jdk
 
-RUN pip uninstall tornado \
+RUN pip -y uninstall tornado \
         nbconvert
 
 RUN pip install \
