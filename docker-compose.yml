@@ -13,6 +13,7 @@ services:
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}
+      - PYSPARK_PYTHON=/opt/conda/bin/python3
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
       - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z

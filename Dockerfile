@@ -2,9 +2,6 @@ FROM jupyter/minimal-notebook:7f1482f5a136
 
 MAINTAINER Sahil Jajodia <sahil.jajodia@gmail.com>
 
-# RUN conda create --quiet --yes -p $CONDA_DIR/envs/python2 python=2.7 ipython ipykernel kernda && \
-#     conda clean -tipsy
-
 USER root
 
 RUN apt-get update
@@ -37,13 +34,6 @@ RUN npm install -g yarn
 RUN rm /bin/sh && \
     ln -s /bin/bash /bin/sh
 
-# ADD requirements.txt /requirements.txt
-
-# RUN $CONDA_DIR/envs/python2/bin/python -m ipykernel install && \
-#     $CONDA_DIR/envs/python2/bin/kernda -o -y /usr/local/share/jupyter/kernels/python2/kernel.json && \
-#     pip install -r /requirements.txt && \
-#     rm /requirements.txt
-
 RUN mkdir /home/jovyan/switch_cluster
 
 WORKDIR /Users/sahiljajodia/SWAN/switch-cluster
@@ -60,8 +50,6 @@ RUN cd /home/jovyan/switch-cluster && \
 
 RUN mkdir -p /home/jovyan/.ipython/profile_default/ && \
     printf "c.InteractiveShellApp.extensions.append('switchcluster.kernelextension')\n" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
-
-
 
 
 # FROM gettyimages/spark:2.4.0-hadoop-3.0
