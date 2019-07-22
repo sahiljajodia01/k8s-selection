@@ -765,7 +765,7 @@ SwitchCluster.prototype.create_context = function() {
         }
     }
     else if(this.selected_tab == "openstack") {
-        if(!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip || !this.openstack_selected_ostoken) {
+        if(!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip) {
             this.send({
                 'action': 'show-error',
             });
