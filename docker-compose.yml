@@ -14,36 +14,21 @@ services:
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}
-      # - SPARK_HOME=/home/jovyan/spark/spark-2.4.0-bin-hadoop2.7
-      # - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      # - JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
-      # - PYSPARK_PYTHON=/opt/conda/bin/python
-      # - PATH=/opt/conda/bin/python3:$PATH
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
       - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z
       - /root/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules:Z
       - /root/.kube/config:/home/jovyan/.kube/config:Z
-      # - /Users/sahiljajodia/.minikube:/Users/sahiljajodia/.minikube
     entrypoint:
       - bash
       - -c
       - |
-          # conda create -n ipykernel_py2 python=2 ipykernel
-          # source activate ipykernel_py2   
-          # python -m ipykernel install --user
-
-          # /usr/bin/python2 -m pip install jupyter_nbextensions_configurator kubernetes==9.0.0 sendgrid python-dotenv pyspark==2.4.0
-          # if true; then
-            # echo export PATH=/opt/conda/bin/python3:$PATH > /home/jovyan/.profile
-            # source .profile
             cd /home/jovyan/switch-cluster && \
             rm -rf ./switchcluster/js && \
             make && \
             pip install . && \
             pip2 install . && \
             jupyter nbextension install --py --system switchcluster
-          # fi
 
           jupyter notebook --allow-root
 volumes:
