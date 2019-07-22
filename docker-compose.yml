@@ -17,7 +17,7 @@ services:
       # - SPARK_HOME=/home/jovyan/spark/spark-2.4.0-bin-hadoop2.7
       # - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       # - JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
-      - PYSPARK_PYTHON=/opt/conda/bin/python
+      # - PYSPARK_PYTHON=/opt/conda/bin/python
       # - PATH=/opt/conda/bin/python3:$PATH
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
@@ -35,8 +35,8 @@ services:
 
           # /usr/bin/python2 -m pip install jupyter_nbextensions_configurator kubernetes==9.0.0 sendgrid python-dotenv pyspark==2.4.0
           # if true; then
-            echo export PATH=/opt/conda/bin/python3:$PATH > /home/jovyan/.profile
-            source .profile
+            # echo export PATH=/opt/conda/bin/python3:$PATH > /home/jovyan/.profile
+            # source .profile
             cd /home/jovyan/switch-cluster && \
             rm -rf ./switchcluster/js && \
             make && \

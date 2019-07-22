@@ -8,7 +8,7 @@ RUN conda install python=3.6
 
 RUN apt-get update
 
-RUN apt-get -y install python2.7 python-pip
+# RUN apt-get -y install python2.7 python-pip
 
 RUN apt-get -y install git curl
 
@@ -23,13 +23,13 @@ RUN pip install \
         pyspark==2.4.0
 
 
-RUN pip2 install \
-        jupyter \
-        jupyter_nbextensions_configurator \
-        kubernetes==9.0.0 \
-        sendgrid \
-        python-dotenv \
-        pyspark==2.4.0
+# RUN pip2 install \
+#         jupyter \
+#         jupyter_nbextensions_configurator \
+#         kubernetes==9.0.0 \
+#         sendgrid \
+#         python-dotenv \
+#         pyspark==2.4.0
 
 RUN npm install -g yarn
 
@@ -47,7 +47,7 @@ COPY spark/ /home/jovyan/spark/
 
 RUN cd /home/jovyan/switch-cluster && \
     pip install . && \
-    pip2 install . && \
+#     pip2 install . && \
     jupyter nbextension install --py --system switchcluster && \
     jupyter nbextension enable --py --system switchcluster && \
     jupyter nbextensions_configurator enable --system
