@@ -10,6 +10,7 @@ services:
       - 5002:5002
       - 5003:5003
     environment:
+      - USER=sjajodia
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}

@@ -280,7 +280,7 @@ class SwitchCluster:
                         self.log.info(api_response)
                     except ApiException as e:
                         error = 'You cannot request resources using these settings. Please contact your admin'
-                        output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test6.sh', shell=True)
+                        output = subprocess.call('/home/jovyan/switch-cluster/test6.sh/test6.sh', shell=True)
                         self.log.info("output: ", output)
                         if output != 0:
                             error = 'There is some error. You cannot use these settings. Please contact your admin'
@@ -387,7 +387,7 @@ class SwitchCluster:
                             self.log.info(api_response)
                         except ApiException as e:
                             error = 'You cannot request resources using these settings. Please contact your admin'
-                            output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test6.sh', shell=True)
+                            output = subprocess.call('/home/jovyan/switch-cluster/test6.sh', shell=True)
                             self.log.info("output: ", output)
                             if output != 0:
                                 error = 'There is some error. You cannot use these settings. Please contact your admin'
