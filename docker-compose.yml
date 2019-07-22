@@ -18,7 +18,6 @@ services:
       - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       - JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
       - PYSPARK_PYTHON=/opt/conda/bin/python3
-      - PATH=$SPARK_HOME:$PATH:~/.local/bin:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
       - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z
