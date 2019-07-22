@@ -369,10 +369,17 @@ class SwitchCluster:
                             'name': context_name
                         })
 
-                        load['users'].append({
-                            'user': user_exec_command,
-                            'name': svcaccount
-                        })
+                        flag = 0
+                        for i in load['users']:
+                            if i['name'] == svcaccount:
+                                flag = 1
+                                break
+
+                        if flag == 0:
+                            load['users'].append({
+                                'user': user_exec_command,
+                                'name': svcaccount
+                            })
 
                         try:
                             with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
