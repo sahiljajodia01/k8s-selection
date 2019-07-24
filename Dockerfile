@@ -23,7 +23,9 @@ RUN pip install \
         python-dotenv \
         pyspark==2.4.0 \
         nbconvert==5.3.1 \
-        tornado==4.2
+        tornado==4.2 \
+        python-openstackclient==3.12.0 \
+
 
 
 RUN npm install -g yarn
