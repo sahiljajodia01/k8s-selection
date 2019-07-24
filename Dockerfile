@@ -44,6 +44,8 @@ COPY switch-cluster/ /home/jovyan/switch-cluster/
 
 COPY spark/ /home/jovyan/spark/
 
+COPY openrc.sh /home/jovyan/openrc.sh
+
 RUN cd /home/jovyan/switch-cluster && \
     pip install . && \
     jupyter nbextension install --py --system switchcluster && \
