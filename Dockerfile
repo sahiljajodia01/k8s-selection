@@ -25,7 +25,7 @@ RUN pip install \
         nbconvert==5.3.1 \
         tornado==4.2 \
         python-openstackclient==3.12.0 \
-        python-mangnumclient \
+        python-magnumclient \
         openstacksdk==0.17.2
 
 
