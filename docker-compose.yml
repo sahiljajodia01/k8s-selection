@@ -13,7 +13,7 @@ services:
       - USER=sjajodia
       - SERVER_HOSTNAME=localhost
       - KUBECONFIG=/home/jovyan/.kube/config
-      - OS_TOKEN=${OS_TOKEN}
+#      - OS_TOKEN=${OS_TOKEN}
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
       - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z
