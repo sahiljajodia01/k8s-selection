@@ -24,7 +24,9 @@ RUN pip install \
         pyspark==2.4.0 \
         nbconvert==5.3.1 \
         tornado==4.2 \
-        python-openstackclient==3.12.0
+        python-openstackclient==3.12.0 \
+        python-mangnumclient \
+        openstacksdk==0.17.2
 
 
 
