@@ -23,13 +23,12 @@ services:
       - bash
       - -c
       - |
-            cd /home/jovyan/switch-cluster && \
-            rm -rf ./switchcluster/js && \
-            make && \
-            pip install . && \
-            pip2 install . && \
-            jupyter nbextension install --py --system switchcluster
-
-          jupyter notebook --allow-root
+        cd /home/jovyan/switch-cluster && \
+        rm -rf ./switchcluster/js && \
+        make && \
+        pip install . && \
+        pip2 install . && \
+        jupyter nbextension install --py --system switchcluster && \
+        jupyter notebook --allow-root
 volumes:
   home:

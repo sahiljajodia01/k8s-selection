@@ -22,7 +22,7 @@ printf "c.InteractiveShellApp.extensions.append('sparkconnector.connector')" > /
 
 chmod g+w -R /usr/local/share/jupyter/nbextensions && chown -R root:users /usr/local/share/jupyter/nbextensions && chmod g+w -R /opt/conda/lib/python3.7/site-packages
 else
-# docker exec -it --user=root custom_jupyter bash -c "chmod +x /home/jovyan/run.sh && /home/jovyan/run.sh 0"
+# docker exec -it --user=root custom_extension bash -c "chmod +x /home/jovyan/run.sh && /home/jovyan/run.sh 0"
 cd /home/jovyan/SparkConnector/sparkconnector/ ; rm -rf js/ ; cd .. ; cd .. ;
 cd /home/jovyan/switch-cluster/switchcluster/ ; rm -rf js/ ; cd .. ; cd .. ;
 server_extensions=('SparkConnector' 'switch-cluster') && for extension in ${server_extensions[@]}; do cd /home/jovyan/$extension/ ; make ; cd .. || exit 1; done
