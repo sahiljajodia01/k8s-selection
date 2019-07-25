@@ -16,6 +16,11 @@ from dotenv import load_dotenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, To, From
 
+class AlreadyExistError(Exception):
+    """Raises when any element(context, cluster) already exists in KUBECONFIG file"""
+    pass
+
+
 
 class SwitchCluster:
     def __init__(self, ipython, log):
@@ -176,7 +181,6 @@ class SwitchCluster:
                 ip = msg['content']['data']['ip']
                 namespace = "swan-" + str(os.getenv('USER'))
                 svcaccount = str(os.getenv('USER'))
-                # context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
                 context_name = cluster_name
 
                 if insecure_server == "false":
@@ -192,9 +196,23 @@ class SwitchCluster:
                 if insecure_server == "false":
                     os.environ['CATOKEN'] = catoken
 
-                error = ''
-                if os.path.isdir(os.getenv('HOME') + '/.kube'):
-                    if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+                try:
+                    if os.path.isdir(os.getenv('HOME') + '/.kube'):
+                        if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+                            load = {}
+                            load['apiVersion'] = 'v1'
+                            load['clusters'] = []
+                            load['contexts'] = []
+                            load['current-context'] = ''
+                            load['kind'] = 'Config'
+                            load['preferences'] = {}
+                            load['users'] = []
+
+                            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+                    else:
+                        os.makedirs(os.getenv('HOME') + '/.kube')
+
                         load = {}
                         load['apiVersion'] = 'v1'
                         load['clusters'] = []
@@ -205,33 +223,14 @@ class SwitchCluster:
                         load['users'] = []
 
                         with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                            yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)                        
-                else:
-                    os.makedirs(os.getenv('HOME') + '/.kube')
+                            yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-                    load = {}
-                    load['apiVersion'] = 'v1'
-                    load['clusters'] = []
-                    load['contexts'] = []
-                    load['current-context'] = ''
-                    load['kind'] = 'Config'
-                    load['preferences'] = {}
-                    load['users'] = []
-
-                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-                
-
-                try:
                     with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                         load = yaml.safe_load(stream)
-                except:
-                    error = 'Cannot load kubeconfig'
 
-                contexts = []
-                clusters = []
+                    contexts = []
+                    clusters = []
 
-                if error == '':
                     active_context = load['current-context']
 
                     for i in load['contexts']:
@@ -241,59 +240,98 @@ class SwitchCluster:
                         clusters.append(i['name'])
 
                     if cluster_name in clusters:
-                        error = error + ' Cluster \'{}\' already exist.'.format(cluster_name)
-                    
-                    if error == '':
-                        if insecure_server == "false":
-                            load['clusters'].append({
-                                'cluster': {
-                                    'certificate-authority-data': catoken,
-                                    'server': ip
-                                },
-                                'name': cluster_name
-                            })
-                        else:
-                            load['clusters'].append({
-                                'cluster': {
-                                    'insecure-skip-tls-verify': True,
-                                    'server': ip
-                                },
-                                'name': cluster_name
-                            })
+                        raise AlreadyExistError('Cluster \'{}\' already exist.'.format(cluster_name))
 
-                        try:
-                            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-                        except:
-                            error = 'Cannot write to KUBECONFIG'
+                    if context_name in contexts:
+                        raise AlreadyExistError('Context \'{}\' already exist.'.format(context_name))
 
-                if error == '':
-                    output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test5.sh', shell=True)
-                    self.log.info("output: ", output)
-                    if output != 0:
-                        error = 'There is some error. You cannot use these settings. Please contact your admin'
+                    for user in load['users']:
+                        if user['user']['token'] == token:
+                            raise AlreadyExistError("A user with the given token already exist.")
 
-                if error == '':
-                    try:        
-                        api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
-                        api_response = api_instance2.list_namespaced_pod(namespace=namespace)
-                        self.log.info(api_response)
-                    except ApiException as e:
-                        error = 'You cannot request resources using these settings. Please contact your admin'
-                        output = subprocess.call('/Users/sahiljajodia/SWAN/switch-cluster/switch-cluster/test6.sh', shell=True)
-                        self.log.info("output: ", output)
-                        if output != 0:
-                            error = 'There is some error. You cannot use these settings. Please contact your admin'
+                    if insecure_server == "false":
+                        load['clusters'].append({
+                            'cluster': {
+                                'certificate-authority-data': catoken,
+                                'server': ip
+                            },
+                            'name': cluster_name
+                        })
+                    else:
+                        load['clusters'].append({
+                            'cluster': {
+                                'insecure-skip-tls-verify': True,
+                                'server': ip
+                            },
+                            'name': cluster_name
+                        })
 
-                if error == '':
-                    self.send({
-                    'msgtype': 'added-context-successfully',
+                    load['users'].append({
+                        'user': {
+                            'token': token,
+                        },
+                        'name': svcaccount
                     })
-                else:
+
+                    load['contexts'].append({
+                        'context': {
+                            'cluster': cluster_name,
+                            'namespace': namespace,
+                            'user': svcaccount
+                        },
+                        'name': context_name
+                    })
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
+                    api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
+                    api_response = api_instance2.list_namespaced_pod(namespace=namespace)
+
                     self.send({
-                    'msgtype': 'added-context-unsuccessfully',
-                    'error': error,
-                    'tab': 'local'
+                        'msgtype': 'added-context-successfully',
+                    })
+                except ApiException as e:
+                    error = 'You cannot request resources using these settings. Please contact your admin'
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                        load = yaml.safe_load(stream)
+
+                    for i in range(len(load['contexts'])):
+                        if load['contexts'][i]['name'] == context_name:
+                            load['contexts'].pop(i)
+                            break
+
+                    for i in range(len(load['clusters'])):
+                        if load['clusters'][i]['name'] == cluster_name:
+                            load['clusters'].pop(i)
+                            break
+
+                    for i in range(len(load['users'])):
+                        if load['users'][i]['name'] == svcaccount:
+                            load['users'].pop(i)
+                            break
+
+                    self.send({
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'local'
+                    })
+                except AlreadyExistError as e:
+                    error = e
+
+                    self.send({
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'local'
+                    })
+                except:
+                    error = 'Cannot use these settings. Please contact the cluster administrator'
+
+                    self.send({
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'local'
                     })
 
             elif tab == 'openstack':
@@ -303,12 +341,25 @@ class SwitchCluster:
                 catoken = msg['content']['data']['catoken']
                 namespace = "swan-" + str(os.getenv('USER'))
                 svcaccount = str(os.getenv('USER'))
-                # context_name = cluster_name + "-" + namespace + "-" + svcaccount + "-context"
                 context_name = cluster_name
 
-                error = ''
-                if os.path.isdir(os.getenv('HOME') + '/.kube'):
-                    if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+                try:
+                    if os.path.isdir(os.getenv('HOME') + '/.kube'):
+                        if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+                            load = {}
+                            load['apiVersion'] = 'v1'
+                            load['clusters'] = []
+                            load['contexts'] = []
+                            load['current-context'] = ''
+                            load['kind'] = 'Config'
+                            load['preferences'] = {}
+                            load['users'] = []
+
+                            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+                    else:
+                        os.makedirs(os.getenv('HOME') + '/.kube')
+
                         load = {}
                         load['apiVersion'] = 'v1'
                         load['clusters'] = []
@@ -319,96 +370,113 @@ class SwitchCluster:
                         load['users'] = []
 
                         with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                            yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)                        
-                else:
-                    os.makedirs(os.getenv('HOME') + '/.kube')
+                            yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-                    load = {}
-                    load['apiVersion'] = 'v1'
-                    load['clusters'] = []
-                    load['contexts'] = []
-                    load['current-context'] = ''
-                    load['kind'] = 'Config'
-                    load['preferences'] = {}
-                    load['users'] = []
-
-                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-
-                try:
                     with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                         load = yaml.safe_load(stream)
-                except:
-                    error = 'Cannot load KUBECONFIG'
-                
-                clusters = []
-                if error == '':
+
+                    contexts = []
+                    clusters = []
+
+                    for i in load['contexts']:
+                        contexts.append(i['name'])
+
                     for i in load['clusters']:
                         clusters.append(i['name'])
 
                     if cluster_name in clusters:
-                        error = error + ' Cluster \'{}\' already exist.'.format(cluster_name)
+                        raise AlreadyExistError('Cluster \'{}\' already exist.'.format(cluster_name))
 
-                    if error == '':
-                        user_exec_command = {'exec': {'args': ['-c', 'if [ -z ${OS_TOKEN} ]; then\n    echo \'Error: Missing OpenStack credential from environment variable $OS_TOKEN\' > /dev/stderr\n    exit 1\nelse\n    echo \'{ "apiVersion": "client.authentication.k8s.io/v1alpha1", "kind": "ExecCredential", "status": { "token": "\'"${OS_TOKEN}"\'"}}\'\nfi\n'], 'command': '/bin/bash', 'apiVersion': 'client.authentication.k8s.io/v1alpha1'}}
+                    if context_name in contexts:
+                        raise AlreadyExistError('Context \'{}\' already exist.'.format(context_name))
 
-                        load['clusters'].append({
-                            'cluster': {
-                                'certificate-authority-data': catoken,
-                                'server': ip
-                            },
-                            'name': cluster_name
+                    user_exec_command = {'exec': {'args': ['-c',
+                                                           'if [ -z ${OS_TOKEN} ]; then\n    echo \'Error: Missing OpenStack credential from environment variable $OS_TOKEN\' > /dev/stderr\n    exit 1\nelse\n    echo \'{ "apiVersion": "client.authentication.k8s.io/v1alpha1", "kind": "ExecCredential", "status": { "token": "\'"${OS_TOKEN}"\'"}}\'\nfi\n'],
+                                                  'command': '/bin/bash',
+                                                  'apiVersion': 'client.authentication.k8s.io/v1alpha1'}}
+
+                    load['clusters'].append({
+                        'cluster': {
+                            'certificate-authority-data': catoken,
+                            'server': ip
+                        },
+                        'name': cluster_name
+                    })
+
+                    load['contexts'].append({
+                        'context': {
+                            'cluster': cluster_name,
+                            'namespace': namespace,
+                            'user': svcaccount
+                        },
+                        'name': context_name
+                    })
+
+                    flag = 0
+                    for i in load['users']:
+                        if i['name'] == svcaccount:
+                            flag = 1
+                            break
+
+                    if flag == 0:
+                        load['users'].append({
+                            'user': user_exec_command,
+                            'name': svcaccount
                         })
 
-                        load['contexts'].append({
-                            'context': {
-                                'cluster': cluster_name,
-                                'namespace': namespace,
-                                'user': svcaccount
-                            },
-                            'name': context_name
-                        })
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-                        flag = 0
-                        for i in load['users']:
-                            if i['name'] == svcaccount:
-                                flag = 1
-                                break
+                    api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
+                    api_instance2.list_namespaced_pod(namespace=namespace)
 
-                        if flag == 0:
-                            load['users'].append({
-                                'user': user_exec_command,
-                                'name': svcaccount
-                            })
-
-                        try:
-                            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-                        except:
-                            error = 'Cannot write to KUBECONFIG'
-
-                    if error == '':
-                        try:
-                            api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
-                            api_response = api_instance2.list_namespaced_pod(namespace=namespace)
-                            self.log.info(api_response)
-                        except ApiException as e:
-                            error = 'You cannot request resources using these settings. Please contact your admin'
-                            output = subprocess.call('/home/jovyan/switch-cluster/test6.sh', shell=True)
-                            self.log.info("output: ", output)
-                            if output != 0:
-                                error = 'There is some error. You cannot use these settings. Please contact your admin'
-
-                if error == '':
                     self.send({
-                    'msgtype': 'added-context-successfully',
-                })
-                else:
+                        'msgtype': 'added-context-successfully',
+                    })
+                except ApiException as e:
+                    error = 'You cannot request resources using these settings. Please contact your admin'
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                        load = yaml.safe_load(stream)
+
+                    for i in range(len(load['contexts'])):
+                        if load['contexts'][i]['name'] == context_name:
+                            load['contexts'].pop(i)
+                            break
+
+                    for i in range(len(load['clusters'])):
+                        if load['clusters'][i]['name'] == cluster_name:
+                            load['clusters'].pop(i)
+                            break
+
+                    for i in range(len(load['users'])):
+                        if load['users'][i]['name'] == svcaccount:
+                            load['users'].pop(i)
+                            break
+
                     self.send({
-                    'msgtype': 'added-context-unsuccessfully',
-                    'error': error,
-                    'tab': 'openstack'
-                })
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'openstack'
+                    })
+                except AlreadyExistError as e:
+                    error = e
+
+                    self.send({
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'openstack'
+                    })
+                except:
+                    error = 'Cannot use these settings. Please contact the cluster administrator'
+
+                    self.send({
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'openstack'
+                    })
+
+
         elif action == "show-error":
             error = "Please fill all the required fields."
             self.send({
