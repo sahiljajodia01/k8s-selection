@@ -13,7 +13,7 @@ from kubernetes.client.rest import ApiException
 import base64
 from os.path import join, dirname
 from dotenv import load_dotenv
-from sendgrid import SendGridAPIClient
+from sendgrid import SendGridAPIClient, SendGridException
 from sendgrid.helpers.mail import Mail, To, From
 
 class AlreadyExistError(Exception):
@@ -171,7 +171,7 @@ class SwitchCluster:
                     'error': error
                     })
         elif action == 'add-context-cluster':
-            
+
             tab = msg['content']['data']['tab']
 
             if tab == 'local':
@@ -428,7 +428,7 @@ class SwitchCluster:
                         yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
                     api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
-                    api_instance2.list_namespaced_pod(namespace=namespace)
+                    api_instance2.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
 
                     self.send({
                         'msgtype': 'added-context-successfully',
@@ -491,11 +491,7 @@ class SwitchCluster:
             try:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                     load = yaml.safe_load(stream)
-            except:
-                error = 'Cannot load KUBECONFIG'
 
-
-            if error == '':
                 contexts = load['contexts']
                 for i in contexts:
                     if i['name'] == load['current-context']:
@@ -503,58 +499,58 @@ class SwitchCluster:
                             namespace = i['context']['namespace']
                             break
 
-            self.log.info("NAMESPACE: ", namespace)
-            
-            if error == '':
-                try:
-                    config.load_kube_config()
-                    api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
-                except:
-                    self.log.info("CANNOT LIST PODS")
-                    error = 'Cannot list pods'
-            
-            if error == '':
+                self.log.info("NAMESPACE: ", namespace)
+
+                config.load_kube_config()
+                api_instance = client.CoreV1Api()
+                api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
+
                 self.send({
                     'msgtype': 'connection-details',
                     'context': load['current-context']
                 })
-            else:
+
+            except ApiException as e:
+                self.log.info("CANNOT LIST PODS")
+                error = 'Cannot list pods in your namespace'
+
+                self.send({
+                    'msgtype': 'connection-details-error',
+                })
+            except:
+                error = 'Cannot load KUBECONFIG'
+
                 self.send({
                     'msgtype': 'connection-details-error',
                 })
 
         elif action == "delete-current-context":
-            error = ''
-
             context = msg['content']['data']['context']
-
 
             try:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                     load = yaml.safe_load(stream)
-            except:
-                error = "Cannot open KUBECONFIG file"
 
-            if error == '':
+
                 for i in range(len(load['contexts'])):
                     if load['contexts'][i]['name'] == context:
                         load['contexts'].pop(i)
                         break
 
-                try:
-                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-                except:
-                    error = "Cannot save KUBECONFIG file"
+                for i in range(len(load['clusters'])):
+                    if load['clusters'][i]['name'] == context:
+                        load['clusters'].pop(i)
+                        break
 
-            
-            
-            if error == '':
+                with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                    yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
                 self.send({
                     'msgtype': 'deleted-context-successfully',
                 })
-            else:
+            except:
+                error = "Cannot open KUBECONFIG file"
+
                 self.send({
                     'msgtype': 'deleted-context-unsuccessfully',
                 })
@@ -569,91 +565,62 @@ class SwitchCluster:
             rolebinding_name = 'edit-cluster-' + namespace
 
             try:
-                config.load_kube_config()
-            except:
-                error = 'Cannot load KUBECONFIG'
-
-            try:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                     load = yaml.safe_load(stream)
-            except:
-                error = 'Cannot load kubeconfig'
 
-            self.log.info("Yaml load: ", load)
-            self.log.info("SELECTED CONTEXT: ", selected_context)
-            if error == '':
+                self.log.info("Yaml load: ", load)
+
                 for i in load['contexts']:
                     if i['name'] == selected_context:
                         selected_cluster = i['context']['cluster']
                         break
 
-            self.log.info("SELECTED CLUSTER: ", selected_cluster)
+                self.log.info("SELECTED CLUSTER: ", selected_cluster)
 
-            api_instance = client.CoreV1Api()
-            rbac_client = client.RbacAuthorizationV1Api()
-            flag = 0
-            flag1 = 0
-            if error == '':
-                try:
-                    api_response = api_instance.list_namespace()
-                    for i in api_response.items:
-                        if i.metadata.name == namespace:
-                            flag = 1
-                            break 
-                except:
-                    error = 'Cannot list namespace'
+                config.load_kube_config()
+                api_instance = client.CoreV1Api()
+                rbac_client = client.RbacAuthorizationV1Api()
+                flag = 0
+                flag1 = 0
 
-            if error == '':
+                api_response = api_instance.list_namespace()
+                for i in api_response.items:
+                    if i.metadata.name == namespace:
+                        flag = 1
+                        break
+
                 if flag == 1:
-                    try:
-                        api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
-                        for i in api_response.items:
-                            if i.metadata.name == rolebinding_name:
-                                # error = 'A user \'{}\' already exists for this cluster'.format(username)
-                                flag1 = 1
-                                break
-                    except:
-                        error = 'Cannot list namespaced role binding'
+                    api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
+                    for i in api_response.items:
+                        if i.metadata.name == rolebinding_name:
+                            # error = 'A user \'{}\' already exists for this cluster'.format(username)
+                            flag1 = 1
+                            break
 
-                    if error == '' and flag1 == 0:
-                        rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace, cluster_name=selected_cluster)
-                        role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
+                    if flag1 == 0:
+                        rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace,
+                                                              cluster_name=selected_cluster)
+                        role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole',
+                                                    name='edit')
                         subject = client.V1Subject(api_group='rbac.authorization.k8s.io', kind='User', name=username)
                         subject_list = [subject]
-                        rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref, subjects=subject_list)
-
-                        try:
-                            rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
-                        except:
-                            error = 'Cannot create role binding'
+                        rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref,
+                                                                subjects=subject_list)
+                        rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
                 else:
                     obj = client.V1ObjectMeta(name=namespace, cluster_name=selected_cluster)
                     body = client.V1Namespace(metadata=obj)
+                    api_instance.create_namespace(body)
 
-                    try:
-                        api_instance.create_namespace(body)
-                    except:
-                        error = 'Cannot create namespace'
+                    rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace,
+                                                          cluster_name=selected_cluster)
+                    role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
+                    subject = client.V1Subject(api_group='rbac.authorization.k8s.io', kind='User', name=username)
+                    subject_list = [subject]
+                    rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref,
+                                                            subjects=subject_list)
 
-                    
-                    if error == '':
-                        rolebinding_obj = client.V1ObjectMeta(name=rolebinding_name, namespace=namespace, cluster_name=selected_cluster)
-                        role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='edit')
-                        subject = client.V1Subject(api_group='rbac.authorization.k8s.io', kind='User', name=username)
-                        subject_list = [subject]
-                        rolebinding_body = client.V1RoleBinding(metadata=rolebinding_obj, role_ref=role_ref, subjects=subject_list)
-
-                        try:
-                            rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
-                        except:
-                            error = 'Cannot create role binding'
-
-
-            # if error == '':
-            # 	for i in load['contexts']:
-            # 		if i['name'] == selected_context:
-            # 			selected_cluster = i['context']['cluster']
-            # 			break
+                    rbac_client.create_namespaced_role_binding(namespace, rolebinding_body)
 
 
                 for i in load['clusters']:
@@ -665,43 +632,33 @@ class SwitchCluster:
                 dotenv_path = join(dirname(__file__), '.env')
                 load_dotenv(dotenv_path)
 
-                # sendgrid_api_key = os.getenv('SENDGRID_API_KEY')
-                
-                # html_body = '<strong>Cluster name: </strong>' + selected_cluster + '<br><br><strong>CA Cert: </strong>' + ca_cert + '<br><br><strong>Server IP: </strong>' + server_ip
                 message = Mail(
                     from_email=From('sahil.jajodia@gmail.com'),
                     to_emails=To(email),
                     subject='Credentials for cluster: ' + selected_cluster,
                     html_content='<strong>Cluster name: </strong>' + selected_cluster + '<br><br><strong>CA Cert: </strong>' + ca_cert + '<br><br><strong>Server IP: </strong>' + server_ip)
 
-                try:
-                    sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-                    response = sg.send(message)
-                    print(response.status_code)
-                    print(response.body)
-                    print(response.headers)
-                except Exception as e:
-                    error = e.message
-                    print(e.message)
 
-            if error == '':
+                sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+                response = sg.send(message)
+
                 self.send({
                     'msgtype': 'added-user-successfully',
                 })
-            else:
+            except SendGridException as e:
+                error = 'Cannot send email.'
+
                 self.send({
                     'msgtype': 'added-user-unsuccessfully',
                     'error': error
                 })
+            except:
+                error = 'Cannot create user due to some error.'
 
-            # try:
-            # 	api_response = rbac_client.list_namespaced_role_binding(namespace=namespace)
-            # 	print(api_response)
-            # except:
-            # 	error = 'Cannot list namespaced role binding'
-
-
-
+                self.send({
+                    'msgtype': 'added-user-unsuccessfully',
+                    'error': error
+                })
 
     def register_comm(self):
         """ Register a comm_target which will be used by frontend to start communication """
@@ -724,8 +681,23 @@ class SwitchCluster:
     def cluster_list(self):
         error = ''
 
-        if os.path.isdir(os.getenv('HOME') + '/.kube'):
-            if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+        try:
+            if os.path.isdir(os.getenv('HOME') + '/.kube'):
+                if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
+                    load = {}
+                    load['apiVersion'] = 'v1'
+                    load['clusters'] = []
+                    load['contexts'] = []
+                    load['current-context'] = ''
+                    load['kind'] = 'Config'
+                    load['preferences'] = {}
+                    load['users'] = []
+
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+            else:
+                os.makedirs(os.getenv('HOME') + '/.kube')
+
                 load = {}
                 load['apiVersion'] = 'v1'
                 load['clusters'] = []
@@ -736,30 +708,11 @@ class SwitchCluster:
                 load['users'] = []
 
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                    yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)                        
-        else:
-            os.makedirs(os.getenv('HOME') + '/.kube')
+                    yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-            load = {}
-            load['apiVersion'] = 'v1'
-            load['clusters'] = []
-            load['contexts'] = []
-            load['current-context'] = ''
-            load['kind'] = 'Config'
-            load['preferences'] = {}
-            load['users'] = []
-
-            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-
-        try:
             with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                 load = yaml.safe_load(stream)
-        except:
-            error = 'Cannot load kubeconfig'
 
-
-        if error == '':
             contexts = load['contexts']
             for i in range(len(contexts)):
                 if contexts[i]['name'] == load['current-context']:
@@ -770,7 +723,6 @@ class SwitchCluster:
             for i in contexts:
                 self.log.info(i)
 
-
             clusters = []
             for i in load['clusters']:
                 clusters.append(i['name'])
@@ -780,7 +732,7 @@ class SwitchCluster:
             for i in load['contexts']:
                 if i['name'] == load['current-context']:
                     current_cluster = i['context']['cluster']
-            
+
             namespaces = []
             for i in contexts:
                 # self.log.info(i)
@@ -813,7 +765,6 @@ class SwitchCluster:
                     self.log.info("INSIDE EXCEPT")
                     delete_list.append("True")
 
-
             for i in range(len(contexts)):
                 try:
                     self.log.info("INSIDE TRY")
@@ -824,7 +775,7 @@ class SwitchCluster:
                 except:
                     self.log.info("INSIDE EXCEPT")
                     admin_list.append("False")
-        
+
             self.log.info("DELETE LIST: ")
             for i in delete_list:
                 self.log.info(i)
@@ -839,6 +790,9 @@ class SwitchCluster:
                 'delete_list': delete_list,
                 'admin_list': admin_list,
             })
+        except:
+            error = 'Cannot load kubeconfig'
+
 
     def check_config(self, cluster, namespace, svcaccount):
         # def run_command(command):
