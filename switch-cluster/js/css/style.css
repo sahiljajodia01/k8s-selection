@@ -471,6 +471,9 @@ button.back-button {
 .cluster-list-div {
     display: flex;
     flex-direction: row;
+    border-bottom: 0.3px solid rgba(85, 87, 86, 0.62);
+    margin-bottom:10px;
+    margin-top: 10px;
     /* border: 1px solid black; */
 
 }
@@ -499,6 +502,11 @@ button.back-button {
     margin-top: 10px;
     width: 3rem;
     color: #008017;
+}
+
+.cluster-list-div > .list-item-load {
+    align-items: center;
+    text-align: center;
 }
 
 
@@ -597,7 +605,7 @@ button.back-button {
 
 
 #user_html_inputs {
-    max-height: 350px;
+    max-height: 280px;
     overflow-y: auto;
 }
 

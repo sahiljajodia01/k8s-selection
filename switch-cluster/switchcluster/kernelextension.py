@@ -335,7 +335,7 @@ class SwitchCluster:
                     })
 
             elif tab == 'openstack':
-                ostoken = msg['content']['data']['ostoken']
+                # ostoken = msg['content']['data']['ostoken']
                 cluster_name = msg['content']['data']['cluster_name']
                 ip = msg['content']['data']['ip']
                 catoken = msg['content']['data']['catoken']

@@ -145,30 +145,62 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
     var that = this;
     var list_div = html.find("#user_html_inputs");
 
+
+
     for(var i = 0; i < contexts.length; i++) {
         if(delete_list[i] == "True") {
-            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
         }
         else {
             if(admin_list[i] == "True") {
                 if(contexts[i] == current_context) {
-                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
                 }
                 else {
-                    $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                    $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
                 }
             }
             else {
                 if(contexts[i] == current_context) {
-                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
                 }
                 else {
-                    $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
+                    $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
                 }
             }
         }
         // $('<div class="cluster-list-div"><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
     }
+
+    var size_list = list_div.find(".cluster-list-div").length;
+    console.log("Size list: " + size_list);
+
+    var x = 5;
+    html.find('.cluster-list-div:lt(' + size_list + ')').hide();
+
+
+    if(size_list > 5) {
+        html.find('.cluster-list-div:lt('+x+')').show();
+        $("<div><button style=\"position: absolute; left: 45%;\" class=\"list-item-load pure-material-button-text\" id=\"load_more_button\">Load More</button></div>").appendTo(html);
+    }
+    else {
+        html.find('.cluster-list-div:lt(' + size_list + ')').show();
+    }
+
+
+
+    html.find("#load_more_button").click(function() {
+
+        if(x+5 < size_list) {
+            html.find('.cluster-list-div:lt('+x+5+')').show();
+        }
+        else {
+            html.find('.cluster-list-div:lt('+size_list+')').show();
+            html.find("#load_more_button").hide();
+        }
+
+
+    });
     
     list_div.find(".list-item-select").on('click', function() {
         var button_id = $(this).attr('id');
@@ -667,37 +699,37 @@ SwitchCluster.prototype.get_html_create_context = function() {
     }
     
 
-    $('<br><br>').appendTo(tab2);
-
-    $('<label for="openstack_ostoken_text" id="openstack_ostoken_text_label">OS Token</label><br>').appendTo(tab2);
-    
-    if(this.openstack_selected_ostoken) {
-        var openstack_ostoken_input = $('<input/>')
-            .attr('name', 'openstack_ostoken_text')
-            .attr('type', 'text')
-            .attr("required", "required")
-            .attr('id', 'openstack_ostoken_text')
-            .attr('value', this.openstack_selected_ostoken)
-            .attr('placeholder', 'OS Token')
-            .addClass('form__field')
-            .appendTo(tab2)
-            .change(function() {
-                that.openstack_selected_ostoken = openstack_ostoken_input.val();
-            });
-    }
-    else {
-        var openstack_ostoken_input = $('<input/>')
-            .attr('name', 'openstack_ostoken_text')
-            .attr('type', 'text')
-            .attr("required", "required")
-            .attr('id', 'openstack_ostoken_text')
-            .attr('placeholder', 'OS Token')
-            .addClass('form__field')
-            .appendTo(tab2)
-            .change(function() {
-                that.openstack_selected_ostoken = openstack_ostoken_input.val();
-            });
-    }
+    // $('<br><br>').appendTo(tab2);
+    //
+    // $('<label for="openstack_ostoken_text" id="openstack_ostoken_text_label">OS Token</label><br>').appendTo(tab2);
+    //
+    // if(this.openstack_selected_ostoken) {
+    //     var openstack_ostoken_input = $('<input/>')
+    //         .attr('name', 'openstack_ostoken_text')
+    //         .attr('type', 'text')
+    //         .attr("required", "required")
+    //         .attr('id', 'openstack_ostoken_text')
+    //         .attr('value', this.openstack_selected_ostoken)
+    //         .attr('placeholder', 'OS Token')
+    //         .addClass('form__field')
+    //         .appendTo(tab2)
+    //         .change(function() {
+    //             that.openstack_selected_ostoken = openstack_ostoken_input.val();
+    //         });
+    // }
+    // else {
+    //     var openstack_ostoken_input = $('<input/>')
+    //         .attr('name', 'openstack_ostoken_text')
+    //         .attr('type', 'text')
+    //         .attr("required", "required")
+    //         .attr('id', 'openstack_ostoken_text')
+    //         .attr('placeholder', 'OS Token')
+    //         .addClass('form__field')
+    //         .appendTo(tab2)
+    //         .change(function() {
+    //             that.openstack_selected_ostoken = openstack_ostoken_input.val();
+    //         });
+    // }
 
 
     $('<br><br>').appendTo(tab2);
@@ -793,7 +825,7 @@ SwitchCluster.prototype.create_context = function() {
     console.log("Insecure server: ", this.checkbox_status);
     // console.log("Insecure server: ", this.insecure_server);
 
-    console.log("Selected openstack os token: ", this.openstack_selected_ostoken);
+    // console.log("Selected openstack os token: ", this.openstack_selected_ostoken);
     console.log("Selected openstack cluster: ", this.openstack_selected_clustername);
     console.log("Selected openstack server ip: ", this.openstack_selected_ip);
     console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
@@ -825,7 +857,7 @@ SwitchCluster.prototype.create_context = function() {
     else if(this.selected_tab == "openstack") {
         this.send({
             'action': 'add-context-cluster',
-            'ostoken': this.openstack_selected_ostoken,
+            // 'ostoken': this.openstack_selected_ostoken,
             'tab': this.selected_tab,
             'catoken': this.openstack_selected_catoken,
             'cluster_name': this.openstack_selected_clustername,
@@ -1090,7 +1122,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         });
 
         this.modal2.on('hide.bs.modal', function () {
-            that.modal.find(".modal-content").attr("style", "opacity: 1;");
+            that.modal.find(".modal-content").removeAttr("style");
         });
         // var error = msg.content.data.error;
         // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
