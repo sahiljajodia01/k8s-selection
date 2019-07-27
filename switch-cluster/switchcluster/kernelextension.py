@@ -479,10 +479,17 @@ class SwitchCluster:
 
         elif action == "show-error":
             error = "Please fill all the required fields."
-            self.send({
-                'msgtype': 'added-context-unsuccessfully',
-                'error': error
-            })
+            state = msg['content']['data']['state']
+            if state == 'create':
+                self.send({
+                    'msgtype': 'added-context-unsuccessfully',
+                    'error': error
+                })
+            elif state == 'create_users':
+                self.send({
+                    'msgtype': 'added-user-unsuccessfully',
+                    'error': error
+                })
         elif action == "get-connection-detail":
             self.log.info("INSIDE CONNECTION DETAIL")
             error = ''

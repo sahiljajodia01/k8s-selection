@@ -46,6 +46,9 @@ function SwitchCluster() {
         loading: {
             get_html: $.proxy(this.get_html_loading, this),
             hide_close: true,
+        },
+        error: {
+            get_html: $.proxy(this.get_html_error, this)
         }
     };
 
@@ -387,23 +390,6 @@ SwitchCluster.prototype.change_cluster = function() {
         'action': 'get-context-settings',
         'context': this.current_context,
     })
-    // var header = this.modal.find('.modal-header');
-    // var html = this.modal.find('.modal-body');
-    // var footer = this.modal.find('.modal-footer');
-    // var error_div = html.find('#setting-error');
-    // error_div.remove();
-
-    // footer.find('#select-button').attr('disabled', true);
-    // header.find('.close').hide();
-
-    // console.log("Selected namespace: " + this.selected_namespace);
-    // console.log("Selected serviceaccount: " + this.selected_svcaccount);
-    // this.send({
-    //     'action': 'check-current-settings',
-    //     'cluster': this.current_cluster,
-    //     'namespace': this.selected_namespace,
-    //     'svcaccount': this.selected_svcaccount
-    // })
     
 };
 
@@ -444,15 +430,6 @@ SwitchCluster.prototype.get_html_create_context = function() {
     var tab1 = tab1.find("#other-settings");
 
     var tab2 = html.find("#tab2");
-    // var select1 = html.find(".select-text");
-    // for(var i = 0; i < clusters.length; i++) {
-    //     if(clusters[i] == this.current_cluster) {
-    //         $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).attr("selected", "selected").appendTo(select1);
-    //     }
-    //     else {
-    //         $('<option>' + clusters[i] + '</option>').attr('value', clusters[i]).appendTo(select1);
-    //     }
-    // }
 
     var checkbox = html.find("#cluster-mode");
     this.checkbox_status = "unchecked";
@@ -635,7 +612,6 @@ SwitchCluster.prototype.get_html_create_context = function() {
 
 
 
-
     $('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
     
     if(this.openstack_selected_clustername) {
@@ -697,39 +673,6 @@ SwitchCluster.prototype.get_html_create_context = function() {
                 that.openstack_selected_ip = openstack_ip_input.val();
             });
     }
-    
-
-    // $('<br><br>').appendTo(tab2);
-    //
-    // $('<label for="openstack_ostoken_text" id="openstack_ostoken_text_label">OS Token</label><br>').appendTo(tab2);
-    //
-    // if(this.openstack_selected_ostoken) {
-    //     var openstack_ostoken_input = $('<input/>')
-    //         .attr('name', 'openstack_ostoken_text')
-    //         .attr('type', 'text')
-    //         .attr("required", "required")
-    //         .attr('id', 'openstack_ostoken_text')
-    //         .attr('value', this.openstack_selected_ostoken)
-    //         .attr('placeholder', 'OS Token')
-    //         .addClass('form__field')
-    //         .appendTo(tab2)
-    //         .change(function() {
-    //             that.openstack_selected_ostoken = openstack_ostoken_input.val();
-    //         });
-    // }
-    // else {
-    //     var openstack_ostoken_input = $('<input/>')
-    //         .attr('name', 'openstack_ostoken_text')
-    //         .attr('type', 'text')
-    //         .attr("required", "required")
-    //         .attr('id', 'openstack_ostoken_text')
-    //         .attr('placeholder', 'OS Token')
-    //         .addClass('form__field')
-    //         .appendTo(tab2)
-    //         .change(function() {
-    //             that.openstack_selected_ostoken = openstack_ostoken_input.val();
-    //         });
-    // }
 
 
     $('<br><br>').appendTo(tab2);
@@ -783,6 +726,7 @@ SwitchCluster.prototype.create_context = function() {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
                 this.send({
                     'action': 'show-error',
+                    'state': 'create'
                 });
                 return;
             }
@@ -791,6 +735,7 @@ SwitchCluster.prototype.create_context = function() {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
                 this.send({
                     'action': 'show-error',
+                    'state': 'create'
                 });
                 return;
             }
@@ -800,6 +745,7 @@ SwitchCluster.prototype.create_context = function() {
         if(!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip) {
             this.send({
                 'action': 'show-error',
+                'state': 'create'
             });
             return;
         }
@@ -924,6 +870,7 @@ SwitchCluster.prototype.create_users = function() {
     if(!this.user_create_input || !this.user_email_create_input) {
         this.send({
             'action': 'show-error',
+            'state': 'create_users'
         });
         return;
     }
@@ -969,6 +916,35 @@ SwitchCluster.prototype.get_html_loading = function() {
     // $('<div>')
     //     .addClass('dbl-spinner--2')
     //     .appendTo(loading);
+};
+
+
+SwitchCluster.prototype.get_html_error = function (error, prev_state) {
+
+    if (this.modal) {
+        Jupyter.keyboard_manager.disable();
+        var header = this.modal.find('.modal-header');
+        var body = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+
+        header.html('');
+        body.html('');
+        footer.html('');
+
+        $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
+        // var that = this;
+
+        $("<button>")
+            .attr("type", "button")
+            .addClass("back-button")
+            .html("<i class='fa fa-arrow-left' aria-hidden='true'></i>")
+            .appendTo(header)
+            .on("click", $.proxy(this.switch_state, this, prev_state));
+
+        $('<h4 class="modal-title">&nbsp;&nbsp;<span>Error</span></h4>').appendTo(header);
+
+        $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(body);
+    }
 };
 
 
@@ -1063,26 +1039,28 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         // else
         //     var tab_html = html.find("#tab4");
         
-        this.modal.find(".modal-content").attr("style", "opacity: 0;");
-
-        this.modal2 = dialog.modal({
-            notebook: Jupyter.notebook,
-            keyboard_manager: Jupyter.keyboard_manager,
-            title: 'Error',
-            body: msg.content.data.error,
-        });
-
-        this.modal2.on('hide.bs.modal', function () {
-            that.modal.find(".modal-content").attr("style", "opacity: 1;");
-        });
+        // this.modal.find(".modal-content").attr("style", "opacity: 0;");
+        //
+        // this.modal2 = dialog.modal({
+        //     notebook: Jupyter.notebook,
+        //     keyboard_manager: Jupyter.keyboard_manager,
+        //     title: 'Error',
+        //     body: msg.content.data.error,
+        // });
+        //
+        // this.modal2.on('hide.bs.modal', function () {
+        //     that.modal.find(".modal-content").attr("style", "opacity: 1;");
+        // });
 
         // var error = msg.content.data.error;
         // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(tab_html);
 
-        console.log("Added context unsuccessfull");
-
         footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
+
+        this.get_html_error(msg.content.data.error, this.states.create);
+
+        console.log("Added context unsuccessfull");
     }
     else if(msg.content.data.msgtype == 'changed-current-context') {
         this.hide_close = false;
@@ -1112,20 +1090,22 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
         var header = this.modal.find('.modal-header');
         var that = this;
 
-        this.modal.find(".modal-content").attr("style", "opacity: 0;");
-
-        this.modal2 = dialog.modal({
-            notebook: Jupyter.notebook,
-            keyboard_manager: Jupyter.keyboard_manager,
-            title: 'Error',
-            body: msg.content.data.error,
-        });
-
-        this.modal2.on('hide.bs.modal', function () {
-            that.modal.find(".modal-content").removeAttr("style");
-        });
+        // this.modal.find(".modal-content").attr("style", "opacity: 0;");
+        //
+        // this.modal2 = dialog.modal({
+        //     notebook: Jupyter.notebook,
+        //     keyboard_manager: Jupyter.keyboard_manager,
+        //     title: 'Error',
+        //     body: msg.content.data.error,
+        // });
+        //
+        // this.modal2.on('hide.bs.modal', function () {
+        //     that.modal.find(".modal-content").removeAttr("style");
+        // });
         // var error = msg.content.data.error;
         // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
+
+        this.get_html_error(msg.content.data.error, this.states.create_users);
     }
     else if(msg.content.data.msgtype == 'added-user-successfully') {
         this.user_create_input = undefined;
