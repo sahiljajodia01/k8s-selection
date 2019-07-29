@@ -753,7 +753,7 @@ class SwitchCluster:
                 clusters.append(i['name'])
 
             # active_context = load['current-context']
-
+            current_cluster = ''
             for i in load['contexts']:
                 if i['name'] == load['current-context']:
                     current_cluster = i['context']['cluster']
@@ -772,9 +772,10 @@ class SwitchCluster:
             for i in namespaces:
                 self.log.info(i)
             contexts = [context['name'] for context in contexts]
+            current_context = ''
             if active_context:
-                active_context = active_context['name']
-                self.log.info("Current context: ", active_context)
+                current_context = active_context['name']
+                self.log.info("Current context: ", current_context)
             delete_list = []
             admin_list = []
 
@@ -809,7 +810,7 @@ class SwitchCluster:
             self.send({
                 'msgtype': 'context-select',
                 'contexts': contexts,
-                'active_context': active_context,
+                'active_context': current_context,
                 'clusters': clusters,
                 'current_cluster': current_cluster,
                 'delete_list': delete_list,
