@@ -772,11 +772,11 @@ class SwitchCluster:
             for i in namespaces:
                 self.log.info(i)
             contexts = [context['name'] for context in contexts]
-            active_context = active_context['name']
+            if active_context:
+                active_context = active_context['name']
+                self.log.info("Current context: ", active_context)
             delete_list = []
             admin_list = []
-
-            self.log.info("Current context: ", active_context)
 
             self.log.info("Inside delete list if")
             for i in range(len(contexts)):
