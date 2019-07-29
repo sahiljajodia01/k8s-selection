@@ -336,7 +336,7 @@ SwitchCluster.prototype.get_html_select_cluster = function () {
 
     // var main_div = html.find('#user_html_inputs');
 
-    (0, _jquery2.default)('<br><br><br><br>').appendTo(list_div);
+    (0, _jquery2.default)('<br>').appendTo(list_div);
 
     // $('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
 
@@ -962,7 +962,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     } else if (msg.content.data.msgtype == 'added-user-successfully') {
         this.user_create_input = undefined;
         this.user_email_create_input = undefined;
-        this.user_create_context_name = undefined;
+        // this.user_create_context_name = undefined;
         this.switch_state(this.states.create_users);
     }
 };

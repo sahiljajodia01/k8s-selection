@@ -18,7 +18,9 @@ from sendgrid.helpers.mail import Mail, To, From
 
 class AlreadyExistError(Exception):
     """Raises when any element(context, cluster) already exists in KUBECONFIG file"""
-    pass
+
+    def __init__(self, message):
+        self.message = message
 
 
 
@@ -180,7 +182,7 @@ class SwitchCluster:
                 insecure_server = msg['content']['data']['insecure_server']
                 ip = msg['content']['data']['ip']
                 namespace = "swan-" + str(os.getenv('USER'))
-                svcaccount = str(os.getenv('USER'))
+                svcaccount = str(os.getenv('USER')) + "-" + cluster_name
                 context_name = cluster_name
 
                 if insecure_server == "false":
@@ -245,9 +247,6 @@ class SwitchCluster:
                     if context_name in contexts:
                         raise AlreadyExistError('Context \'{}\' already exist.'.format(context_name))
 
-                    for user in load['users']:
-                        if user['user']['token'] == token:
-                            raise AlreadyExistError("A user with the given token already exist.")
 
                     if insecure_server == "false":
                         load['clusters'].append({
@@ -266,12 +265,23 @@ class SwitchCluster:
                             'name': cluster_name
                         })
 
-                    load['users'].append({
-                        'user': {
-                            'token': token,
-                        },
-                        'name': svcaccount
-                    })
+
+                    flag = 0
+                    for user in load['users']:
+                        if svcaccount == user['name']:
+                            if 'token' in user['user'].keys():
+                                user['user']['token'] = token
+                            flag = 1
+                            break
+
+                    if flag == 0:
+                        load['users'].append({
+                            'user': {
+                                'token': token,
+                            },
+                            'name': svcaccount
+                        })
+
 
                     load['contexts'].append({
                         'context': {
@@ -312,27 +322,30 @@ class SwitchCluster:
                             load['users'].pop(i)
                             break
 
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
                         'tab': 'local'
                     })
                 except AlreadyExistError as e:
-                    error = e
+                    error = e.message
 
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
                         'tab': 'local'
                     })
-                except:
-                    error = 'Cannot use these settings. Please contact the cluster administrator'
-
-                    self.send({
-                        'msgtype': 'added-context-unsuccessfully',
-                        'error': error,
-                        'tab': 'local'
-                    })
+                # except:
+                #     error = 'Cannot use these settings. Please contact the cluster administrator'
+                #
+                #     self.send({
+                #         'msgtype': 'added-context-unsuccessfully',
+                #         'error': error,
+                #         'tab': 'local'
+                #     })
 
             elif tab == 'openstack':
                 # ostoken = msg['content']['data']['ostoken']
@@ -454,13 +467,16 @@ class SwitchCluster:
                             load['users'].pop(i)
                             break
 
+                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
                         'tab': 'openstack'
                     })
                 except AlreadyExistError as e:
-                    error = e
+                    error = e.message
 
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
