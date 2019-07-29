@@ -706,23 +706,9 @@ class SwitchCluster:
     def cluster_list(self):
         error = ''
 
-        try:
-            if os.path.isdir(os.getenv('HOME') + '/.kube'):
-                if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
-                    load = {}
-                    load['apiVersion'] = 'v1'
-                    load['clusters'] = []
-                    load['contexts'] = []
-                    load['current-context'] = ''
-                    load['kind'] = 'Config'
-                    load['preferences'] = {}
-                    load['users'] = []
-
-                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-            else:
-                os.makedirs(os.getenv('HOME') + '/.kube')
-
+        # try:
+        if os.path.isdir(os.getenv('HOME') + '/.kube'):
+            if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
                 load = {}
                 load['apiVersion'] = 'v1'
                 load['clusters'] = []
@@ -734,99 +720,112 @@ class SwitchCluster:
 
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+        else:
+            os.makedirs(os.getenv('HOME') + '/.kube')
 
-            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-                load = yaml.safe_load(stream)
+            load = {}
+            load['apiVersion'] = 'v1'
+            load['clusters'] = []
+            load['contexts'] = []
+            load['current-context'] = ''
+            load['kind'] = 'Config'
+            load['preferences'] = {}
+            load['users'] = []
 
-            contexts = load['contexts']
-            for i in range(len(contexts)):
-                if contexts[i]['name'] == load['current-context']:
-                    active_context = contexts[i]
-                    break
+            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-            self.log.info("Contexts:")
-            for i in contexts:
-                self.log.info(i)
+        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+            load = yaml.safe_load(stream)
 
-            clusters = []
-            for i in load['clusters']:
-                clusters.append(i['name'])
+        contexts = load['contexts']
+        for i in range(len(contexts)):
+            if contexts[i]['name'] == load['current-context']:
+                active_context = contexts[i]
+                break
 
-            # active_context = load['current-context']
-            current_cluster = ''
-            for i in load['contexts']:
-                if i['name'] == load['current-context']:
-                    current_cluster = i['context']['cluster']
+        self.log.info("Contexts:")
+        for i in contexts:
+            self.log.info(i)
 
-            namespaces = []
-            for i in contexts:
-                # self.log.info(i)
-                if 'namespace' in i['context'].keys():
-                    namespace = i['context']['namespace']
-                    namespaces.append(namespace)
-                else:
-                    namespace = 'default'
-                    namespaces.append(namespace)
-                # self.log.info("ACTIVE CONTEXT: ", active_context)
+        clusters = []
+        for i in load['clusters']:
+            clusters.append(i['name'])
 
-            self.log.info("NAMESPACES: ")
-            for i in namespaces:
-                self.log.info(i)
+        # active_context = load['current-context']
+        current_cluster = ''
+        for i in load['contexts']:
+            if i['name'] == load['current-context']:
+                current_cluster = i['context']['cluster']
 
-            contexts = [context['name'] for context in contexts]
-            current_context = ''
-            if active_context:
-                current_context = active_context['name']
-                self.log.info("Current context: ", current_context)
+        namespaces = []
+        for i in contexts:
+            # self.log.info(i)
+            if 'namespace' in i['context'].keys():
+                namespace = i['context']['namespace']
+                namespaces.append(namespace)
+            else:
+                namespace = 'default'
+                namespaces.append(namespace)
+            # self.log.info("ACTIVE CONTEXT: ", active_context)
 
-            delete_list = []
-            admin_list = []
-            self.log.info("After Active context declaration")
-            self.log.info("Inside delete list if")
-            for i in range(len(contexts)):
-                try:
-                    self.log.info("INSIDE TRY")
-                    config.load_kube_config(context=contexts[i])
-                    api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=2)
-                    delete_list.append("False")
-                except:
-                    self.log.info("INSIDE EXCEPT")
-                    delete_list.append("True")
+        self.log.info("NAMESPACES: ")
+        for i in namespaces:
+            self.log.info(i)
 
-            self.log.info("After delete list loop")
+        contexts = [context['name'] for context in contexts]
+        current_context = ''
+        if active_context:
+            current_context = active_context['name']
+            self.log.info("Current context: ", current_context)
 
-            for i in range(len(contexts)):
-                try:
-                    self.log.info("INSIDE TRY")
-                    config.load_kube_config(context=contexts[i])
-                    api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=2)
-                    admin_list.append("True")
-                except:
-                    self.log.info("INSIDE EXCEPT")
-                    admin_list.append("False")
+        delete_list = []
+        admin_list = []
+        self.log.info("After Active context declaration")
+        self.log.info("Inside delete list if")
+        for i in range(len(contexts)):
+            try:
+                self.log.info("INSIDE TRY")
+                config.load_kube_config(context=contexts[i])
+                api_instance = client.CoreV1Api()
+                api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=2)
+                delete_list.append("False")
+            except:
+                self.log.info("INSIDE EXCEPT")
+                delete_list.append("True")
 
-            self.log.info("After admin list loop")
+        self.log.info("After delete list loop")
 
-            self.log.info("DELETE LIST: ")
-            for i in delete_list:
-                self.log.info(i)
-            self.log.info("TEST STATEMENT")
+        for i in range(len(contexts)):
+            try:
+                self.log.info("INSIDE TRY")
+                config.load_kube_config(context=contexts[i])
+                api_instance = client.CoreV1Api()
+                api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=2)
+                admin_list.append("True")
+            except:
+                self.log.info("INSIDE EXCEPT")
+                admin_list.append("False")
 
-            self.send({
-                'msgtype': 'context-select',
-                'contexts': contexts,
-                'active_context': current_context,
-                'clusters': clusters,
-                'current_cluster': current_cluster,
-                'delete_list': delete_list,
-                'admin_list': admin_list,
-            })
+        self.log.info("After admin list loop")
+
+        self.log.info("DELETE LIST: ")
+        for i in delete_list:
+            self.log.info(i)
+        self.log.info("TEST STATEMENT")
+
+        self.send({
+            'msgtype': 'context-select',
+            'contexts': contexts,
+            'active_context': current_context,
+            'clusters': clusters,
+            'current_cluster': current_cluster,
+            'delete_list': delete_list,
+            'admin_list': admin_list,
+        })
+
         # except:
         #     error = 'Cannot load kubeconfig'
-
-
     def check_config(self, cluster, namespace, svcaccount):
         # def run_command(command):
         #     p = subprocess.Popen(command,
