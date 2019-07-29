@@ -739,6 +739,7 @@ class SwitchCluster:
             load = yaml.safe_load(stream)
 
         contexts = load['contexts']
+        active_context = ''
         for i in range(len(contexts)):
             if contexts[i]['name'] == load['current-context']:
                 active_context = contexts[i]
@@ -775,7 +776,7 @@ class SwitchCluster:
 
         contexts = [context['name'] for context in contexts]
         current_context = ''
-        if active_context:
+        if active_context is not '':
             current_context = active_context['name']
             self.log.info("Current context: ", current_context)
 
