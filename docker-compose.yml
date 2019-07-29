@@ -12,13 +12,13 @@ services:
     environment:
       - USER=sjajodia
       - SERVER_HOSTNAME=localhost
-      - KUBECONFIG=/home/jovyan/.kube/config
+#      - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}
     volumes:
       - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
       - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z
       - /root/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules:Z
-      - /root/.kube/config:/home/jovyan/.kube/config:Z
+#      - /root/.kube/config:/home/jovyan/.kube/config:Z
     entrypoint:
       - bash
       - -c
