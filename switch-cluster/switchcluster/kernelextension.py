@@ -300,6 +300,7 @@ class SwitchCluster:
 
                     self.send({
                         'msgtype': 'added-context-successfully',
+                        'tab': 'local'
                     })
                 except ApiException as e:
                     error = 'You cannot request resources using these settings. Please contact your admin'
@@ -338,14 +339,14 @@ class SwitchCluster:
                         'error': error,
                         'tab': 'local'
                     })
-                # except:
-                #     error = 'Cannot use these settings. Please contact the cluster administrator'
-                #
-                #     self.send({
-                #         'msgtype': 'added-context-unsuccessfully',
-                #         'error': error,
-                #         'tab': 'local'
-                #     })
+                except:
+                    error = 'Cannot use these settings. Please contact the cluster administrator'
+
+                    self.send({
+                        'msgtype': 'added-context-unsuccessfully',
+                        'error': error,
+                        'tab': 'local'
+                    })
 
             elif tab == 'openstack':
                 # ostoken = msg['content']['data']['ostoken']
@@ -445,6 +446,7 @@ class SwitchCluster:
 
                     self.send({
                         'msgtype': 'added-context-successfully',
+                        'tab': 'openstack'
                     })
                 except ApiException as e:
                     error = 'You cannot request resources using these settings. Please contact your admin'
