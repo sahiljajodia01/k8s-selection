@@ -778,7 +778,7 @@ class SwitchCluster:
                 self.log.info("Current context: ", current_context)
             delete_list = []
             admin_list = []
-
+            self.log.info("After Active context declaration")
             self.log.info("Inside delete list if")
             for i in range(len(contexts)):
                 try:
@@ -790,7 +790,7 @@ class SwitchCluster:
                 except:
                     self.log.info("INSIDE EXCEPT")
                     delete_list.append("True")
-
+            self.log.info("After delete list loop")
             for i in range(len(contexts)):
                 try:
                     self.log.info("INSIDE TRY")
@@ -801,7 +801,7 @@ class SwitchCluster:
                 except:
                     self.log.info("INSIDE EXCEPT")
                     admin_list.append("False")
-
+            self.log.info("After admin list loop")
             self.log.info("DELETE LIST: ")
             for i in delete_list:
                 self.log.info(i)
