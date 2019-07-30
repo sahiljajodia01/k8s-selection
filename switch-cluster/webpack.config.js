@@ -31,6 +31,17 @@ module.exports = {
             }
         },
         {
+            test: /\.(png|svg|jpg|gif|ico)$/,
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    // limit: 8000, // Convert images < 8kb to base64 strings
+                    name: '[name].[ext]',
+                    outputPath: 'images/'
+                }
+            }]
+        },
+        {
             test: /\.css$/,
             use: [
                 'style-loader',

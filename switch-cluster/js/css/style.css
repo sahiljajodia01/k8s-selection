@@ -463,10 +463,11 @@ button.back-button {
     box-shadow:0px 3px 3px #BDBDBD;
   }
 
-/* .kubernetes-icon {
-    background-image: url('../images/2e23992c9d.png');
-    background-size: 100%;
-} */
+.kubernetes-icon {
+    background-image: url('../images/k8s.png');
+    width: 16px;
+    height: 16px;
+}
 
 .cluster-list-div {
     display: flex;

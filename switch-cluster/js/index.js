@@ -2,12 +2,14 @@ import $ from 'jquery';
 import dialog from 'base/js/dialog';
 import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
-
+import requirejs from 'require';
 import user_html from './templates/user.html'
 import create_context_html from './templates/create_context.html'
 import user_create from './templates/user_create.html'
 import './css/style.css'
+import kubernetes_icon from './images/k8s.png'
 // import './js/materialize.min.js'
+
 
 function SwitchCluster() {
 
@@ -65,16 +67,19 @@ SwitchCluster.prototype.add_toolbar_button = function() {
         handler: $.proxy(this.open_modal, this)
     };
 
-
-
     var prefix = 'SwitchCluster';
     var action_name = 'show-sparkcluster-conf';
 
     var full_action_name = Jupyter.actions.register(action, action_name, prefix);
     this.toolbar_button = Jupyter.toolbar.add_buttons_group([full_action_name]).find('.btn');
-    this.toolbar_button.text('Not Connected');
+    this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
+    this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
+    this.toolbar_button.find("#extension_icon").css('min-width', '16px');
+    this.toolbar_button.find("#extension_icon").css('height', '16px');
     // this.toolbar_button.addClass("kubernetes-icon");
     this.toolbar_button.attr("style", "width: 150px; text-overflow: ellipsis; overflow: hidden;");
+    this.toolbar_button.attr('disabled', 'disabled');
+    this.enabled = false;
     this.enabled = true;
 };
 
@@ -1076,10 +1081,20 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'connection-details') {
         var context = msg.content.data.context;
-        this.toolbar_button.text("Connected: " + context);
+        this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Connected: ' + context + '</div>');
+        this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
+        this.toolbar_button.find("#extension_icon").css('min-width', '16px');
+        this.toolbar_button.find("#extension_icon").css('height', '16px');
+
+            this.toolbar_button.removeAttr('disabled');
     }
     else if(msg.content.data.msgtype == 'connection-details-error') {
-        this.toolbar_button.text("Not connected");
+        this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
+        this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
+        this.toolbar_button.find("#extension_icon").css('min-width', '16px');
+        this.toolbar_button.find("#extension_icon").css('height', '16px');
+
+            this.toolbar_button.removeAttr('disabled');
     }
     else if(msg.content.data.msgtype == 'deleted-context-successfully') {
         this.modal.modal('hide');
