@@ -286,11 +286,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     var active = tabs.find(".active");
     var that = this;
 
-    console.log("Currently active state" + active.html());
+    console.log("Currently active state: " + active.html());
 
     this.selected_tab = active.html();
     tabs.click(function() {
         that.selected_tab = $(".active").html();
+        console.log("Currently selected tab: " + that.selected_tab);
     });
 
     var tab1 = html.find("#tab1");
@@ -600,19 +601,13 @@ K8sSelection.prototype.create_context = function() {
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
-                this.send({
-                    'action': 'show-error',
-                    'state': 'create'
-                });
+                this.get_html_error("Please fill all the required fields.", this.states.create);
                 return;
             }
         }
         else {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
-                this.send({
-                    'action': 'show-error',
-                    'state': 'create'
-                });
+                this.get_html_error("Please fill all the required fields.", this.states.create);
                 return;
             }
         }
@@ -741,10 +736,7 @@ K8sSelection.prototype.create_users = function() {
     // Check whether the inputs are not empty.
     // Note: I have not validated the email field right now because it is going to be removed, right?
     if(!this.user_create_input || !this.user_email_create_input) {
-        this.send({
-            'action': 'show-error',
-            'state': 'create_users'
-        });
+        this.get_html_error("Please fill all the required fields.", this.states.create_users);
         return;
     }
 
@@ -841,7 +833,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'added-context-successfully') {
         // The message received when cluster and context are added successfully
-        if (msg.content.data.tab == 'local') {
+    
             this.local_selected_token = undefined;
             this.local_selected_catoken = undefined;
             this.selected_tab = undefined;
@@ -849,13 +841,11 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
             this.insecure_server = undefined;
             this.local_selected_clustername = undefined;
             this.local_selected_ip = undefined;
-        }
-        else if(msg.content.data.tab == 'openstack') {
             this.openstack_selected_catoken = undefined;
             this.openstack_selected_clustername = undefined;
             this.openstack_selected_ip = undefined;
             this.selected_tab = undefined;
-        }
+        
         this.hide_close = false;
         this.refresh_modal();
         this.send({
