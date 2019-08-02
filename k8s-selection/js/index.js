@@ -594,6 +594,8 @@ K8sSelection.prototype.create_context = function() {
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
 
+    
+
     // Checks whether any input is empty before sending it to backend
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
@@ -616,11 +618,11 @@ K8sSelection.prototype.create_context = function() {
         }
     }
     else if(this.selected_tab == "openstack") {
+        console.log("Openstack cluster name: " + this.openstack_selected_clustername);
+        console.log("Openstack ca token: " + this.openstack_selected_catoken);
+        console.log("Openstack ip: " + this.openstack_selected_ip);
         if(!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip) {
-            this.send({
-                'action': 'show-error',
-                'state': 'create'
-            });
+            this.get_html_error("Please fill all the required fields.", this.states.create);
             return;
         }
     }
