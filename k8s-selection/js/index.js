@@ -891,6 +891,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.toolbar_button.find("#extension_icon").css('height', '16px');
 
         this.toolbar_button.removeAttr('disabled');
+        this.enabled = true;
     }
     else if(msg.content.data.msgtype == 'connection-details-error') {
         // The message received when asked details about the current context from the backend and the
