@@ -825,6 +825,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     if(msg.content.data.msgtype == 'context-select') {
         // The initial message recieved from the backend which provides the information about all the contexts
         console.log("Got message from frontend: " + msg.content.data.active_context);
+        this.enabled = true
         this.current_context = msg.content.data.active_context;
         this.contexts = msg.content.data.contexts;
         this.current_cluster = msg.content.data.current_cluster;
