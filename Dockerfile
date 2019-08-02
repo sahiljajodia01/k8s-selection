@@ -38,19 +38,19 @@ RUN rm /bin/sh && \
 RUN mkdir /home/jovyan/switch_cluster
 RUN mkdir /home/jovyan/spark
 
-WORKDIR /Users/sahiljajodia/SWAN/switch-cluster
+WORKDIR /Users/sahiljajodia/SWAN/k8s-selection
 
-COPY switch-cluster/ /home/jovyan/switch-cluster/
+COPY k8s-selection /home/jovyan/k8s-selection/
 
 COPY spark/ /home/jovyan/spark/
 
 COPY openrc.sh /home/jovyan/openrc.sh
 
-RUN cd /home/jovyan/switch-cluster && \
+RUN cd /home/jovyan/k8s-selection && \
     pip install . && \
-    jupyter nbextension install --py --system switchcluster && \
-    jupyter nbextension enable --py --system switchcluster && \
+    jupyter nbextension install --py --system k8sselection && \
+    jupyter nbextension enable --py --system k8sselection && \
     jupyter nbextensions_configurator enable --system
 
 RUN mkdir -p /home/jovyan/.ipython/profile_default/ && \
-    printf "c.InteractiveShellApp.extensions.append('switchcluster.kernelextension')\n" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py
+    printf "c.InteractiveShellApp.extensions.append('k8sselection.kernelextension')\n" > /home/jovyan/.ipython/profile_default/ipython_kernel_config.py

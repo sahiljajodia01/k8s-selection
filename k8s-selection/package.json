@@ -1,5 +1,5 @@
 {
-  "name": "switchcluster",
+  "name": "k8sselection",
   "version": "0.0.1",
   "description": "Helper to switch between CERN's Spark Clusters",
   "keywords": [

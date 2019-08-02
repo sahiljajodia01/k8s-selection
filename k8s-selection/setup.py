@@ -3,7 +3,7 @@
 import setuptools
 
 setuptools.setup(
-    name="switchcluster",
+    name="k8sselection",
     version='0.0.1',
     author='Sahil Jajodia',
     description='Helper to switch between CERN\'s Spark Clusters',

@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = {
     entry: './js/index.js',
     output: {
-        path: path.resolve(__dirname, 'switchcluster/js'),
+        path: path.resolve(__dirname, 'k8sselection/js'),
         filename: 'index.js',
         libraryTarget: 'umd'
     },

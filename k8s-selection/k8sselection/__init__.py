@@ -3,6 +3,6 @@ def _jupyter_nbextension_paths():
     return [dict(
                 section="notebook",
                 src="js",
-                dest="switchcluster",
-                require="switchcluster/index"),
+                dest="k8sselection",
+                require="k8sselection/index"),
             ]

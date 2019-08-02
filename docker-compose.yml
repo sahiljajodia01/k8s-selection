@@ -15,19 +15,19 @@ services:
 #      - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}
     volumes:
-      - /root/switch-cluster/switch-cluster:/home/jovyan/switch-cluster:Z
-      - /root/switch-cluster/switch-cluster/run.sh:/home/jovyan/run.sh:Z
-      - /root/switch-cluster/switch-cluster/node_modules:/home/jovyan/switch-cluster/node_modules:Z
+      - /root/k8s-selection/k8s-selection:/home/jovyan/k8s-selection:Z
+      - /root/k8s-selection/k8s-selection/run.sh:/home/jovyan/run.sh:Z
+      - /root/k8s-selection/k8s-selection/node_modules:/home/jovyan/k8s-selection/node_modules:Z
       - /root/.kube:/home/jovyan/.kube:Z
     entrypoint:
       - bash
       - -c
       - |
-        cd /home/jovyan/switch-cluster && \
-        rm -rf ./switchcluster/js && \
+        cd /home/jovyan/k8s-selection && \
+        rm -rf ./k8sselection/js && \
         make && \
         pip install . && \
-        jupyter nbextension install --py --system switchcluster && \
+        jupyter nbextension install --py --system k8sselection && \
         jupyter notebook --allow-root
 volumes:
   home:

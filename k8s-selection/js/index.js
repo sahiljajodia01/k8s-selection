@@ -11,7 +11,7 @@ import kubernetes_icon from './images/k8s.png'
 // import './js/materialize.min.js'
 
 
-function SwitchCluster() {
+function K8sSelection() {
 
     this.states = {
         select: {
@@ -60,14 +60,14 @@ function SwitchCluster() {
 };
 
 
-SwitchCluster.prototype.add_toolbar_button = function() {
+K8sSelection.prototype.add_toolbar_button = function() {
     var action = {
         help: 'Spark clusters settings',
         help_index: 'zz', // Sorting Order in keyboard shortcut dialog
         handler: $.proxy(this.open_modal, this)
     };
 
-    var prefix = 'SwitchCluster';
+    var prefix = 'K8sSelection';
     var action_name = 'show-sparkcluster-conf';
 
     var full_action_name = Jupyter.actions.register(action, action_name, prefix);
@@ -84,7 +84,7 @@ SwitchCluster.prototype.add_toolbar_button = function() {
 };
 
 
-SwitchCluster.prototype.open_modal = function () {
+K8sSelection.prototype.open_modal = function () {
 
     if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
         var that = this;
@@ -120,18 +120,18 @@ SwitchCluster.prototype.open_modal = function () {
     }
 };
 
-SwitchCluster.prototype.refresh_modal = function() {
+K8sSelection.prototype.refresh_modal = function() {
     this.switch_state(this.states.loading);
     this.send({'action': 'Refresh'});
 };
 
 
-SwitchCluster.prototype.send = function (msg) {
+K8sSelection.prototype.send = function (msg) {
     this.comm.send(msg);
 };
 
 
-SwitchCluster.prototype.get_html_select_cluster = function() {
+K8sSelection.prototype.get_html_select_cluster = function() {
     // this.send({'action': 'Refresh'});
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
@@ -347,7 +347,7 @@ SwitchCluster.prototype.get_html_select_cluster = function() {
 
 
 
-SwitchCluster.prototype.get_html_view_context = function() {
+K8sSelection.prototype.get_html_view_context = function() {
     console.log("Inside view modal!!");
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
@@ -374,7 +374,7 @@ SwitchCluster.prototype.get_html_view_context = function() {
 
 
 
-SwitchCluster.prototype.select_context = function() {
+K8sSelection.prototype.select_context = function() {
     var button_id = $(this).attr('id');
     var current_context = button_id.split('.')[1];
     console.log("Selected cluster: " + current_context);
@@ -387,7 +387,7 @@ SwitchCluster.prototype.select_context = function() {
 
 
 
-SwitchCluster.prototype.change_cluster = function() {
+K8sSelection.prototype.change_cluster = function() {
     console.log("Sending msg to kernel to change KUBECONFIG");
     console.log("Modified cluster: " + this.current_context);
     this.switch_state(this.states.loading);
@@ -399,7 +399,7 @@ SwitchCluster.prototype.change_cluster = function() {
 };
 
 
-SwitchCluster.prototype.get_html_create_context = function() {
+K8sSelection.prototype.get_html_create_context = function() {
     console.log("Changed state");
 
     var html = this.modal.find('.modal-body');
@@ -719,7 +719,7 @@ SwitchCluster.prototype.get_html_create_context = function() {
     // });
 };
 
-SwitchCluster.prototype.create_context = function() {
+K8sSelection.prototype.create_context = function() {
     var header = this.modal.find('.modal-header');
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
@@ -818,7 +818,7 @@ SwitchCluster.prototype.create_context = function() {
 };
 
 
-SwitchCluster.prototype.get_html_create_users = function() {
+K8sSelection.prototype.get_html_create_users = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
     
@@ -870,7 +870,7 @@ SwitchCluster.prototype.get_html_create_users = function() {
 };
 
 
-SwitchCluster.prototype.create_users = function() {
+K8sSelection.prototype.create_users = function() {
 
     if(!this.user_create_input || !this.user_email_create_input) {
         this.send({
@@ -903,7 +903,7 @@ SwitchCluster.prototype.create_users = function() {
 
 
 
-SwitchCluster.prototype.get_html_loading = function() {
+K8sSelection.prototype.get_html_loading = function() {
     var html = this.modal.find('.modal-body');
 
     var flexbox = $('<div>')
@@ -924,7 +924,7 @@ SwitchCluster.prototype.get_html_loading = function() {
 };
 
 
-SwitchCluster.prototype.get_html_error = function (error, prev_state) {
+K8sSelection.prototype.get_html_error = function (error, prev_state) {
 
     if (this.modal) {
         Jupyter.keyboard_manager.disable();
@@ -953,12 +953,12 @@ SwitchCluster.prototype.get_html_error = function (error, prev_state) {
 };
 
 
-SwitchCluster.prototype.redirect = function() {
+K8sSelection.prototype.redirect = function() {
     window.location.href = "http://spark.apache.org/";
 };
 
 
-SwitchCluster.prototype.on_comm_msg = function (msg) {
+K8sSelection.prototype.on_comm_msg = function (msg) {
     if(msg.content.data.msgtype == 'context-select') {
         console.log("Got message from frontend: " + msg.content.data.active_context);
         this.current_context = msg.content.data.active_context;
@@ -1136,8 +1136,7 @@ SwitchCluster.prototype.on_comm_msg = function (msg) {
 };
 
 
-
-SwitchCluster.prototype.switch_state = function (new_state) {
+K8sSelection.prototype.switch_state = function (new_state) {
     this.state = new_state;
 
     if (this.modal) {
@@ -1173,33 +1172,30 @@ SwitchCluster.prototype.switch_state = function (new_state) {
 };
 
 
-
-
-
-SwitchCluster.prototype.start_comm = function () {
+K8sSelection.prototype.start_comm = function () {
 
     if (this.comm) {
         this.comm.close()
     }
 
-    console.log('SwitchCluster: Starting Comm with kernel');
+    console.log('K8sSelection: Starting Comm with kernel');
 
     var that = this;
 
     if (Jupyter.notebook.kernel) {
         console.log("Inside if statement!!");
-        this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('SwitchCluster',
-            {'msgtype': 'switchcluster-conn-open'});
+        this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('K8sSelection',
+            {'msgtype': 'K8sSelection-conn-open'});
         this.comm.on_msg($.proxy(that.on_comm_msg, that));
         this.comm.on_close($.proxy(that.on_comm_close, that));
     } else {
-        console.log("SwitchCluster: No communication established, kernel null");
+        console.log("K8sSelection: No communication established, kernel null");
     }
 };
 
 function load_ipython_extension() {
 
-    var conn = new SwitchCluster();
+    var conn = new K8sSelection();
     conn.add_toolbar_button();
     // conn.send({
     //     'action': 'get-connection-detail',
