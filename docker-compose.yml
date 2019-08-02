@@ -12,7 +12,7 @@ services:
     environment:
       - USER=sjajodia
       - SERVER_HOSTNAME=localhost
-#      - KUBECONFIG=/home/jovyan/.kube/config
+      - KUBECONFIG=/home/jovyan/.kube/config
       - OS_TOKEN=${OS_TOKEN}
     volumes:
       - /root/k8s-selection/k8s-selection:/home/jovyan/k8s-selection:Z

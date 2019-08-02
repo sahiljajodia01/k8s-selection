@@ -29,7 +29,6 @@ RUN pip install \
         openstacksdk==0.17.2
 
 
-
 RUN npm install -g yarn
 
 RUN rm /bin/sh && \
