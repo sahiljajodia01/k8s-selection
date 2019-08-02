@@ -387,10 +387,43 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     console.log("Currently active state: " + active.html());
 
     this.selected_tab = active.html();
-    tabs.click(function () {
-        that.selected_tab = (0, _jquery2.default)(".active").html();
-        console.log("Currently selected tab: " + that.selected_tab);
+
+    tabs.each(function () {
+
+        var $active,
+            $content,
+            $links = (0, _jquery2.default)(this).find('a');
+
+        $active = (0, _jquery2.default)($links[0]);
+        $active.addClass('active');
+
+        $content = (0, _jquery2.default)($active[0].hash);
+
+        $links.not($active).each(function () {
+            (0, _jquery2.default)(this.hash).hide();
+        });
+        // var that = that;
+        (0, _jquery2.default)(this).on('click', 'a', function (e) {
+
+            $active.removeClass('active');
+            $content.hide();
+
+            $active = (0, _jquery2.default)(this);
+            $content = (0, _jquery2.default)(this.hash);
+
+            $active.addClass('active');
+            $content.show();
+            that.selected_tab = $active.html();
+            console.log("Currently selected tab: " + that.selected_tab);
+
+            e.preventDefault();
+        });
     });
+
+    // tabs.click(function() {
+    //     that.selected_tab = $(".active").html();
+    //     console.log("Currently selected tab: " + that.selected_tab);
+    // });
 
     var tab1 = html.find("#tab1");
     var tab1 = tab1.find("#other-settings");
@@ -911,7 +944,7 @@ module.exports = "<br> <div id=user_html_inputs> </div> ";
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script>$(document).ready(function(){$(\"#material-tabs\").each(function(){var t,i,a=$(this).find(\"a\");(t=$(a[0])).addClass(\"active\"),i=$(t[0].hash),a.not(t).each(function(){$(this.hash).hide()}),$(this).on(\"click\",\"a\",function(a){t.removeClass(\"active\"),i.hide(),t=$(this),i=$(this.hash),t.addClass(\"active\"),i.show(),a.preventDefault()})})})</script> ";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script></script> ";
 
 /***/ }),
 /* 9 */

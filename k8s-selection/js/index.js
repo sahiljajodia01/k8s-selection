@@ -289,10 +289,41 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     console.log("Currently active state: " + active.html());
 
     this.selected_tab = active.html();
-    tabs.click(function() {
-        that.selected_tab = $(".active").html();
-        console.log("Currently selected tab: " + that.selected_tab);
+    
+    tabs.each(function() {
+
+				var $active, $content, $links = $(this).find('a');
+
+				$active = $($links[0]);
+				$active.addClass('active');
+
+				$content = $($active[0].hash);
+
+				$links.not($active).each(function() {
+						$(this.hash).hide();
+				});
+                // var that = that;
+				$(this).on('click', 'a', function(e) {
+
+						$active.removeClass('active');
+						$content.hide();
+
+						$active = $(this);
+						$content = $(this.hash);
+
+						$active.addClass('active');
+						$content.show();
+                        that.selected_tab = $active.html();
+                        console.log("Currently selected tab: " + that.selected_tab);
+
+						e.preventDefault();
+	            });
     });
+
+    // tabs.click(function() {
+    //     that.selected_tab = $(".active").html();
+    //     console.log("Currently selected tab: " + that.selected_tab);
+    // });
 
     var tab1 = html.find("#tab1");
     var tab1 = tab1.find("#other-settings");
