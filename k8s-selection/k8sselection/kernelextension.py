@@ -440,7 +440,6 @@ class K8sSelection:
                 })
         elif action == "get-connection-detail":
             # This action checks whether the currently set context can request the resources from the cluster
-            self.log.info("INSIDE CONNECTION DETAIL")
             error = ''
             namespace = 'default'
 
@@ -455,8 +454,6 @@ class K8sSelection:
                             namespace = i['context']['namespace']
                             break
 
-                self.log.info("NAMESPACE: ", namespace)
-
                 # Calling kubernetes API to list pods
                 config.load_kube_config()
                 api_instance = client.CoreV1Api()
@@ -469,7 +466,6 @@ class K8sSelection:
 
             except ApiException as e:
                 # If it cannot list pods then send the error to user
-                self.log.info("CANNOT LIST PODS")
                 error = 'Cannot list pods in your namespace'
 
                 self.send({
@@ -533,14 +529,10 @@ class K8sSelection:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                     load = yaml.safe_load(stream)
 
-                self.log.info("Yaml load: ", load)
-
                 for i in load['contexts']:
                     if i['name'] == selected_context:
                         selected_cluster = i['context']['cluster']
                         break
-
-                self.log.info("SELECTED CLUSTER: ", selected_cluster)
 
                 # Declare all the clients to call kubernetes API
                 config.load_kube_config()
@@ -603,6 +595,8 @@ class K8sSelection:
 
                 # Load .env file which contains SENDGRID API_KEY
                 dotenv_path = join(dirname(__file__), 'sendgrid.env')
+
+                # First check for ca_cert and server_ip
                 if ca_cert and server_ip:
                     if os.path.isfile(dotenv_path):
                         self.send_sendgrid_email(dotenv_path, email, selected_cluster, ca_cert, server_ip)
@@ -629,7 +623,7 @@ class K8sSelection:
 
     def send_sendgrid_email(self, dotenv_path, email, selected_cluster, ca_cert, server_ip):
         """
-        If the user has sendgrid API credentials, then he can use this to send the emails
+        If the admin has sendgrid API credentials, then they can use this function to send email
         :param dotenv_path: path of sendgrid.env file
         :param email: email of the receiver
         :param selected_cluster: the name of cluster that we want to send the info of
@@ -674,6 +668,14 @@ class K8sSelection:
             })
 
     def send_email(self, email, selected_cluster, ca_cert, server_ip):
+        """
+        This function can be used to send emails from an internal account at CERN
+        :param email: email of the receiver
+        :param selected_cluster: the name of cluster that we want to send the info of
+        :param ca_cert: ca_cert of the cluster
+        :param server_ip: ip of the cluster
+        :return:
+        """
         try:
             import smtplib
 
@@ -682,7 +684,7 @@ class K8sSelection:
             msg = '''
                 From: {fromaddr}
                 To: {toaddr}
-                Subject: Credentials for cluster: {selected_cluster}  
+                Subject: Credentials for cluster: {selected_cluster}
                 Cluster name: {selected_cluster}\n\nCA Cert: {ca_cert}\n\nServer IP: {server_ip} 
             '''
 
@@ -690,6 +692,7 @@ class K8sSelection:
             # The actual mail send
             server = smtplib.SMTP('smtp.cern.ch:587')
             server.starttls()
+            server.ehlo('swan.cern.ch')
             server.mail(fromaddr)
             server.rcpt(toaddrs[0])
             server.data(msg)
@@ -777,15 +780,12 @@ class K8sSelection:
 
         namespaces = []
         for i in contexts:
-            # self.log.info(i)
             if 'namespace' in i['context'].keys():
                 namespace = i['context']['namespace']
                 namespaces.append(namespace)
             else:
                 namespace = 'default'
                 namespaces.append(namespace)
-            # self.log.info("ACTIVE CONTEXT: ", active_context)
-
 
         contexts = [context['name'] for context in contexts]
         current_context = ''

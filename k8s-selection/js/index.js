@@ -8,31 +8,27 @@ import create_context_html from './templates/create_context.html'
 import user_create from './templates/user_create.html'
 import './css/style.css'
 import kubernetes_icon from './images/k8s.png'
-// import './js/materialize.min.js'
 
 
+/**
+ * @desc K8sSelection object constructor
+ * @constructor
+ */
 function K8sSelection() {
 
+    /**
+     * @desc States that are visible to the user
+     */
     this.states = {
         select: {
             get_html: $.proxy(this.get_html_select_cluster, this),
         },
         create: {
-            get_html: $.proxy(this.get_html_create_context, this),
+            get_html: $.proxy(this.get_html_create_clusters, this),
             buttons: {
-                'Create Context': {
+                'Create Cluster': {
                     class: 'btn-success size-100',
                     click: $.proxy(this.create_context, this)
-                }
-            }
-        },
-        view: {
-            get_html: $.proxy(this.get_html_view_context, this),
-            hide_close: true,
-            buttons: {
-                'Select Context': {
-                    class: 'btn-danger size-100',
-                    click: $.proxy(this.select_context, this)
                 }
             }
         },
@@ -56,10 +52,14 @@ function K8sSelection() {
 
     this.comm = null;
 
+    // Starts the communication with backend when the kernel is connected
     events.on('kernel_connected.Kernel', $.proxy(this.start_comm, this));
-};
+}
 
 
+/**
+ * @desc adds custom extension button to the Jupyter notebook.
+ */
 K8sSelection.prototype.add_toolbar_button = function() {
     var action = {
         help: 'Spark clusters settings',
@@ -69,21 +69,21 @@ K8sSelection.prototype.add_toolbar_button = function() {
 
     var prefix = 'K8sSelection';
     var action_name = 'show-sparkcluster-conf';
-
     var full_action_name = Jupyter.actions.register(action, action_name, prefix);
     this.toolbar_button = Jupyter.toolbar.add_buttons_group([full_action_name]).find('.btn');
     this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
     this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
     this.toolbar_button.find("#extension_icon").css('min-width', '16px');
     this.toolbar_button.find("#extension_icon").css('height', '16px');
-    // this.toolbar_button.addClass("kubernetes-icon");
     this.toolbar_button.attr("style", "width: 150px; text-overflow: ellipsis; overflow: hidden;");
     this.toolbar_button.attr('disabled', 'disabled');
     this.enabled = false;
-    this.enabled = true;
 };
 
 
+/**
+ * @desc function to handle dialog box modal of the extension
+ */
 K8sSelection.prototype.open_modal = function () {
 
     if (this.enabled && !(this.modal && this.modal.data('bs.modal') && this.modal.data('bs.modal').isShown)) {
@@ -104,57 +104,64 @@ K8sSelection.prototype.open_modal = function () {
             }
         });
 
+        // Call this function when the modal shows after clicking the extension button
         this.modal.on('show.bs.modal', function () {
-            console.log("Inside 2nd open model");
-            // that.switch_state(that.states.select);
-            // that.get_html_select_cluster();
             that.switch_state(that.states.loading);
             that.refresh_modal();
-            
         }).modal('show');
+
+        // Prevents moving the dialog box when clicked on the header
         this.modal.find(".modal-header").unbind("mousedown");
 
+        // Close the dialog box
         this.modal.on('hide.bs.modal', function () {
             return true;
         });
     }
 };
 
+/**
+ * @desc refreshes the context select state
+ */
 K8sSelection.prototype.refresh_modal = function() {
     this.switch_state(this.states.loading);
     this.send({'action': 'Refresh'});
 };
 
 
+/**
+ * @desc handler to send message to the frontend
+ * @param msg - The message that we have to send to the error
+ */
 K8sSelection.prototype.send = function (msg) {
     this.comm.send(msg);
 };
 
 
+/**
+ * @desc display the frontend of the select state. This is the main state and the user will interact with
+ * this state the most.
+ */
 K8sSelection.prototype.get_html_select_cluster = function() {
-    // this.send({'action': 'Refresh'});
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
     var header = this.modal.find('.modal-header');
 
     $('<h4 class="modal-title">Spark cluster setting</h4>').appendTo(header);
-    // $('<link type="text/css" rel="stylesheet" href="css/materialize.min.css" />').appendTo(header);
     var contexts = this.contexts;
-    var current_cluster = this.current_cluster;
     var current_context = this.current_context;
     var template = user_html;
     this.hide_close = true;
     html.append(template);
     var delete_list = this.delete_list;
     var admin_list = this.admin_list;
-    console.log("DELETE LIST: " + delete_list);
-    // var list = [0, 1, 2, 3, 4, 5, 6];
-
     var that = this;
     var list_div = html.find("#user_html_inputs");
 
 
-
+    /**
+     * Loop to check and accordingly display on frontend whether a context can be used or not and also whether the user is admin of the context.
+     */
     for(var i = 0; i < contexts.length; i++) {
         if(delete_list[i] == "True") {
             $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
@@ -177,15 +184,15 @@ K8sSelection.prototype.get_html_select_cluster = function() {
                 }
             }
         }
-        // $('<div class="cluster-list-div"><div class="list-item-text">' + contexts[i] + '</div><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button></div><hr>').appendTo(list_div);
     }
 
-    var size_list = list_div.find(".cluster-list-div").length;
-    console.log("Size list: " + size_list);
 
+    /**
+     * Load more button functionality
+     */
+    var size_list = list_div.find(".cluster-list-div").length;
     var x = 5;
     html.find('.cluster-list-div:lt(' + size_list + ')').hide();
-
 
     if(size_list > 5) {
         html.find('.cluster-list-div:lt('+x+')').show();
@@ -194,8 +201,6 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     else {
         html.find('.cluster-list-div:lt(' + size_list + ')').show();
     }
-
-
 
     html.find("#load_more_button").click(function() {
 
@@ -209,7 +214,10 @@ K8sSelection.prototype.get_html_select_cluster = function() {
 
 
     });
-    
+
+    /**
+     * Handler to get the current context and send it to the backend to change the current context in KUBECONFIG
+     */
     list_div.find(".list-item-select").on('click', function() {
         var button_id = $(this).attr('id');
         var current_context = button_id.split('.')[1];
@@ -221,6 +229,9 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         });
     });
 
+    /**
+     * Handler to delete cluster from the list and send to the backend to delete cluster and context from KUBECONFIG
+     */
     list_div.find(".list-item-delete").on('click', function() {
         var button_id = $(this).attr('id');
         var current_context = button_id.split('.')[1];
@@ -233,175 +244,30 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         });
     });
 
-
+    /**
+     * Handler to change the current state to "create_users"
+     */
     list_div.find(".list-item-share").on('click', function() {
         var button_id = $(this).attr('id');
         var current_context = button_id.split('.')[1];
         that.user_create_context_name = current_context;
         that.switch_state(that.states.create_users);
     });
-    // for(var i = 0; i < contexts.length; i++) {
-    //     if(contexts[i] == this.current_context) {
-    //         $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).attr("selected", "selected").appendTo(select);
-    //     }
-    //     else {
-    //         $('<option>' + contexts[i] + '</option>').attr('value', contexts[i]).appendTo(select);
-    //     }
 
-    // }
-
-    // var main_div = html.find('#user_html_inputs');
-    
     $('<br>').appendTo(list_div);
 
-    // $('<label for="namespace_text">Namespace</label><br>').appendTo(main_div);
-
-    // if(this.selected_namespace) {
-    //     var namespace_input = $('<input/>')
-    //         .attr('name', 'namespace_text')
-    //         .attr('type', 'text')
-    //         .attr('id', 'namespace_text')
-    //         .attr('value', this.selected_namespace)
-    //         .attr('placeholder', 'Namespace')
-    //         .addClass('form__field')
-    //         .appendTo(main_div)
-    //         .focus()
-    //         .change(function() {
-    //             that.selected_namespace = namespace_input.val();
-    //         });
-    // }
-    // else {
-    //     var namespace_input = $('<input/>')
-    //         .attr('name', 'namespace_text')
-    //         .attr('type', 'text')
-    //         .attr('id', 'namespace_text')
-    //         .attr('placeholder', 'Namespace')
-    //         .addClass('form__field')
-    //         .appendTo(main_div)
-    //         .focus()
-    //         .change(function() {
-    //             that.selected_namespace = namespace_input.val();
-    //         });
-    // }
-    
-        
-    // $('<br><br>').appendTo(main_div);
-
-    // $('<label for="svcaccount_text">ServiceAccount</label><br>').appendTo(main_div);
-    
-    // if(this.selected_svcaccount) {
-    //     var svcaccount_input = $('<input/>')
-    //         .attr('name', 'svcaccount_text')
-    //         .attr('type', 'text')
-    //         .attr('id', 'svcaccount_text')
-    //         .attr('value', this.selected_svcaccount)
-    //         .attr('placeholder', 'ServiceAccount')
-    //         .addClass('form__field')
-    //         .appendTo(main_div)
-    //         .focus()
-    //         .change(function() {
-    //             that.selected_svcaccount = svcaccount_input.val();
-    //         });
-    // }
-    // else {
-    //     var svcaccount_input = $('<input/>')
-    //         .attr('name', 'svcaccount_text')
-    //         .attr('type', 'text')
-    //         .attr('id', 'svcaccount_text')
-    //         .attr('placeholder', 'ServiceAccount')
-    //         .addClass('form__field')
-    //         .appendTo(main_div)
-    //         .focus()
-    //         .change(function() {
-    //             that.selected_svcaccount = svcaccount_input.val();
-    //         });
-    // }    
-
-    // select.change(function() {
-    //     that.current_context = $(this).children("option:selected").val();
-    // });
-
-
-    // var view_btn = html.find("#view-context-btn");
-    // view_btn.on('click', $.proxy(this.change_cluster, this));
-
-    // $('<button>')
-    //     .addClass('btn-blue')
-    //     .attr('id', 'select-button')
-    //     .text("Add Context")
-    //     .appendTo(html)
-    //     .on('click', $.proxy(this.switch_state, this, this.states.create));
-    // $('<label for="select-button" style="position: relative; float: right;">Add new context</label><br><br>').appendTo(html);
+    // Adds + (Add cluster) state button
     $('<div class="fab-button" id="select-button"><i class="fa fa-plus"></i></div><br><br><br>')
         .appendTo(html)
         .on('click', $.proxy(this.switch_state, this, this.states.create));
 
-
-    // $('<button>')
-    //     .addClass('btn-blue')
-    //     .attr('id', 'select-button')
-    //     .text("Select Settings")
-    //     .appendTo(footer)
-    //     .on('click', $.proxy(this.change_cluster, this));
 };
 
 
-
-K8sSelection.prototype.get_html_view_context = function() {
-    console.log("Inside view modal!!");
-    var html = this.modal.find('.modal-body');
-    var header = this.modal.find('.modal-header');
-    $('<h4 class="modal-title">Context: ' + this.current_context + '</h4>').appendTo(header);
-
-    $("<button>")
-        .addClass("back-button")
-        .attr("type", "button")
-        .text("<-")
-        .appendTo(header)
-        .on("click", $.proxy(this.refresh_modal, this));
-
-    html.append('<div id="view_context"></div>');
-    var div = html.find("#view_context");
-    $('<h4 id="cluster_name">Cluster name: ' + this.view_cluster_name + '</h4><br>').appendTo(div);
-
-    $('<h4 id="namespace">Namespace: ' + this.view_namespace + '</h4><br>').appendTo(div);
-    
-    $('<h4 id="svcaccount">Service Account: ' + this.view_svcaccount + '</h4><br>').appendTo(div);
-
-    $('<div class="content"><h4 id="token" style="word-wrap: break-word;">Token: ' + this.view_token + '</h4><br>').appendTo(div);
-
-};
-
-
-
-K8sSelection.prototype.select_context = function() {
-    var button_id = $(this).attr('id');
-    var current_context = button_id.split('.')[1];
-    console.log("Selected cluster: " + current_context);
-    this.switch_state(this.states.loading);
-    this.send({
-        'action': 'change-current-context',
-        'context': current_context,
-    });
-};
-
-
-
-K8sSelection.prototype.change_cluster = function() {
-    console.log("Sending msg to kernel to change KUBECONFIG");
-    console.log("Modified cluster: " + this.current_context);
-    this.switch_state(this.states.loading);
-    this.send({
-        'action': 'get-context-settings',
-        'context': this.current_context,
-    })
-    
-};
-
-
-K8sSelection.prototype.get_html_create_context = function() {
-    console.log("Changed state");
-
+/**
+ * @desc display the create cluster and context frontend to the user
+ */
+K8sSelection.prototype.get_html_create_clusters = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
 
@@ -417,14 +283,10 @@ K8sSelection.prototype.get_html_create_context = function() {
     html.append(create_context_html);
 
     var tabs = html.find("#material-tabs");
-
     var active = tabs.find(".active");
-
     var that = this;
 
-    console.log(active.html());
-
-    var clusters = this.clusters;
+    console.log("Currently active state" + active.html());
 
     this.selected_tab = active.html();
     tabs.click(function() {
@@ -436,6 +298,8 @@ K8sSelection.prototype.get_html_create_context = function() {
 
     var tab2 = html.find("#tab2");
 
+
+    // "Insecure cluster" checkbox logic for the local tab.
     var checkbox = html.find("#cluster-mode");
     this.checkbox_status = "unchecked";
     checkbox.change(function() {
@@ -486,6 +350,7 @@ K8sSelection.prototype.get_html_create_context = function() {
 
 
 
+    // Adds Cluster name input to the local tab
     $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
     
     if(this.local_selected_clustername) {
@@ -516,6 +381,8 @@ K8sSelection.prototype.get_html_create_context = function() {
             });
     }
 
+
+    // Adds Server IP input to the local tab
     $('<br><br>').appendTo(tab1);
 
     $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab1);
@@ -549,6 +416,7 @@ K8sSelection.prototype.get_html_create_context = function() {
     }
     
 
+    // Adds Token input to the local tab
     $('<br><br>').appendTo(tab1);
 
     $('<label for="token_text" id="token_text_label">Token</label><br>').appendTo(tab1);
@@ -582,7 +450,7 @@ K8sSelection.prototype.get_html_create_context = function() {
     }
 
 
-
+    // Adds CA Token input to the local tab is insecure checkbox is unchecked
     $('<br id="br1"><br id="br2">').appendTo(tab1);
 
     $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
@@ -616,7 +484,7 @@ K8sSelection.prototype.get_html_create_context = function() {
     }
 
 
-
+    // Adds Cluster name input to the openstack tab
     $('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
     
     if(this.openstack_selected_clustername) {
@@ -647,6 +515,8 @@ K8sSelection.prototype.get_html_create_context = function() {
             });
     }
 
+
+    // Adds Server IP input to the openstack tab
     $('<br><br>').appendTo(tab2);
 
     $('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab2);
@@ -680,6 +550,7 @@ K8sSelection.prototype.get_html_create_context = function() {
     }
 
 
+    // Adds CA Token input to the openstack tab
     $('<br><br>').appendTo(tab2);
 
     $('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab2);
@@ -711,21 +582,19 @@ K8sSelection.prototype.get_html_create_context = function() {
                 that.openstack_selected_catoken = openstack_catoken_input.val();
             });
     }
-
-
-
-    // select1.change(function() {
-    //     that.current_cluster = $(this).children("option:selected").val();
-    // });
 };
 
+
+/**
+ * @desc Handler for getting all the inputs from the frontend and sending it to the backend for creating context
+ * and cluster
+ */
 K8sSelection.prototype.create_context = function() {
     var header = this.modal.find('.modal-header');
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
-    var error_div = html.find('#setting-error');
-    error_div.remove();
-    // this.switch_state(this.states.loading);
+
+    // Checks whether any input is empty before sending it to backend
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             if(!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
@@ -755,33 +624,20 @@ K8sSelection.prototype.create_context = function() {
             return;
         }
     }
-    // var form = html.find("#local-form");
-    // form.submit();
 
     footer.find('#select-button').attr('disabled', true);
     header.find('.close').hide();
 
-
-    // this.local_selected_namespace = "sahil";
-    // this.local_selected_svcaccount = "sahil";
-    // this.local_selected_contextname = this.local_selected_clustername + "-" + this.local_selected_namespace + "-" + this.local_selected_svcaccount + "-context";
-
-    // console.log("Selected namespace: " + this.local_selected_namespace);
-    // console.log("Selected serviceaccount: " + this.local_selected_svcaccount);
+    // Logging all the input from frontend just for debugging purposes.
     console.log("Selected token: " + this.local_selected_token);
     console.log("Selected catoken: " + this.local_selected_catoken);
-    // console.log("Selected context name: " + this.local_selected_contextname);
     console.log("Selected tab: " + this.selected_tab);
-    // console.log("Selected cluster: " + this.current_cluster);
     console.log("Insecure server: ", this.checkbox_status);
-    // console.log("Insecure server: ", this.insecure_server);
-
-    // console.log("Selected openstack os token: ", this.openstack_selected_ostoken);
     console.log("Selected openstack cluster: ", this.openstack_selected_clustername);
     console.log("Selected openstack server ip: ", this.openstack_selected_ip);
     console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
 
-    // this.switch_state(this.states.loading);
+    // Sending the data to the backend according to the tab selected currently
     if(this.selected_tab == "local") {
         if(this.checkbox_status == "unchecked") {
             this.send({
@@ -808,7 +664,6 @@ K8sSelection.prototype.create_context = function() {
     else if(this.selected_tab == "openstack") {
         this.send({
             'action': 'add-context-cluster',
-            // 'ostoken': this.openstack_selected_ostoken,
             'tab': this.selected_tab,
             'catoken': this.openstack_selected_catoken,
             'cluster_name': this.openstack_selected_clustername,
@@ -817,7 +672,9 @@ K8sSelection.prototype.create_context = function() {
     }
 };
 
-
+/**
+ * @desc shows the create_user state to the user
+ */
 K8sSelection.prototype.get_html_create_users = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
@@ -836,9 +693,11 @@ K8sSelection.prototype.get_html_create_users = function() {
     $('<h4 class="modal-title">&nbsp;&nbsp;<span>Grant access</span></h4>').appendTo(header);
 
     var user_create_div = html.find("#user_create_div");
+
+
+    // Adds username field to create_user state frontend
     $('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);
 
-    
     var user_create_input = $('<input/>')
         .attr('name', 'user_create_input')
         .attr('type', 'text')
@@ -851,8 +710,10 @@ K8sSelection.prototype.get_html_create_users = function() {
             that.user_create_input = user_create_input.val();
         });
 
-    $('<br><br>').appendTo(user_create_div);
 
+    // Adds user email field to create_user state frontend. Currently I have kept this input for testing. We can delete
+    // it however when deployed to production.
+    $('<br><br>').appendTo(user_create_div);
 
     $('<label for="user_email_create_input" id="user_email_create_input_label">Email</label><br>').appendTo(user_create_div);
     
@@ -870,8 +731,13 @@ K8sSelection.prototype.get_html_create_users = function() {
 };
 
 
+/**
+ * Handler to get user inputs from the create_user state and send it to the backend to create a user
+ */
 K8sSelection.prototype.create_users = function() {
 
+    // Check whether the inputs are not empty.
+    // Note: I have not validated the email field right now because it is going to be removed, right?
     if(!this.user_create_input || !this.user_email_create_input) {
         this.send({
             'action': 'show-error',
@@ -880,16 +746,13 @@ K8sSelection.prototype.create_users = function() {
         return;
     }
 
+    // Logging the inputs just for testing purposes
     console.log("Username: " + this.user_create_input);
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
 
-    var header = this.modal.find('.modal-header');
-    var html = this.modal.find('.modal-body');
-    var footer = this.modal.find('.modal-footer');
-    var error_div = html.find('#setting-error');
-    error_div.remove();
 
+    // Send the inputs to the backend to add users to a cluster
     this.switch_state(this.states.loading);
     this.send({
         'action': 'create-user',
@@ -900,9 +763,9 @@ K8sSelection.prototype.create_users = function() {
 };
 
 
-
-
-
+/**
+ * @desc displays the frontend for loading state
+ */
 K8sSelection.prototype.get_html_loading = function() {
     var html = this.modal.find('.modal-body');
 
@@ -917,15 +780,15 @@ K8sSelection.prototype.get_html_loading = function() {
     $('<div>')
         .addClass('nb-spinner')
         .appendTo(loading);
-
-    // $('<div>')
-    //     .addClass('dbl-spinner--2')
-    //     .appendTo(loading);
 };
 
 
+/**
+ * @desc frontend for the error state.
+ * @param error
+ * @param prev_state
+ */
 K8sSelection.prototype.get_html_error = function (error, prev_state) {
-
     if (this.modal) {
         Jupyter.keyboard_manager.disable();
         var header = this.modal.find('.modal-header');
@@ -937,8 +800,9 @@ K8sSelection.prototype.get_html_error = function (error, prev_state) {
         footer.html('');
 
         $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
-        // var that = this;
 
+
+        // Here the back button allows to go back to the previous state
         $("<button>")
             .attr("type", "button")
             .addClass("back-button")
@@ -953,13 +817,13 @@ K8sSelection.prototype.get_html_error = function (error, prev_state) {
 };
 
 
-K8sSelection.prototype.redirect = function() {
-    window.location.href = "http://spark.apache.org/";
-};
-
-
+/**
+ * @desc Handler to process messages recieved from the backend
+ * @param msg
+ */
 K8sSelection.prototype.on_comm_msg = function (msg) {
     if(msg.content.data.msgtype == 'context-select') {
+        // The initial message recieved from the backend which provides the information about all the contexts
         console.log("Got message from frontend: " + msg.content.data.active_context);
         this.current_context = msg.content.data.active_context;
         this.contexts = msg.content.data.contexts;
@@ -971,41 +835,9 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.send({
             'action': 'get-connection-detail',
         });
-        // this.switch_state(this.states.select);
-    }
-    else if(msg.content.data.msgtype == 'authentication-successfull') {
-        console.log("Authentication successfull");
-        this.hide_close = false;
-        this.modal.modal('hide');
-        this.send({
-            'action': 'get-connection-detail',
-        });
-        console.log("Authentication successfull");
-    }
-    else if(msg.content.data.msgtype == 'authentication-unsuccessfull') {
-        console.log("Authentication unsuccessfull");
-        this.hide_close = false;
-        // this.open_modal();
-        var html = this.modal.find('.modal-body');
-        var footer = this.modal.find('.modal-footer');
-        var header = this.modal.find('.modal-header');
-        $('<div id="setting-error"><br><h4 style="color: red;">You cannot use these settings. Please contact your admin</h4></div>').appendTo(html);
-
-        console.log("Authentication unsuccessfull");
-
-        footer.find('#select-button').attr('disabled', false);
-        header.find('.close').show();
-    }
-    else if(msg.content.data.msgtype == 'context-info') {
-        this.view_cluster_name = msg.content.data.cluster_name;
-        this.view_svcaccount = msg.content.data.svcaccount;
-        this.view_namespace = msg.content.data.namespace;
-        this.view_token = msg.content.data.token;
-
-        this.switch_state(this.states.view);
     }
     else if(msg.content.data.msgtype == 'added-context-successfully') {
-
+        // The message received when cluster and context are added successfully
         if (msg.content.data.tab == 'local') {
             this.local_selected_token = undefined;
             this.local_selected_catoken = undefined;
@@ -1021,49 +853,18 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
             this.openstack_selected_ip = undefined;
             this.selected_tab = undefined;
         }
-        console.log("Added context successfull");
         this.hide_close = false;
         this.refresh_modal();
         this.send({
             'action': 'get-connection-detail',
         });
-        console.log("Added context successfull");
     }
     else if(msg.content.data.msgtype == 'added-context-unsuccessfully') {
+        // The message received when cluster and context are not added successfully
         console.log("Added context unsuccessfull");
-        // this.switch_state(this.states.create);
         this.hide_close = false;
-        var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
-
-        var that = this;
-        // var tab = msg.content.data.tab;
-
-        // if(tab == 'local')
-        //     var tab_html = html.find("#tab1");
-        // else if(tab == 'openstack')
-        //     var tab_html = html.find("#tab2");
-        // else if(tab == 'gcloud')
-        //     var tab_html = html.find("#tab3");
-        // else
-        //     var tab_html = html.find("#tab4");
-        
-        // this.modal.find(".modal-content").attr("style", "opacity: 0;");
-        //
-        // this.modal2 = dialog.modal({
-        //     notebook: Jupyter.notebook,
-        //     keyboard_manager: Jupyter.keyboard_manager,
-        //     title: 'Error',
-        //     body: msg.content.data.error,
-        // });
-        //
-        // this.modal2.on('hide.bs.modal', function () {
-        //     that.modal.find(".modal-content").attr("style", "opacity: 1;");
-        // });
-
-        // var error = msg.content.data.error;
-        // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(tab_html);
 
         footer.find('#select-button').attr('disabled', false);
         header.find('.close').show();
@@ -1073,6 +874,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         console.log("Added context unsuccessfull");
     }
     else if(msg.content.data.msgtype == 'changed-current-context') {
+        // The message received when successfully changed current context in the backend
         this.hide_close = false;
         this.modal.modal('hide');
         this.send({
@@ -1080,23 +882,29 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         });
     }
     else if(msg.content.data.msgtype == 'connection-details') {
+        // The message received when asked details about the current context from the backend and the
+        // current context is able to get resources
         var context = msg.content.data.context;
         this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Connected: ' + context + '</div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
         this.toolbar_button.find("#extension_icon").css('min-width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
 
-            this.toolbar_button.removeAttr('disabled');
+        this.toolbar_button.removeAttr('disabled');
     }
     else if(msg.content.data.msgtype == 'connection-details-error') {
+        // The message received when asked details about the current context from the backend and the
+        // current context is not able to get resources
         this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
         this.toolbar_button.find("#extension_icon").css('min-width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
 
-            this.toolbar_button.removeAttr('disabled');
+        this.toolbar_button.removeAttr('disabled');
+        this.enabled = true;
     }
     else if(msg.content.data.msgtype == 'deleted-context-successfully') {
+        // Message received from backend when the context and cluster are deleted successfully from backend
         this.modal.modal('hide');
         this.switch_state(this.states.create);
         this.send({
@@ -1104,38 +912,27 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         });
     }
     else if(msg.content.data.msgtype == 'added-user-unsuccessfully') {
-        // this.switch_state(this.states.create_users);
+        // Message recieved when the user is not added to a cluster successfully
         var html = this.modal.find('.modal-body');
         var footer = this.modal.find('.modal-footer');
         var header = this.modal.find('.modal-header');
         var that = this;
 
-        // this.modal.find(".modal-content").attr("style", "opacity: 0;");
-        //
-        // this.modal2 = dialog.modal({
-        //     notebook: Jupyter.notebook,
-        //     keyboard_manager: Jupyter.keyboard_manager,
-        //     title: 'Error',
-        //     body: msg.content.data.error,
-        // });
-        //
-        // this.modal2.on('hide.bs.modal', function () {
-        //     that.modal.find(".modal-content").removeAttr("style");
-        // });
-        // var error = msg.content.data.error;
-        // $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(html);
-
         this.get_html_error(msg.content.data.error, this.states.create_users);
     }
     else if(msg.content.data.msgtype == 'added-user-successfully') {
+        // Message recieved when the user is added to a cluster successfully
         this.user_create_input = undefined;
         this.user_email_create_input = undefined;
-        // this.user_create_context_name = undefined;
         this.switch_state(this.states.create_users);
     }
 };
 
 
+/**
+ * @desc A Helper function to switch from one state to another
+ * @param new_state
+ */
 K8sSelection.prototype.switch_state = function (new_state) {
     this.state = new_state;
 
@@ -1148,12 +945,12 @@ K8sSelection.prototype.switch_state = function (new_state) {
         header.html('');
         body.html('');
         footer.html('');
-        // $('<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">').appendTo(header);
 
         $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
 
         new_state.get_html();
 
+        // Looping for each button that a state has and adding it to the footer
         $.each(new_state.buttons, function (name, options) {
             $('<button>')
                 .addClass('btn-blue')
@@ -1162,18 +959,16 @@ K8sSelection.prototype.switch_state = function (new_state) {
                 .text(name)
                 .appendTo(footer);
         });
-
-        // if (new_state.hide_close) {
-        //     header.find('.close').hide();
-        // } else {
-        //     header.find('.close').show();
-        // }
     }
 };
 
 
+/**
+ * @desc Function to start communication with the backend
+ */
 K8sSelection.prototype.start_comm = function () {
 
+    // Check whether it is already instantiated and close it.
     if (this.comm) {
         this.comm.close()
     }
@@ -1182,6 +977,7 @@ K8sSelection.prototype.start_comm = function () {
 
     var that = this;
 
+    // Create a new communication with the backend and send a message to the backend when communication starts
     if (Jupyter.notebook.kernel) {
         console.log("Inside if statement!!");
         this.comm = Jupyter.notebook.kernel.comm_manager.new_comm('K8sSelection',
@@ -1197,9 +993,6 @@ function load_ipython_extension() {
 
     var conn = new K8sSelection();
     conn.add_toolbar_button();
-    // conn.send({
-    //     'action': 'get-connection-detail',
-    // });
 }
 
 export {load_ipython_extension}
