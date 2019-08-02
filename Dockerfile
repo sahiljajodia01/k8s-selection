@@ -35,15 +35,10 @@ RUN rm /bin/sh && \
     ln -s /bin/bash /bin/sh
 
 RUN mkdir /home/jovyan/switch_cluster
-RUN mkdir /home/jovyan/spark
 
 WORKDIR /Users/sahiljajodia/SWAN/k8s-selection
 
 COPY k8s-selection /home/jovyan/k8s-selection/
-
-COPY spark/ /home/jovyan/spark/
-
-COPY openrc.sh /home/jovyan/openrc.sh
 
 RUN cd /home/jovyan/k8s-selection && \
     pip install . && \
