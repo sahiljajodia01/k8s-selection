@@ -129,6 +129,10 @@ var _k8s = __webpack_require__(0);
 
 var _k8s2 = _interopRequireDefault(_k8s);
 
+var _k8s_blue = __webpack_require__(16);
+
+var _k8s_blue2 = _interopRequireDefault(_k8s_blue);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -191,12 +195,10 @@ K8sSelection.prototype.add_toolbar_button = function () {
     var action_name = 'show-sparkcluster-conf';
     var full_action_name = _namespace2.default.actions.register(action, action_name, prefix);
     this.toolbar_button = _namespace2.default.toolbar.add_buttons_group([full_action_name]).find('.btn');
-    this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
+    this.toolbar_button.html('<div id="extension_icon"></div>');
     this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
     this.toolbar_button.find("#extension_icon").css('min-width', '16px');
     this.toolbar_button.find("#extension_icon").css('height', '16px');
-    this.toolbar_button.attr("style", "width: 150px; text-overflow: ellipsis; overflow: hidden;");
-    this.toolbar_button.attr('disabled', 'disabled');
     this.enabled = false;
 };
 
@@ -803,8 +805,8 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // The message received when asked details about the current context from the backend and the
         // current context is able to get resources
         var context = msg.content.data.context;
-        this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Connected: ' + context + '</div>');
-        this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
+        this.toolbar_button.html('<div id="extension_icon"></div>');
+        this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s_blue2.default) + '")');
         this.toolbar_button.find("#extension_icon").css('min-width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
 
@@ -813,11 +815,10 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     } else if (msg.content.data.msgtype == 'connection-details-error') {
         // The message received when asked details about the current context from the backend and the
         // current context is not able to get resources
-        this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
+        this.toolbar_button.html('<div id="extension_icon"></div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
         this.toolbar_button.find("#extension_icon").css('min-width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
-
         this.toolbar_button.removeAttr('disabled');
         this.enabled = true;
     } else if (msg.content.data.msgtype == 'deleted-context-successfully') {
@@ -1557,6 +1558,12 @@ module.exports = function (css) {
 	// send back the fixed css
 	return fixedCss;
 };
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "images/k8s_blue.png";
 
 /***/ })
 /******/ ]);

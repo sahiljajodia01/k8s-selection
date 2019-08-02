@@ -8,6 +8,7 @@ import create_context_html from './templates/create_context.html'
 import user_create from './templates/user_create.html'
 import './css/style.css'
 import kubernetes_icon from './images/k8s.png'
+import kubernetes_icon_blue from './images/k8s_blue.png'
 
 
 /**
@@ -71,12 +72,10 @@ K8sSelection.prototype.add_toolbar_button = function() {
     var action_name = 'show-sparkcluster-conf';
     var full_action_name = Jupyter.actions.register(action, action_name, prefix);
     this.toolbar_button = Jupyter.toolbar.add_buttons_group([full_action_name]).find('.btn');
-    this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
+    this.toolbar_button.html('<div id="extension_icon"></div>');
     this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
     this.toolbar_button.find("#extension_icon").css('min-width', '16px');
     this.toolbar_button.find("#extension_icon").css('height', '16px');
-    this.toolbar_button.attr("style", "width: 150px; text-overflow: ellipsis; overflow: hidden;");
-    this.toolbar_button.attr('disabled', 'disabled');
     this.enabled = false;
 };
 
@@ -909,8 +908,8 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // The message received when asked details about the current context from the backend and the
         // current context is able to get resources
         var context = msg.content.data.context;
-        this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Connected: ' + context + '</div>');
-        this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
+        this.toolbar_button.html('<div id="extension_icon"></div>');
+        this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon_blue) + '")');
         this.toolbar_button.find("#extension_icon").css('min-width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
 
@@ -920,11 +919,10 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     else if(msg.content.data.msgtype == 'connection-details-error') {
         // The message received when asked details about the current context from the backend and the
         // current context is not able to get resources
-        this.toolbar_button.html('<div style="display: flex; flex-direction: row"><div id="extension_icon"></div>&nbsp;Not Connected</div>');
+        this.toolbar_button.html('<div id="extension_icon"></div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + requirejs.toUrl('./' + kubernetes_icon) + '")');
         this.toolbar_button.find("#extension_icon").css('min-width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
-
         this.toolbar_button.removeAttr('disabled');
         this.enabled = true;
     }
