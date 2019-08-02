@@ -202,8 +202,8 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     }
 
     html.find("#load_more_button").click(function() {
-
-        if(x+5 < size_list) {
+        x = x + 5;
+        if(x < size_list) {
             html.find('.cluster-list-div:lt('+x+5+')').show();
         }
         else {
