@@ -630,6 +630,9 @@ class K8sSelection:
             p = subprocess.Popen(['kinit'], stdin=subprocess.PIPE, universal_newlines=True)
             p.communicate(input=auth_kinit)
 
+            output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
+            os.enviro["OS_TOKEN"] = output
+
             if p.wait() == 0:
                 self.send({
                     'msgtype': 'auth-successfull',
