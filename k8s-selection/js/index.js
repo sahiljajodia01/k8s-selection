@@ -32,7 +32,7 @@ function K8sSelection() {
                     click: $.proxy(this.authenticate, this)
                 }
             }
-        }
+        },
         create: {
             get_html: $.proxy(this.get_html_create_clusters, this),
             buttons: {
