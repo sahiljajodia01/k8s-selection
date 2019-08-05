@@ -744,6 +744,7 @@ class K8sSelection:
         def _recv(msg):
             self.handle_comm_message(msg)
 
+        # self.cluster_list()
 
         if self.get_kerberos_auth():
 
@@ -753,7 +754,7 @@ class K8sSelection:
         else:
             output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
             os.enviro["OS_TOKEN"] = output
-        # self.cluster_list()
+        
 
     def cluster_list(self):
         """

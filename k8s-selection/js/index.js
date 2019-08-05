@@ -3,12 +3,12 @@ import dialog from 'base/js/dialog';
 import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
 import requirejs from 'require';
-import user_html from './templates/user.html'
-import create_context_html from './templates/create_context.html'
-import user_create from './templates/user_create.html'
-import './css/style.css'
-import kubernetes_icon from './images/k8s.png'
-import kubernetes_icon_blue from './images/k8s_blue.png'
+import user_html from './templates/user.html';
+import create_context_html from './templates/create_context.html';
+import user_create from './templates/user_create.html';
+import './css/style.css';
+import kubernetes_icon from './images/k8s.png';
+import kubernetes_icon_blue from './images/k8s_blue.png';
 
 
 /**
