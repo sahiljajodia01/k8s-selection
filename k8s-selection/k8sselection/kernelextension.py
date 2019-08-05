@@ -34,9 +34,9 @@ class K8sSelection:
     def get_kerberos_auth(self):
         """ Check kerberos authentication for openstack commands """
         if subprocess.call(['klist', '-s']) != 0:
-            return False
-        else:
             return True
+        else:
+            return False
 
     def handle_comm_message(self, msg):
         """
@@ -752,6 +752,7 @@ class K8sSelection:
         # self.cluster_list()
 
         if self.get_kerberos_auth():
+            self.log.info("Calling kerberos authentication")
             self.send({
                 'msgtype': 'kerberos-auth',
             })
