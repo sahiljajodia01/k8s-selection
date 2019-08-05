@@ -633,8 +633,9 @@ class K8sSelection:
             p = subprocess.Popen(['kinit'], stdin=subprocess.PIPE, universal_newlines=True)
             p.communicate(input=auth_kinit)
 
-            output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
-            os.enviro["OS_TOKEN"] = output
+            output = subprocess.check_output(['openstack token issue -c id -f value'], shell=True)
+            output = output.decode('utf-8').rstrip('\n')
+            os.environ["OS_TOKEN"] = output
 
             if p.wait() == 0:
                 self.send({
@@ -757,8 +758,9 @@ class K8sSelection:
                 'msgtype': 'kerberos-auth',
             })
         else:
-            output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
-            os.enviro["OS_TOKEN"] = output
+            output = subprocess.check_output(['openstack token issue -c id -f value'], shell=True)
+            output = output.decode('utf-8').rstrip('\n')
+            os.environ["OS_TOKEN"] = output
         
 
     def cluster_list(self):
