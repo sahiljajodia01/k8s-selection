@@ -758,7 +758,7 @@ class K8sSelection:
         the user is an admin of the cluster
         """
 
-        if self.get_kerberos_auth():
+        if subprocess.call(['klist', '-s']) != 0:
             self.send({
                 'msgType': 'kerberos-auth',
             })
