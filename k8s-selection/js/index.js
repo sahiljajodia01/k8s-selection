@@ -823,7 +823,7 @@ K8sSelection.prototype.get_html_auth = function() {
     $('<h4 class="modal-title">&nbsp;&nbsp;<span>Authentication</span></h4>').appendTo(header);
 
     // Adds username field to create_user state frontend
-    $('<br><label for="user_auth_pass" id="user_auth_pass_label">Password</label><br>').appendTo(user_create_div);
+    $('<br><label for="user_auth_pass" id="user_auth_pass_label">Password</label><br>').appendTo(html);
 
     var user_create_input = $('<input/>')
         .attr('name', 'user_auth_pass')
