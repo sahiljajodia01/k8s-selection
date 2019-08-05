@@ -747,9 +747,17 @@ class K8sSelection:
         def _recv(msg):
             self.handle_comm_message(msg)
 
-        # self.log.info("KERBEROS AUTH: ", self.get_kerberos_auth())
+        self.log.info("KERBEROS AUTH: ", self.get_kerberos_auth())
 
-        self.cluster_list()
+        # self.cluster_list()
+
+        if self.get_kerberos_auth():
+            self.send({
+                'msgtype': 'kerberos-auth',
+            })
+        else:
+            output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
+            os.enviro["OS_TOKEN"] = output
         
 
     def cluster_list(self):
@@ -758,30 +766,8 @@ class K8sSelection:
         the user is an admin of the cluster
         """
 
-        if subprocess.call(['klist', '-s']) != 0:
-            self.send({
-                'msgtype': 'kerberos-auth',
-            })
-        else:
-            output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
-            os.enviro["OS_TOKEN"] = output
-
-            if os.path.isdir(os.getenv('HOME') + '/.kube'):
-                if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
-                    load = {}
-                    load['apiVersion'] = 'v1'
-                    load['clusters'] = []
-                    load['contexts'] = []
-                    load['current-context'] = ''
-                    load['kind'] = 'Config'
-                    load['preferences'] = {}
-                    load['users'] = []
-
-                    with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                        yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-            else:
-                os.makedirs(os.getenv('HOME') + '/.kube')
-
+        if os.path.isdir(os.getenv('HOME') + '/.kube'):
+            if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
                 load = {}
                 load['apiVersion'] = 'v1'
                 load['clusters'] = []
@@ -793,77 +779,91 @@ class K8sSelection:
 
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+        else:
+            os.makedirs(os.getenv('HOME') + '/.kube')
 
-            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-                load = yaml.safe_load(stream)
+            load = {}
+            load['apiVersion'] = 'v1'
+            load['clusters'] = []
+            load['contexts'] = []
+            load['current-context'] = ''
+            load['kind'] = 'Config'
+            load['preferences'] = {}
+            load['users'] = []
 
-            contexts = load['contexts']
-            active_context = ''
-            for i in range(len(contexts)):
-                if contexts[i]['name'] == load['current-context']:
-                    active_context = contexts[i]
-                    break
+            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-            clusters = []
-            for i in load['clusters']:
-                clusters.append(i['name'])
+        with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+            load = yaml.safe_load(stream)
 
-            current_cluster = ''
-            for i in load['contexts']:
-                if i['name'] == load['current-context']:
-                    current_cluster = i['context']['cluster']
+        contexts = load['contexts']
+        active_context = ''
+        for i in range(len(contexts)):
+            if contexts[i]['name'] == load['current-context']:
+                active_context = contexts[i]
+                break
 
-            namespaces = []
-            for i in contexts:
-                self.log.info(i)
-                if 'namespace' in i['context'].keys():
-                    namespace = i['context']['namespace']
-                    namespaces.append(namespace)
-                else:
-                    namespace = 'default'
-                    namespaces.append(namespace)
+        clusters = []
+        for i in load['clusters']:
+            clusters.append(i['name'])
 
-            contexts = [context['name'] for context in contexts]
-            current_context = ''
-            if active_context is not '':
-                current_context = active_context['name']
+        current_cluster = ''
+        for i in load['contexts']:
+            if i['name'] == load['current-context']:
+                current_cluster = i['context']['cluster']
 
-            # Creating two empty lists and looping over the contexts and checking whether the clusters are
-            # reachable and if the user is admin of the cluster.
-            delete_list = []
-            admin_list = []
-            for i in range(len(contexts)):
-                try:
-                    self.log.info("TRY")
-                    config.load_kube_config(context=contexts[i])
-                    api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=2)
-                    delete_list.append("False")
-                except:
-                    self.log.info("EXCEPT")
-                    delete_list.append("True")
+        namespaces = []
+        for i in contexts:
+            self.log.info(i)
+            if 'namespace' in i['context'].keys():
+                namespace = i['context']['namespace']
+                namespaces.append(namespace)
+            else:
+                namespace = 'default'
+                namespaces.append(namespace)
+
+        contexts = [context['name'] for context in contexts]
+        current_context = ''
+        if active_context is not '':
+            current_context = active_context['name']
+
+        # Creating two empty lists and looping over the contexts and checking whether the clusters are
+        # reachable and if the user is admin of the cluster.
+        delete_list = []
+        admin_list = []
+        for i in range(len(contexts)):
+            try:
+                self.log.info("TRY")
+                config.load_kube_config(context=contexts[i])
+                api_instance = client.CoreV1Api()
+                api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=2)
+                delete_list.append("False")
+            except:
+                self.log.info("EXCEPT")
+                delete_list.append("True")
 
 
-            for i in range(len(contexts)):
-                try:
-                    self.log.info("TRY")
-                    config.load_kube_config(context=contexts[i])
-                    api_instance = client.CoreV1Api()
-                    api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=2)
-                    admin_list.append("True")
-                except:
-                    self.log.info("EXCEPT")
-                    admin_list.append("False")
+        for i in range(len(contexts)):
+            try:
+                self.log.info("TRY")
+                config.load_kube_config(context=contexts[i])
+                api_instance = client.CoreV1Api()
+                api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=2)
+                admin_list.append("True")
+            except:
+                self.log.info("EXCEPT")
+                admin_list.append("False")
 
-            self.send({
-                'msgtype': 'context-select',
-                'contexts': contexts,
-                'active_context': current_context,
-                'clusters': clusters,
-                'current_cluster': current_cluster,
-                'delete_list': delete_list,
-                'admin_list': admin_list,
-            })
+        self.send({
+            'msgtype': 'context-select',
+            'contexts': contexts,
+            'active_context': current_context,
+            'clusters': clusters,
+            'current_cluster': current_cluster,
+            'delete_list': delete_list,
+            'admin_list': admin_list,
+        })
 
 
 def load_ipython_extension(ipython):
