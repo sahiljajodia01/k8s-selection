@@ -117,6 +117,7 @@ K8sSelection.prototype.open_modal = function () {
         // Call this function when the modal shows after clicking the extension button
         this.modal.on('show.bs.modal', function () {
             that.switch_state(that.states.loading);
+            console.log("")
             if(this.get_auth) {
                 console.log("Auth required!");
                 that.switch_state(that.states.auth);
@@ -1015,6 +1016,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.switch_state(this.states.create_users);
     }
     else if(msg.content.data.msgtype == 'kerberos-auth') {
+        this.enabled = true;
         this.get_auth = true;
     }
     else if(msg.content.data.msgtype == 'auth-successfull') {
