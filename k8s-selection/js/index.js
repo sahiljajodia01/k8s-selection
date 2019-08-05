@@ -118,7 +118,7 @@ K8sSelection.prototype.open_modal = function () {
         this.modal.on('show.bs.modal', function () {
             that.switch_state(that.states.loading);
             console.log("")
-            if(this.get_auth) {
+            if(this.get_auth == true) {
                 console.log("Auth required!");
                 that.switch_state(that.states.auth);
             }
