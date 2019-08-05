@@ -760,7 +760,7 @@ class K8sSelection:
 
         if subprocess.call(['klist', '-s']) != 0:
             self.send({
-                'msgType': 'kerberos-auth',
+                'msgtype': 'kerberos-auth',
             })
         else:
             output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
