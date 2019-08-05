@@ -117,8 +117,8 @@ K8sSelection.prototype.open_modal = function () {
         // Call this function when the modal shows after clicking the extension button
         this.modal.on('show.bs.modal', function () {
             that.switch_state(that.states.loading);
-            console.log("Get auth: " + this.get_auth);
-            if(this.get_auth == true) {
+            console.log("Get auth: " + that.get_auth);
+            if(that.get_auth) {
                 console.log("Auth required!");
                 that.switch_state(that.states.auth);
             }
