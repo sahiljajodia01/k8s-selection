@@ -4,12 +4,12 @@ try:
 except ImportError:
     ipykernel_imported = False
 
+import subprocess
 import os, logging
 import io, yaml
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 from os.path import join, dirname
-import subprocess
 
 
 class AlreadyExistError(Exception):
@@ -33,7 +33,10 @@ class K8sSelection:
 
     def get_kerberos_auth(self):
         """ Check kerberos authentication for openstack commands """
-        return subprocess.call(['klist', '-s']) != 0
+        if subprocess.call(['klist', '-s']) != 0
+            return True
+        else:
+            return False
 
     def handle_comm_message(self, msg):
         """
@@ -744,12 +747,11 @@ class K8sSelection:
         def _recv(msg):
             self.handle_comm_message(msg)
 
-        self.log.info("self.get_kerberos_auth(): ", self.get_kerberos_auth())
+        self.log.info("KERBEROS AUTH: ", self.get_kerberos_auth())
 
         # self.cluster_list()
 
         if self.get_kerberos_auth():
-
             self.send({
                 'msgType': 'kerberos-auth',
             })
