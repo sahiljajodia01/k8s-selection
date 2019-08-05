@@ -9,6 +9,7 @@ import io, yaml
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 from os.path import join, dirname
+import subprocess
 
 
 class AlreadyExistError(Exception):
@@ -29,6 +30,10 @@ class K8sSelection:
     def send(self, msg):
         """Send a message to the frontend"""
         self.comm.send(msg)
+
+    def get_kerberos_auth(self):
+        """ Check kerberos authentication for openstack commands """
+        return subprocess.call(['klist', '-s']) != 0
 
     def handle_comm_message(self, msg):
         """
@@ -620,6 +625,21 @@ class K8sSelection:
                     'msgtype': 'added-user-unsuccessfully',
                     'error': error
                 })
+        elif action == 'kerberos-auth':
+            auth_kinit = msg['content']['data']['password']
+            p = subprocess.Popen(['kinit'], stdin=subprocess.PIPE, universal_newlines=True)
+            p.communicate(input=auth_kinit)
+
+            if p.wait() == 0:
+                self.send({
+                    'msgtype': 'auth-successfull',
+                })
+            else:
+                self.send({
+                    'msgtype': 'auth-unsuccessfull',
+                    'error': 'Error obtaining the ticket. Is the password correct?'
+                })
+
 
     def send_sendgrid_email(self, dotenv_path, email, selected_cluster, ca_cert, server_ip):
         """
@@ -722,7 +742,15 @@ class K8sSelection:
             self.handle_comm_message(msg)
 
 
-        self.cluster_list()
+        if self.get_kerberos_auth():
+
+            self.send({
+                'msgType': 'kerberos-auth',
+            })
+        else:
+            output = subprocess.check_output(['openstack', 'token', 'issue', '-c', 'id', '-f', 'value'])
+            os.enviro["OS_TOKEN"] = output
+        # self.cluster_list()
 
     def cluster_list(self):
         """
@@ -771,7 +799,6 @@ class K8sSelection:
         clusters = []
         for i in load['clusters']:
             clusters.append(i['name'])
-
 
         current_cluster = ''
         for i in load['contexts']:
