@@ -1016,6 +1016,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.switch_state(this.states.create_users);
     }
     else if(msg.content.data.msgtype == 'kerberos-auth') {
+        console.log("Inside kerberos auth communication condition!")
         this.enabled = true;
         this.get_auth = true;
     }

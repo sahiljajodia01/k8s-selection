@@ -744,6 +744,8 @@ class K8sSelection:
         def _recv(msg):
             self.handle_comm_message(msg)
 
+        self.log.info("self.get_kerberos_auth(): ", self.get_kerberos_auth())
+
         self.cluster_list()
 
         if self.get_kerberos_auth():
