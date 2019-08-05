@@ -846,6 +846,7 @@ K8sSelection.prototype.authenticate = function() {
     var password_field = this.modal.find('input[name="user_auth_pass"]');
     password_field.attr('disabled', '');
 
+    this.switch_state(this.states.loading);
     this.send({
         action: 'kerberos-auth',
         password: password_field.val()
