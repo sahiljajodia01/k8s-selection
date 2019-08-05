@@ -118,9 +118,11 @@ K8sSelection.prototype.open_modal = function () {
         this.modal.on('show.bs.modal', function () {
             that.switch_state(that.states.loading);
             if(this.get_auth) {
+                console.log("Auth required!");
                 that.switch_state(that.states.auth);
             }
             else{
+                console.log("Auth not required!");
                 that.refresh_modal();
             }
         }).modal('show');
@@ -802,7 +804,9 @@ K8sSelection.prototype.create_users = function() {
     });
 };
 
-K8sSelection.prototype.get_html_error = function() {
+K8sSelection.prototype.get_html_auth = function() {
+
+    console.log("Inside html auth");
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
     
@@ -833,7 +837,8 @@ K8sSelection.prototype.get_html_error = function() {
 
 
 K8sSelection.prototype.authenticate = function() {
-    
+    console.log("Authenticating");
+
     var password_field = this.modal.find('.auth-button');
     password_field.attr('disabled', '');
 
