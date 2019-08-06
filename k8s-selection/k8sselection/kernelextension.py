@@ -18,6 +18,9 @@ class AlreadyExistError(Exception):
     def __init__(self, message):
         self.message = message
 
+    def __str__(self):
+        return self.message
+
 class K8sSelection:
     """
     This is the main class for the kernel extension.
@@ -58,21 +61,24 @@ class K8sSelection:
             # Logging just for testing purposes
             self.log.info("Context from frontend: ", context)
 
-            # Opening the YAML file using the yaml library
-            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-                load = yaml.safe_load(stream)
+            try:
+                # Opening the YAML file using the yaml library
+                with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                    load = yaml.safe_load(stream)
 
-            # Setting the current context
-            load['current-context'] = context
+                # Setting the current context
+                load['current-context'] = context
 
-            # Writing to the file
-            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+                # Writing to the file
+                with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                    yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-            # Sending the message back to frontend
-            self.send({
-                'msgtype': 'changed-current-context'
-            })
+                # Sending the message back to frontend
+                self.send({
+                    'msgtype': 'changed-current-context'
+                })
+            except Exception as e:
+                self.log.info(str(e))
         elif action == 'add-context-cluster':
             # This action adds the cluster and context information in the KUBECONFIG file received from the user
 
@@ -224,7 +230,7 @@ class K8sSelection:
                     # If the newly added cluster is not responding then delete all the things added above
                     # and send an error to the user.
                     error = 'You cannot request resources using these settings. Please contact your admin'
-
+                    self.log.info(str(e))
                     with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                         load = yaml.safe_load(stream)
 
@@ -254,16 +260,16 @@ class K8sSelection:
                 except AlreadyExistError as e:
                     # If the context or the cluster already exists then send an error to the user
                     error = e.message
-
+                    self.log.info(str(e))
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
                         'tab': 'local'
                     })
-                except:
+                except Exception as e:
                     # Handle general purpose exceptions
                     error = 'Cannot use these settings. Please contact the cluster administrator'
-
+                    self.log.info(str(e))
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
@@ -387,7 +393,7 @@ class K8sSelection:
                     # If you cannot request the newly added cluster then remove everything added above and
                     # send an error to the user.
                     error = 'You cannot request resources using these settings. Please contact your admin'
-
+                    self.log.info(str(e))
                     with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                         load = yaml.safe_load(stream)
 
@@ -417,16 +423,16 @@ class K8sSelection:
                 except AlreadyExistError as e:
                     # If the context or cluster already exists then send the error to the user.
                     error = e.message
-
+                    self.log.info(str(e))
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
                         'tab': 'openstack'
                     })
-                except:
+                except Exception as e:
                     # Handle general purpose exceptions.
                     error = 'Cannot use these settings. Please contact the cluster administrator'
-
+                    self.log.info(str(e))
                     self.send({
                         'msgtype': 'added-context-unsuccessfully',
                         'error': error,
@@ -475,14 +481,14 @@ class K8sSelection:
             except ApiException as e:
                 # If it cannot list pods then send the error to user
                 error = 'Cannot list pods in your namespace'
-
+                self.log.info(str(e))
                 self.send({
                     'msgtype': 'connection-details-error',
                 })
-            except:
+            except Exception as e:
                 # Handle general exception
                 error = 'Cannot load KUBECONFIG'
-
+                self.log.info(str(e))
                 self.send({
                     'msgtype': 'connection-details-error',
                 })
@@ -513,10 +519,10 @@ class K8sSelection:
                 self.send({
                     'msgtype': 'deleted-context-successfully',
                 })
-            except:
+            except Exception as e:
                 # Handle general exception
                 error = "Cannot open KUBECONFIG file"
-
+                self.log.info(str(e))
                 self.send({
                     'msgtype': 'deleted-context-unsuccessfully',
                 })
@@ -620,32 +626,36 @@ class K8sSelection:
                 self.send({
                     'msgtype': 'added-user-successfully',
                 })
-            except:
+            except Exception as e:
                 # Handle user creation exceptions
                 error = 'Cannot create user due to some error.'
-
+                self.log.info(str(e))
                 self.send({
                     'msgtype': 'added-user-unsuccessfully',
                     'error': error
                 })
         elif action == 'kerberos-auth':
-            auth_kinit = msg['content']['data']['password']
-            p = subprocess.Popen(['kinit'], stdin=subprocess.PIPE, universal_newlines=True)
-            p.communicate(input=auth_kinit)
+            try:
+                auth_kinit = msg['content']['data']['password']
+                p = subprocess.Popen(['kinit', os.getenv("USER") + '@CERN.CH'], stdin=subprocess.PIPE, universal_newlines=True)
+                p.communicate(input=auth_kinit)
 
-            output = subprocess.check_output(['openstack token issue -c id -f value'], shell=True)
-            output = output.decode('utf-8').rstrip('\n')
-            os.environ["OS_TOKEN"] = output
+                output = subprocess.check_output(['openstack token issue -c id -f value'], shell=True)
+                output = output.decode('utf-8').rstrip('\n')
+                os.environ["OS_TOKEN"] = output
 
-            if p.wait() == 0:
-                self.send({
-                    'msgtype': 'auth-successfull',
-                })
-            else:
-                self.send({
-                    'msgtype': 'auth-unsuccessfull',
-                    'error': 'Error obtaining the ticket. Is the password correct?'
-                })
+                if p.wait() == 0 and output != '':
+                    self.send({
+                        'msgtype': 'auth-successfull',
+                    })
+                else:
+                    error = 'Error obtaining the ticket. Is the password correct?'
+                    self.send({
+                        'msgtype': 'auth-unsuccessfull',
+                        'error': error
+                    })
+            except Exception as e:
+                self.log.info(str(e))
 
 
     def send_sendgrid_email(self, dotenv_path, email, selected_cluster, ca_cert, server_ip):
@@ -673,14 +683,14 @@ class K8sSelection:
                 to_emails=To(email),
                 subject='Credentials for cluster: ' + selected_cluster,
                 html_content='<strong>Cluster name: </strong>' + selected_cluster + '<br><br><strong>CA Cert: </strong>' + ca_cert + '<br><br><strong>Server IP: </strong>' + server_ip)
-
+                
             # Send the email to the user.
             sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
             response = sg.send(message)
-        except ImportError:
+        except ImportError as e:
             # Handle import exceptions
             error = 'Cannot send email.'
-
+            self.log.info(str(e))
             self.send({
                 'msgtype': 'added-user-unsuccessfully',
                 'error': error
@@ -688,7 +698,14 @@ class K8sSelection:
         except SendGridException as e:
             # Handle sendgrid exceptions
             error = 'Cannot send email.'
-
+            self.log.info(str(e))
+            self.send({
+                'msgtype': 'added-user-unsuccessfully',
+                'error': error
+            })
+        except Exception as e:
+            error = 'Cannot send email.'
+            self.log.info(str(e))
             self.send({
                 'msgtype': 'added-user-unsuccessfully',
                 'error': error
@@ -724,10 +741,10 @@ class K8sSelection:
             server.rcpt(toaddrs[0])
             server.data(msg)
             server.quit()
-        except:
+        except Exception as e:
             # Handle smtplib exceptions
             error = 'Cannot send email.'
-
+            self.log.info(str(e))
             self.send({
                 'msgtype': 'added-user-unsuccessfully',
                 'error': error
