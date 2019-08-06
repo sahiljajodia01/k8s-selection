@@ -27,7 +27,7 @@ function K8sSelection() {
         auth: {
             get_html: $.proxy(this.get_html_auth, this),
             buttons: {
-                'Create User': {
+                'Authenticate': {
                     class: 'btn-success size-100 auth-button',
                     click: $.proxy(this.authenticate, this)
                 }
