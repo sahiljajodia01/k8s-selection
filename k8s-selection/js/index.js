@@ -307,7 +307,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     console.log("Currently active state: " + active.html());
 
     this.selected_tab = active.html();
-    
+
     tabs.each(function() {
 
 				var $active, $content, $links = $(this).find('a');
@@ -367,7 +367,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             $('<br id="br1"><br id="br2">').appendTo(tab1);
 
             $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
-            
+
             if(that.local_selected_catoken) {
                 var catoken_input = $('<input/>')
                     .attr('name', 'catoken_text')
@@ -402,7 +402,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
     // Adds Cluster name input to the local tab
     $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
-    
+
     if(this.local_selected_clustername) {
         var clustername_input = $('<input required/>')
             .attr('name', 'clustername_text')
@@ -436,7 +436,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     $('<br><br>').appendTo(tab1);
 
     $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab1);
-    
+
     if(this.local_selected_ip) {
         var ip_input = $('<input/>')
             .attr('name', 'ip_text')
@@ -464,13 +464,13 @@ K8sSelection.prototype.get_html_create_clusters = function() {
                 that.local_selected_ip = ip_input.val();
             });
     }
-    
+
 
     // Adds Token input to the local tab
     $('<br><br>').appendTo(tab1);
 
     $('<label for="token_text" id="token_text_label">Token</label><br>').appendTo(tab1);
-    
+
     if(this.local_selected_token) {
         var token_input = $('<input/>')
             .attr('name', 'token_text')
@@ -504,7 +504,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     $('<br id="br1"><br id="br2">').appendTo(tab1);
 
     $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
-    
+
     if(this.local_selected_catoken) {
         var catoken_input = $('<input/>')
             .attr('name', 'catoken_text')
@@ -536,7 +536,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
     // Adds Cluster name input to the openstack tab
     $('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
-    
+
     if(this.openstack_selected_clustername) {
         var openstack_clustername_input = $('<input required/>')
             .attr('name', 'openstack_clustername_text')
@@ -570,7 +570,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     $('<br><br>').appendTo(tab2);
 
     $('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab2);
-    
+
     if(this.openstack_selected_ip) {
         var openstack_ip_input = $('<input/>')
             .attr('name', 'openstack_ip_text')
@@ -604,7 +604,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     $('<br><br>').appendTo(tab2);
 
     $('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab2);
-    
+
     if(this.openstack_selected_catoken) {
         var openstack_catoken_input = $('<input/>')
             .attr('name', 'openstack_catoken_text')
@@ -644,7 +644,7 @@ K8sSelection.prototype.create_context = function() {
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
 
-    
+
 
     // Checks whether any input is empty before sending it to backend
     if(this.selected_tab == "local") {
@@ -724,7 +724,7 @@ K8sSelection.prototype.create_context = function() {
 K8sSelection.prototype.get_html_create_users = function() {
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
-    
+
     var that = this;
 
     html.append(user_create);
@@ -762,7 +762,7 @@ K8sSelection.prototype.get_html_create_users = function() {
     $('<br><br>').appendTo(user_create_div);
 
     $('<label for="user_email_create_input" id="user_email_create_input_label">Email</label><br>').appendTo(user_create_div);
-    
+
     var user_email_create_input = $('<input/>')
         .attr('name', 'user_email_create_input')
         .attr('type', 'text')
@@ -805,20 +805,14 @@ K8sSelection.prototype.create_users = function() {
     });
 };
 
+
 K8sSelection.prototype.get_html_auth = function() {
 
     console.log("Inside html auth");
     var html = this.modal.find('.modal-body');
     var header = this.modal.find('.modal-header');
-    
-    var that = this;
 
-    $("<button>")
-    .attr("type", "button")
-    .addClass("back-button")
-    .html("<i class='fa fa-arrow-left' aria-hidden='true'></i>")
-    .appendTo(header)
-    .on("click", $.proxy(this.refresh_modal, this));
+    var that = this;
 
     $('<h4 class="modal-title">&nbsp;&nbsp;<span>Authentication</span></h4>').appendTo(header);
 
@@ -929,7 +923,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'added-context-successfully') {
         // The message received when cluster and context are added successfully
-    
+
             this.local_selected_token = undefined;
             this.local_selected_catoken = undefined;
             this.selected_tab = undefined;
@@ -941,7 +935,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
             this.openstack_selected_clustername = undefined;
             this.openstack_selected_ip = undefined;
             this.selected_tab = undefined;
-        
+
         this.hide_close = false;
         this.refresh_modal();
         this.send({
@@ -1028,6 +1022,9 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'auth-unsuccessfull') {
         this.get_html_error(msg.content.data.error, this.states.auth);
+    }
+    else if(msg.content.data.msgtype == 'get-clusters-unsuccessfull') {
+        this.get_html_error(msg.content.data.error, this.states.select);
     }
 };
 
