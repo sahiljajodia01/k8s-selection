@@ -274,7 +274,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         that.currently_selected_context = current_context;
         console.log("Selected cluster: " + current_context);
         // that.switch_state(that.states.loading);
-        if(this.get_auth == true) {
+        if(that.get_auth == true) {
             console.log("Auth required!");
             that.switch_state(that.states.auth);
         }
