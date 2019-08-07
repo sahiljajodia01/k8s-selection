@@ -505,6 +505,12 @@ button.back-button {
     color: #008017;
 }
 
+.cluster-list-div > .not-connected-symbol {
+    margin-top: 10px;
+    width: 3rem;
+    color: #FF0000;
+}
+
 .cluster-list-div > .list-item-load {
     align-items: center;
     text-align: center;

@@ -148,6 +148,15 @@ function K8sSelection() {
         select: {
             get_html: _jquery2.default.proxy(this.get_html_select_cluster, this)
         },
+        auth: {
+            get_html: _jquery2.default.proxy(this.get_html_auth, this),
+            buttons: {
+                'Authenticate': {
+                    class: 'btn-success size-100 auth-button',
+                    click: _jquery2.default.proxy(this.authenticate, this)
+                }
+            }
+        },
         create: {
             get_html: _jquery2.default.proxy(this.get_html_create_clusters, this),
             buttons: {
@@ -176,6 +185,11 @@ function K8sSelection() {
     };
 
     this.comm = null;
+    this.get_auth = false;
+    this.is_reachable = false;
+    this.is_admin = false;
+    this.initial_select = true;
+    this.selected_tab_id = "tab1";
 
     // Starts the communication with backend when the kernel is connected
     _events2.default.on('kernel_connected.Kernel', _jquery2.default.proxy(this.start_comm, this));
@@ -197,8 +211,9 @@ K8sSelection.prototype.add_toolbar_button = function () {
     this.toolbar_button = _namespace2.default.toolbar.add_buttons_group([full_action_name]).find('.btn');
     this.toolbar_button.html('<div id="extension_icon"></div>');
     this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
-    this.toolbar_button.find("#extension_icon").css('min-width', '16px');
+    this.toolbar_button.find("#extension_icon").css('width', '16px');
     this.toolbar_button.find("#extension_icon").css('height', '16px');
+    this.toolbar_button.find("#extension_icon").css('margin-left', '5px');
     this.enabled = false;
 };
 
@@ -228,6 +243,16 @@ K8sSelection.prototype.open_modal = function () {
         // Call this function when the modal shows after clicking the extension button
         this.modal.on('show.bs.modal', function () {
             that.switch_state(that.states.loading);
+            console.log("Get auth: " + that.get_auth);
+            // if(that.get_auth) {
+            //     console.log("Auth required!");
+            //     that.switch_state(that.states.auth);
+            // }
+            // else{
+            //     console.log("Auth not required!");
+            //     that.refresh_modal();
+            // }
+
             that.refresh_modal();
         }).modal('show');
 
@@ -272,31 +297,58 @@ K8sSelection.prototype.get_html_select_cluster = function () {
     var template = _user2.default;
     this.hide_close = true;
     html.append(template);
-    var delete_list = this.delete_list;
-    var admin_list = this.admin_list;
+    // var delete_list = this.delete_list;
+    // var admin_list = this.admin_list;
     var that = this;
     var list_div = html.find("#user_html_inputs");
 
     /**
      * Loop to check and accordingly display on frontend whether a context can be used or not and also whether the user is admin of the context.
      */
-    for (var i = 0; i < contexts.length; i++) {
-        if (delete_list[i] == "True") {
-            (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+    // for(var i = 0; i < contexts.length; i++) {
+    //     if(delete_list[i] == "True") {
+    //         $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+    //     }
+    //     else {
+    //         if(admin_list[i] == "True") {
+    //             if(contexts[i] == current_context) {
+    //                 $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+    //             }
+    //             else {
+    //                 $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+    //             }
+    //         }
+    //         else {
+    //             if(contexts[i] == current_context) {
+    //                 $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+    //             }
+    //             else {
+    //                 $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+    //             }
+    //         }
+    //     }
+    // }
+
+    if (current_context != '') {
+        if (this.initial_select == true) {
+            (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+            this.initial_select = false;
         } else {
-            if (admin_list[i] == "True") {
-                if (contexts[i] == current_context) {
-                    (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-                } else {
-                    (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-                }
+            if (this.is_reachable == false) {
+                (0, _jquery2.default)('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
             } else {
-                if (contexts[i] == current_context) {
-                    (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+                if (this.is_admin == true) {
+                    (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
                 } else {
-                    (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+                    (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
                 }
             }
+        }
+    }
+
+    for (var i = 0; i < contexts.length; i++) {
+        if (contexts[i] != current_context) {
+            (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
         }
     }
 
@@ -315,8 +367,8 @@ K8sSelection.prototype.get_html_select_cluster = function () {
     }
 
     html.find("#load_more_button").click(function () {
-
-        if (x + 5 < size_list) {
+        x = x + 5;
+        if (x < size_list) {
             html.find('.cluster-list-div:lt(' + x + 5 + ')').show();
         } else {
             html.find('.cluster-list-div:lt(' + size_list + ')').show();
@@ -330,12 +382,18 @@ K8sSelection.prototype.get_html_select_cluster = function () {
     list_div.find(".list-item-select").on('click', function () {
         var button_id = (0, _jquery2.default)(this).attr('id');
         var current_context = button_id.split('.')[1];
+        that.currently_selected_context = current_context;
         console.log("Selected cluster: " + current_context);
-        that.switch_state(that.states.loading);
-        that.send({
-            'action': 'change-current-context',
-            'context': current_context
-        });
+        // that.switch_state(that.states.loading);
+        if (this.get_auth == true) {
+            console.log("Auth required!");
+            that.switch_state(that.states.auth);
+        } else {
+            that.send({
+                'action': 'change-current-context',
+                'context': current_context
+            });
+        }
     });
 
     /**
@@ -383,12 +441,13 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     html.append(_create_context2.default);
 
     var tabs = html.find("#material-tabs");
-    var active = tabs.find(".active");
+    // var active = tabs.find(".active");
     var that = this;
 
-    console.log("Currently active state: " + active.html());
+    this.active_tab = tabs.find("#" + this.selected_tab_id);
+    console.log("Currently active state: " + this.active_tab.html());
 
-    this.selected_tab = active.html();
+    this.selected_tab = this.active_tab.html();
 
     tabs.each(function () {
 
@@ -396,14 +455,15 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             $content,
             $links = (0, _jquery2.default)(this).find('a');
 
-        $active = (0, _jquery2.default)($links[0]);
+        $active = that.active_tab;
         $active.addClass('active');
 
-        $content = (0, _jquery2.default)($active[0].hash);
+        $content = (0, _jquery2.default)($active.hash);
 
         $links.not($active).each(function () {
             (0, _jquery2.default)(this.hash).hide();
         });
+
         // var that = that;
         (0, _jquery2.default)(this).on('click', 'a', function (e) {
 
@@ -416,6 +476,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             $active.addClass('active');
             $content.show();
             that.selected_tab = $active.html();
+            that.active_tab = $active;
+            that.selected_tab_id = this.id.split("-")[0];
+            console.log("Currently selected tab hash: " + this.id.split("-")[0]);
             console.log("Currently selected tab: " + that.selected_tab);
 
             e.preventDefault();
@@ -702,6 +765,38 @@ K8sSelection.prototype.create_users = function () {
     });
 };
 
+K8sSelection.prototype.get_html_auth = function () {
+
+    console.log("Inside html auth");
+    var html = this.modal.find('.modal-body');
+    var header = this.modal.find('.modal-header');
+
+    var that = this;
+
+    (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Authentication</span></h4>').appendTo(header);
+
+    // Adds username field to create_user state frontend
+    (0, _jquery2.default)('<br><label for="user_auth_pass" id="user_auth_pass_label">Password</label><br>').appendTo(html);
+
+    var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_auth_pass').attr('type', 'password').attr("required", "required").attr('id', 'user_auth_pass').attr('placeholder', 'Password').addClass('form__field').appendTo(html);
+};
+
+K8sSelection.prototype.authenticate = function () {
+    console.log("Authenticating");
+
+    var password_field = this.modal.find('.auth-button');
+    password_field.attr('disabled', '');
+
+    var password_field = this.modal.find('input[name="user_auth_pass"]');
+    password_field.attr('disabled', '');
+
+    this.switch_state(this.states.loading);
+    this.send({
+        action: 'kerberos-auth',
+        password: password_field.val()
+    });
+};
+
 /**
  * @desc displays the frontend for loading state
  */
@@ -755,8 +850,9 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.contexts = msg.content.data.contexts;
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
-        this.delete_list = msg.content.data.delete_list;
-        this.admin_list = msg.content.data.admin_list;
+        this.get_auth = msg.content.data.kerberos_auth;
+        // this.delete_list = msg.content.data.delete_list;
+        // this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail'
@@ -796,8 +892,20 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         console.log("Added context unsuccessfull");
     } else if (msg.content.data.msgtype == 'changed-current-context') {
         // The message received when successfully changed current context in the backend
+        this.is_reachable = msg.content.data.is_reachable;
+        this.is_admin = msg.content.data.is_admin;
         this.hide_close = false;
         this.modal.modal('hide');
+        this.send({
+            'action': 'get-connection-detail'
+        });
+    } else if (msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
+        // The message received when successfully changed current context in the backend
+        this.is_reachable = msg.content.data.is_reachable;
+        this.is_admin = msg.content.data.is_admin;
+        this.current_context = msg.content.data.context;
+        this.hide_close = false;
+        this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail'
         });
@@ -807,9 +915,9 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         var context = msg.content.data.context;
         this.toolbar_button.html('<div id="extension_icon"></div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s_blue2.default) + '")');
-        this.toolbar_button.find("#extension_icon").css('min-width', '16px');
+        this.toolbar_button.find("#extension_icon").css('width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
-
+        this.toolbar_button.find("#extension_icon").css('margin-left', '5px');
         this.toolbar_button.removeAttr('disabled');
         this.enabled = true;
     } else if (msg.content.data.msgtype == 'connection-details-error') {
@@ -817,8 +925,9 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // current context is not able to get resources
         this.toolbar_button.html('<div id="extension_icon"></div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
-        this.toolbar_button.find("#extension_icon").css('min-width', '16px');
+        this.toolbar_button.find("#extension_icon").css('width', '16px');
         this.toolbar_button.find("#extension_icon").css('height', '16px');
+        this.toolbar_button.find("#extension_icon").css('margin-left', '5px');
         this.toolbar_button.removeAttr('disabled');
         this.enabled = true;
     } else if (msg.content.data.msgtype == 'deleted-context-successfully') {
@@ -841,6 +950,22 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.user_create_input = undefined;
         this.user_email_create_input = undefined;
         this.switch_state(this.states.create_users);
+    } else if (msg.content.data.msgtype == 'kerberos-auth') {
+        console.log("Inside kerberos auth communication condition!");
+        this.enabled = true;
+        this.get_auth = true;
+    } else if (msg.content.data.msgtype == 'auth-successfull') {
+        this.get_auth = false;
+        this.switch_state(this.states.loading);
+        this.refresh_modal();
+    } else if (msg.content.data.msgtype == 'auth-unsuccessfull') {
+        this.get_html_error(msg.content.data.error, this.states.auth);
+        this.send({
+            'action': 'change-current-context',
+            'context': this.currently_selected_context
+        });
+    } else if (msg.content.data.msgtype == 'get-clusters-unsuccessfull') {
+        this.get_html_error(msg.content.data.error, this.states.select);
     }
 };
 
@@ -945,7 +1070,7 @@ module.exports = "<br> <div id=user_html_inputs> </div> ";
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> <script></script> ";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> ";
 
 /***/ }),
 /* 9 */
@@ -994,7 +1119,7 @@ exports = module.exports = __webpack_require__(13)(false);
 
 
 // module
-exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 410px;\n      margin-top: 15px;\n      margin: auto;\n  }\n  \n  .select-text {\n      position: flex;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 45px;\n      right: 75px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}\n\n\n\n.container-tabs{\n\theight:500px;\n\twidth:100%;\n\tpadding:0;\n\tmargin:10px;\n\tborder-radius:5px;\n\tbox-shadow: 0 2px 3px rgba(0,0,0,.3)\n\t\n}\n\nheader {\n\t\tposition: relative;\n\t  text-align: center;\n}\n\n.hide {\n\t\tdisplay: none;\n}\n\n.tab-content {\n\t\tpadding:25px;\n}\n\n#material-tabs {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t  /* padding:0; */\n        border-bottom: 1px solid #e0e0e0;\n        /* margin: 0 auto; */\n}\n\n#material-tabs>a {\n\t\tposition: relative;\n\t display:inline-block;\n\t\ttext-decoration: none;\n\t\tpadding: 22px;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 14px;\n\t\tfont-weight: 600;\n\t\tcolor: #424f5a;\n\t\ttext-align: center;\n\t\t/*outline:;*/\n}\n\n#material-tabs>a.active {\n\t\tfont-weight: 700;\n\t\toutline:none;\n}\n\n#material-tabs>a:not(.active):hover {\n\t\tbackground-color: inherit;\n\t\tcolor: #7c848a;\n}\n\n@media only screen and (max-width: 520px) {\n\t\t.nav-tabs#material-tabs>li>a {\n\t\t\t\tfont-size: 11px;\n\t\t}\n}\n\n.yellow-bar {\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t\tbottom: 0;\n\t\theight: 3px;\n\t\tbackground: #458CFF;\n\t\tdisplay: block;\n\t\tleft: 0;\n\t\ttransition: left .2s ease;\n\t\t-webkit-transition: left .2s ease;\n\t\ttransition: width .2s ease;\n\t\t-webkit-transition: width .2s ease;\n}\n\n#tab1-tab.active ~ span.yellow-bar {\n\t\tleft: 0;\n\t\twidth: 90px;\n}\n\n#tab2-tab.active ~ span.yellow-bar {\n\t\tleft:95px;\n\t\twidth: 130px;\n}\n\n#tab3-tab.active ~ span.yellow-bar {\n\t\tleft: 230px;\n\t\twidth: 105px;\n}\n\n#tab4-tab.active ~ span.yellow-bar {\n\t\tleft:340px;\n\t\twidth: 80px;\n}\n\n.back-button {\n    float: left;\n    font-size: 16px;\n    font-weight: bold;\n    line-height: 1;\n    color: black;\n    text-shadow: 0 1px 0 #fff;\n    /*filter: alpha(opacity=20);*/\n    opacity: 0.7;\n    margin-top: 5px;\n}\n\nbutton.back-button {\n    padding: 0;\n    cursor: pointer;\n    background: transparent;\n    border: 0;\n    -webkit-appearance: none;\n    appearance: none;\n}\n\n\n\n\n.pure-material-checkbox {\n    z-index: 0;\n    position: relative;\n    display: inline-block;\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.87);\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 16px;\n    line-height: 1.5;\n}\n\n/* Input */\n.pure-material-checkbox > input {\n    appearance: none;\n    -moz-appearance: none;\n    -webkit-appearance: none;\n    z-index: -1;\n    position: absolute;\n    left: -10px;\n    top: -8px;\n    display: block;\n    margin: 0;\n    border-radius: 50%;\n    width: 40px;\n    height: 40px;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    box-shadow: none;\n    outline: none;\n    opacity: 0;\n    transform: scale(1);\n    pointer-events: none;\n    transition: opacity 0.3s, transform 0.2s;\n}\n\n/* Span */\n.pure-material-checkbox > span {\n    display: inline-block;\n    width: 100%;\n    cursor: pointer;\n}\n\n/* Box */\n.pure-material-checkbox > span::before {\n    content: \"\";\n    display: inline-block;\n    box-sizing: border-box;\n    margin: 3px 11px 3px 1px;\n    border: solid 2px; /* Safari */\n    border-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    border-radius: 2px;\n    width: 18px;\n    height: 18px;\n    vertical-align: top;\n    transition: border-color 0.2s, background-color 0.2s;\n}\n\n/* Checkmark */\n.pure-material-checkbox > span::after {\n    content: \"\";\n    display: block;\n    position: absolute;\n    top: 3px;\n    left: 1px;\n    width: 10px;\n    height: 5px;\n    border: solid 2px transparent;\n    border-right: none;\n    border-top: none;\n    transform: translate(3px, 4px) rotate(-45deg);\n}\n\n/* Checked, Indeterminate */\n.pure-material-checkbox > input:checked,\n.pure-material-checkbox > input:indeterminate {\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::before,\n.pure-material-checkbox > input:indeterminate + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::after,\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));\n}\n\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-left: none;\n    transform: translate(4px, 3px);\n}\n\n/* Hover, Focus */\n.pure-material-checkbox:hover > input {\n    opacity: 0.04;\n}\n\n.pure-material-checkbox > input:focus {\n    opacity: 0.12;\n}\n\n.pure-material-checkbox:hover > input:focus {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-checkbox > input:active {\n    opacity: 1;\n    transform: scale(0);\n    transition: transform 0s, opacity 0s;\n}\n\n.pure-material-checkbox > input:active + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked:active + span::before {\n    border-color: transparent;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n}\n\n/* Disabled */\n.pure-material-checkbox > input:disabled {\n    opacity: 0;\n}\n\n.pure-material-checkbox > input:disabled + span {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    cursor: initial;\n}\n\n.pure-material-checkbox > input:disabled + span::before {\n    border-color: currentColor;\n}\n\n.pure-material-checkbox > input:checked:disabled + span::before,\n.pure-material-checkbox > input:indeterminate:disabled + span::before {\n    border-color: transparent;\n    background-color: currentColor;\n}\n\n\n\n.fab-button {\n    position: relative;\n    float: right;\n    color: #fff;\n    padding: 15px 20px;\n    border-radius: 50%;\n    background-color: #03A9F4;\n    cursor: pointer;\n    box-shadow:0px 3px 3px #BDBDBD;\n  }\n\n.kubernetes-icon {\n    background-image: url(" + escape(__webpack_require__(0)) + ");\n    width: 16px;\n    height: 16px;\n}\n\n.cluster-list-div {\n    display: flex;\n    flex-direction: row;\n    border-bottom: 0.3px solid rgba(85, 87, 86, 0.62);\n    margin-bottom:10px;\n    margin-top: 10px;\n    /* border: 1px solid black; */\n\n}\n\n.cluster-list-div > .list-item-delete {\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-text {\n    flex: auto;\n    font-size: 17px;\n    margin-top: 6px;\n}\n\n.cluster-list-div > .list-item-share {\n    margin-top: 2px;\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-select {\n    margin-top: 2px;\n    width: 7rem;\n}\n\n.cluster-list-div > .connect-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #008017;\n}\n\n.cluster-list-div > .list-item-load {\n    align-items: center;\n    text-align: center;\n}\n\n\n\n.pure-material-button-text {\n    position: relative;\n    display: inline-block;\n    box-sizing: border-box;\n    border: none;\n    border-radius: 4px;\n    padding: 0 8px;\n    min-width: 64px;\n    height: 36px;\n    vertical-align: middle;\n    text-align: center;\n    text-overflow: ellipsis;\n    text-transform: uppercase;\n    color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: transparent;\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 14px;\n    font-weight: 500;\n    line-height: 36px;\n    overflow: hidden;\n    outline: none;\n    cursor: pointer;\n}\n\n.pure-material-button-text::-moz-focus-inner {\n    border: none;\n}\n\n/* Overlay */\n.pure-material-button-text::before {\n    content: \"\";\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: currentColor;\n    opacity: 0;\n    transition: opacity 0.2s;\n}\n\n/* Ripple */\n.pure-material-button-text::after {\n    content: \"\";\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    border-radius: 50%;\n    padding: 50%;\n    width: 32px;\n    height: 32px;\n    background-color: currentColor;\n    opacity: 0;\n    transform: translate(-50%, -50%) scale(1) ;\n    transition: opacity 1s, transform 0.5s;\n}\n\n/* Hover, Focus */\n.pure-material-button-text:hover::before {\n    opacity: 0.04;\n}\n\n.pure-material-button-text:focus::before {\n    opacity: 0.12;\n}\n\n.pure-material-button-text:hover:focus::before {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-button-text:active::after {\n    opacity: 0.16;\n    transform: translate(-50%, -50%) scale(0);\n    transition: transform 0s;\n}\n\n/* Disabled */\n.pure-material-button-text:disabled {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    background-color: transparent;\n    cursor: initial;\n}\n\n.pure-material-button-text:disabled::before {\n    opacity: 0;\n}\n\n.pure-material-button-text:disabled::after {\n    opacity: 0;\n}\n\n\n#user_html_inputs {\n    max-height: 280px;\n    overflow-y: auto;\n}\n\n\n.nb-spinner {\n    width: 75px;\n    height: 75px;\n    background: transparent;\n    border-top: 4px solid #009688;\n    border-right: 4px solid transparent;\n    border-radius: 50%;\n    -webkit-animation: 1s spin linear infinite;\n    animation: 1s spin linear infinite;\n}\n\n\n.loading-flexbox {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n    flex-wrap: wrap;\n}\n\n.loading-flexbox > .loading-div {\n    width: 300px;\n    height: 300px;\n    -webkit-box-flex: 0;\n    -ms-flex: 0 0 100%;\n    flex: 0 0 100%;\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    -webkit-box-sizing: border-box;\n    box-sizing: border-box;\n    margin: 0;\n    position: relative;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: center;\n    -ms-flex-pack: center;\n    justify-content: center;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    overflow: hidden;\n}\n\n-webkit-@keyframes spin {\n  -webkit-from {\n    -webkit-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  -webkit-to {\n    -webkit-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@-webkit-keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
+exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 410px;\n      margin-top: 15px;\n      margin: auto;\n  }\n  \n  .select-text {\n      position: flex;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 45px;\n      right: 75px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}\n\n\n\n.container-tabs{\n\theight:500px;\n\twidth:100%;\n\tpadding:0;\n\tmargin:10px;\n\tborder-radius:5px;\n\tbox-shadow: 0 2px 3px rgba(0,0,0,.3)\n\t\n}\n\nheader {\n\t\tposition: relative;\n\t  text-align: center;\n}\n\n.hide {\n\t\tdisplay: none;\n}\n\n.tab-content {\n\t\tpadding:25px;\n}\n\n#material-tabs {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t  /* padding:0; */\n        border-bottom: 1px solid #e0e0e0;\n        /* margin: 0 auto; */\n}\n\n#material-tabs>a {\n\t\tposition: relative;\n\t display:inline-block;\n\t\ttext-decoration: none;\n\t\tpadding: 22px;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 14px;\n\t\tfont-weight: 600;\n\t\tcolor: #424f5a;\n\t\ttext-align: center;\n\t\t/*outline:;*/\n}\n\n#material-tabs>a.active {\n\t\tfont-weight: 700;\n\t\toutline:none;\n}\n\n#material-tabs>a:not(.active):hover {\n\t\tbackground-color: inherit;\n\t\tcolor: #7c848a;\n}\n\n@media only screen and (max-width: 520px) {\n\t\t.nav-tabs#material-tabs>li>a {\n\t\t\t\tfont-size: 11px;\n\t\t}\n}\n\n.yellow-bar {\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t\tbottom: 0;\n\t\theight: 3px;\n\t\tbackground: #458CFF;\n\t\tdisplay: block;\n\t\tleft: 0;\n\t\ttransition: left .2s ease;\n\t\t-webkit-transition: left .2s ease;\n\t\ttransition: width .2s ease;\n\t\t-webkit-transition: width .2s ease;\n}\n\n#tab1-tab.active ~ span.yellow-bar {\n\t\tleft: 0;\n\t\twidth: 90px;\n}\n\n#tab2-tab.active ~ span.yellow-bar {\n\t\tleft:95px;\n\t\twidth: 130px;\n}\n\n#tab3-tab.active ~ span.yellow-bar {\n\t\tleft: 230px;\n\t\twidth: 105px;\n}\n\n#tab4-tab.active ~ span.yellow-bar {\n\t\tleft:340px;\n\t\twidth: 80px;\n}\n\n.back-button {\n    float: left;\n    font-size: 16px;\n    font-weight: bold;\n    line-height: 1;\n    color: black;\n    text-shadow: 0 1px 0 #fff;\n    /*filter: alpha(opacity=20);*/\n    opacity: 0.7;\n    margin-top: 5px;\n}\n\nbutton.back-button {\n    padding: 0;\n    cursor: pointer;\n    background: transparent;\n    border: 0;\n    -webkit-appearance: none;\n    appearance: none;\n}\n\n\n\n\n.pure-material-checkbox {\n    z-index: 0;\n    position: relative;\n    display: inline-block;\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.87);\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 16px;\n    line-height: 1.5;\n}\n\n/* Input */\n.pure-material-checkbox > input {\n    appearance: none;\n    -moz-appearance: none;\n    -webkit-appearance: none;\n    z-index: -1;\n    position: absolute;\n    left: -10px;\n    top: -8px;\n    display: block;\n    margin: 0;\n    border-radius: 50%;\n    width: 40px;\n    height: 40px;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    box-shadow: none;\n    outline: none;\n    opacity: 0;\n    transform: scale(1);\n    pointer-events: none;\n    transition: opacity 0.3s, transform 0.2s;\n}\n\n/* Span */\n.pure-material-checkbox > span {\n    display: inline-block;\n    width: 100%;\n    cursor: pointer;\n}\n\n/* Box */\n.pure-material-checkbox > span::before {\n    content: \"\";\n    display: inline-block;\n    box-sizing: border-box;\n    margin: 3px 11px 3px 1px;\n    border: solid 2px; /* Safari */\n    border-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    border-radius: 2px;\n    width: 18px;\n    height: 18px;\n    vertical-align: top;\n    transition: border-color 0.2s, background-color 0.2s;\n}\n\n/* Checkmark */\n.pure-material-checkbox > span::after {\n    content: \"\";\n    display: block;\n    position: absolute;\n    top: 3px;\n    left: 1px;\n    width: 10px;\n    height: 5px;\n    border: solid 2px transparent;\n    border-right: none;\n    border-top: none;\n    transform: translate(3px, 4px) rotate(-45deg);\n}\n\n/* Checked, Indeterminate */\n.pure-material-checkbox > input:checked,\n.pure-material-checkbox > input:indeterminate {\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::before,\n.pure-material-checkbox > input:indeterminate + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::after,\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));\n}\n\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-left: none;\n    transform: translate(4px, 3px);\n}\n\n/* Hover, Focus */\n.pure-material-checkbox:hover > input {\n    opacity: 0.04;\n}\n\n.pure-material-checkbox > input:focus {\n    opacity: 0.12;\n}\n\n.pure-material-checkbox:hover > input:focus {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-checkbox > input:active {\n    opacity: 1;\n    transform: scale(0);\n    transition: transform 0s, opacity 0s;\n}\n\n.pure-material-checkbox > input:active + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked:active + span::before {\n    border-color: transparent;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n}\n\n/* Disabled */\n.pure-material-checkbox > input:disabled {\n    opacity: 0;\n}\n\n.pure-material-checkbox > input:disabled + span {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    cursor: initial;\n}\n\n.pure-material-checkbox > input:disabled + span::before {\n    border-color: currentColor;\n}\n\n.pure-material-checkbox > input:checked:disabled + span::before,\n.pure-material-checkbox > input:indeterminate:disabled + span::before {\n    border-color: transparent;\n    background-color: currentColor;\n}\n\n\n\n.fab-button {\n    position: relative;\n    float: right;\n    color: #fff;\n    padding: 15px 20px;\n    border-radius: 50%;\n    background-color: #03A9F4;\n    cursor: pointer;\n    box-shadow:0px 3px 3px #BDBDBD;\n  }\n\n.kubernetes-icon {\n    background-image: url(" + escape(__webpack_require__(0)) + ");\n    width: 16px;\n    height: 16px;\n}\n\n.cluster-list-div {\n    display: flex;\n    flex-direction: row;\n    border-bottom: 0.3px solid rgba(85, 87, 86, 0.62);\n    margin-bottom:10px;\n    margin-top: 10px;\n    /* border: 1px solid black; */\n\n}\n\n.cluster-list-div > .list-item-delete {\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-text {\n    flex: auto;\n    font-size: 17px;\n    margin-top: 6px;\n}\n\n.cluster-list-div > .list-item-share {\n    margin-top: 2px;\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-select {\n    margin-top: 2px;\n    width: 7rem;\n}\n\n.cluster-list-div > .connect-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #008017;\n}\n\n.cluster-list-div > .not-connected-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #FF0000;\n}\n\n.cluster-list-div > .list-item-load {\n    align-items: center;\n    text-align: center;\n}\n\n\n\n.pure-material-button-text {\n    position: relative;\n    display: inline-block;\n    box-sizing: border-box;\n    border: none;\n    border-radius: 4px;\n    padding: 0 8px;\n    min-width: 64px;\n    height: 36px;\n    vertical-align: middle;\n    text-align: center;\n    text-overflow: ellipsis;\n    text-transform: uppercase;\n    color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: transparent;\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 14px;\n    font-weight: 500;\n    line-height: 36px;\n    overflow: hidden;\n    outline: none;\n    cursor: pointer;\n}\n\n.pure-material-button-text::-moz-focus-inner {\n    border: none;\n}\n\n/* Overlay */\n.pure-material-button-text::before {\n    content: \"\";\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: currentColor;\n    opacity: 0;\n    transition: opacity 0.2s;\n}\n\n/* Ripple */\n.pure-material-button-text::after {\n    content: \"\";\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    border-radius: 50%;\n    padding: 50%;\n    width: 32px;\n    height: 32px;\n    background-color: currentColor;\n    opacity: 0;\n    transform: translate(-50%, -50%) scale(1) ;\n    transition: opacity 1s, transform 0.5s;\n}\n\n/* Hover, Focus */\n.pure-material-button-text:hover::before {\n    opacity: 0.04;\n}\n\n.pure-material-button-text:focus::before {\n    opacity: 0.12;\n}\n\n.pure-material-button-text:hover:focus::before {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-button-text:active::after {\n    opacity: 0.16;\n    transform: translate(-50%, -50%) scale(0);\n    transition: transform 0s;\n}\n\n/* Disabled */\n.pure-material-button-text:disabled {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    background-color: transparent;\n    cursor: initial;\n}\n\n.pure-material-button-text:disabled::before {\n    opacity: 0;\n}\n\n.pure-material-button-text:disabled::after {\n    opacity: 0;\n}\n\n\n#user_html_inputs {\n    max-height: 280px;\n    overflow-y: auto;\n}\n\n\n.nb-spinner {\n    width: 75px;\n    height: 75px;\n    background: transparent;\n    border-top: 4px solid #009688;\n    border-right: 4px solid transparent;\n    border-radius: 50%;\n    -webkit-animation: 1s spin linear infinite;\n    animation: 1s spin linear infinite;\n}\n\n\n.loading-flexbox {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n    flex-wrap: wrap;\n}\n\n.loading-flexbox > .loading-div {\n    width: 300px;\n    height: 300px;\n    -webkit-box-flex: 0;\n    -ms-flex: 0 0 100%;\n    flex: 0 0 100%;\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    -webkit-box-sizing: border-box;\n    box-sizing: border-box;\n    margin: 0;\n    position: relative;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: center;\n    -ms-flex-pack: center;\n    justify-content: center;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    overflow: hidden;\n}\n\n-webkit-@keyframes spin {\n  -webkit-from {\n    -webkit-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  -webkit-to {\n    -webkit-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@-webkit-keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
 
 // exports
 
