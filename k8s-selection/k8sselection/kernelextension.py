@@ -68,7 +68,7 @@ class K8sSelection:
                 # otherwise the command does not work
                 os.environ['OS_TOKEN'] = ''
                 my_env = os.environ.copy()
-                my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
+                # my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
                 p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env, shell=True)
                 out, err = p.communicate()
                 out = out.decode('utf-8').rstrip('\n')
@@ -694,7 +694,7 @@ class K8sSelection:
                 # otherwise the command does not work
                 os.environ['OS_TOKEN'] = ''
                 my_env = os.environ.copy()
-                my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
+                # my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
                 p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env, shell=True)
                 out, err = p.communicate()
                 out = out.decode('utf-8').rstrip('\n')
