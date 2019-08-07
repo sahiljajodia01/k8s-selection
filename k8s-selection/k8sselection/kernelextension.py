@@ -894,8 +894,10 @@ class K8sSelection:
             
             kerberos_auth = False
             if self.get_kerberos_auth():
+                self.log.info("Calling kerberos authentication")
                 kerberos_auth = True
             
+            self.log.info("Kerberos auth required: ", kerberos_auth)
             self.send({
                 'msgtype': 'context-select',
                 'contexts': contexts,

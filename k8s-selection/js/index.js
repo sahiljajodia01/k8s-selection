@@ -959,6 +959,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
         this.get_auth = msg.content.data.kerberos_auth;
+        console.log("Kerberos auth from backend: " + msg.content.data.kerberos_auth);
         // this.delete_list = msg.content.data.delete_list;
         // this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
