@@ -80,7 +80,7 @@ class K8sSelection:
                     load = yaml.safe_load(stream)
                 
                 namespace = 'default'
-                for i in laod['contexts']:
+                for i in load['contexts']:
                     self.log.info(i)
                     if i['name'] == context:
                         if 'namespace' in i['context'].keys():
