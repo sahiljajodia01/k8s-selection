@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("jquery"), require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("require"));
+		module.exports = factory(require("jquery"), require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("require"), require("base/js/keyboard"));
 	else if(typeof define === 'function' && define.amd)
-		define(["jquery", "base/js/dialog", "base/js/namespace", "base/js/events", "require"], factory);
+		define(["jquery", "base/js/dialog", "base/js/namespace", "base/js/events", "require", "base/js/keyboard"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("jquery"), require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("require")) : factory(root["jquery"], root["base/js/dialog"], root["base/js/namespace"], root["base/js/events"], root["require"]);
+		var a = typeof exports === 'object' ? factory(require("jquery"), require("base/js/dialog"), require("base/js/namespace"), require("base/js/events"), require("require"), require("base/js/keyboard")) : factory(root["jquery"], root["base/js/dialog"], root["base/js/namespace"], root["base/js/events"], root["require"], root["base/js/keyboard"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__) {
+})(typeof self !== 'undefined' ? self : this, function(__WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -111,25 +111,29 @@ var _require = __webpack_require__(6);
 
 var _require2 = _interopRequireDefault(_require);
 
-var _user = __webpack_require__(7);
+var _keyboard = __webpack_require__(7);
+
+var _keyboard2 = _interopRequireDefault(_keyboard);
+
+var _user = __webpack_require__(8);
 
 var _user2 = _interopRequireDefault(_user);
 
-var _create_context = __webpack_require__(8);
+var _create_context = __webpack_require__(9);
 
 var _create_context2 = _interopRequireDefault(_create_context);
 
-var _user_create = __webpack_require__(9);
+var _user_create = __webpack_require__(10);
 
 var _user_create2 = _interopRequireDefault(_user_create);
 
-__webpack_require__(10);
+__webpack_require__(11);
 
 var _k8s = __webpack_require__(0);
 
 var _k8s2 = _interopRequireDefault(_k8s);
 
-var _k8s_blue = __webpack_require__(16);
+var _k8s_blue = __webpack_require__(17);
 
 var _k8s_blue2 = _interopRequireDefault(_k8s_blue);
 
@@ -160,7 +164,7 @@ function K8sSelection() {
         create: {
             get_html: _jquery2.default.proxy(this.get_html_create_clusters, this),
             buttons: {
-                'Create Cluster': {
+                'AddCluster': {
                     class: 'btn-success size-100',
                     click: _jquery2.default.proxy(this.create_context, this)
                 }
@@ -169,7 +173,7 @@ function K8sSelection() {
         create_users: {
             get_html: _jquery2.default.proxy(this.get_html_create_users, this),
             buttons: {
-                'Create User': {
+                'CreateUser': {
                     class: 'btn-success size-100',
                     click: _jquery2.default.proxy(this.create_users, this)
                 }
@@ -189,7 +193,6 @@ function K8sSelection() {
     this.is_reachable = false;
     this.is_admin = false;
     this.initial_select = true;
-    this.selected_tab_id = "tab1";
 
     // Starts the communication with backend when the kernel is connected
     _events2.default.on('kernel_connected.Kernel', _jquery2.default.proxy(this.start_comm, this));
@@ -297,37 +300,8 @@ K8sSelection.prototype.get_html_select_cluster = function () {
     var template = _user2.default;
     this.hide_close = true;
     html.append(template);
-    // var delete_list = this.delete_list;
-    // var admin_list = this.admin_list;
     var that = this;
     var list_div = html.find("#user_html_inputs");
-
-    /**
-     * Loop to check and accordingly display on frontend whether a context can be used or not and also whether the user is admin of the context.
-     */
-    // for(var i = 0; i < contexts.length; i++) {
-    //     if(delete_list[i] == "True") {
-    //         $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //     }
-    //     else {
-    //         if(admin_list[i] == "True") {
-    //             if(contexts[i] == current_context) {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //             else {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //         }
-    //         else {
-    //             if(contexts[i] == current_context) {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //             else {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //         }
-    //     }
-    // }
 
     if (current_context != '') {
         if (this.initial_select == true) {
@@ -335,7 +309,7 @@ K8sSelection.prototype.get_html_select_cluster = function () {
             this.initial_select = false;
         } else {
             if (this.is_reachable == false) {
-                (0, _jquery2.default)('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
+                (0, _jquery2.default)('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
             } else {
                 if (this.is_admin == true) {
                     (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
@@ -384,11 +358,12 @@ K8sSelection.prototype.get_html_select_cluster = function () {
         var current_context = button_id.split('.')[1];
         that.currently_selected_context = current_context;
         console.log("Selected cluster: " + current_context);
-        // that.switch_state(that.states.loading);
-        if (this.get_auth == true) {
+
+        if (that.get_auth == true) {
             console.log("Auth required!");
             that.switch_state(that.states.auth);
         } else {
+            that.switch_state(that.states.loading);
             that.send({
                 'action': 'change-current-context',
                 'context': current_context
@@ -441,13 +416,12 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     html.append(_create_context2.default);
 
     var tabs = html.find("#material-tabs");
-    // var active = tabs.find(".active");
+    var active = tabs.find(".active");
     var that = this;
 
-    this.active_tab = tabs.find("#" + this.selected_tab_id);
-    console.log("Currently active state: " + this.active_tab.html());
+    console.log("Currently active state: " + active.html());
 
-    this.selected_tab = this.active_tab.html();
+    this.selected_tab = active.html();
 
     tabs.each(function () {
 
@@ -455,15 +429,14 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             $content,
             $links = (0, _jquery2.default)(this).find('a');
 
-        $active = that.active_tab;
+        $active = (0, _jquery2.default)($links[0]);
         $active.addClass('active');
 
-        $content = (0, _jquery2.default)($active.hash);
+        $content = (0, _jquery2.default)($active[0].hash);
 
         $links.not($active).each(function () {
             (0, _jquery2.default)(this.hash).hide();
         });
-
         // var that = that;
         (0, _jquery2.default)(this).on('click', 'a', function (e) {
 
@@ -476,9 +449,6 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             $active.addClass('active');
             $content.show();
             that.selected_tab = $active.html();
-            that.active_tab = $active;
-            that.selected_tab_id = this.id.split("-")[0];
-            console.log("Currently selected tab hash: " + this.id.split("-")[0]);
             console.log("Currently selected tab: " + that.selected_tab);
 
             e.preventDefault();
@@ -515,10 +485,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             if (that.local_selected_catoken) {
                 var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', that.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
                     that.local_selected_catoken = catoken_input.val();
+                }).keypress(function (e) {
+                    var keycode = e.keyCode ? e.keyCode : e.which;
+                    if (keycode == _keyboard2.default.keycodes.enter) {
+                        that.states.create.buttons.AddCluster.click();
+                    }
                 });
             } else {
                 var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
                     that.local_selected_catoken = catoken_input.val();
+                }).keypress(function (e) {
+                    var keycode = e.keyCode ? e.keyCode : e.which;
+                    if (keycode == _keyboard2.default.keycodes.enter) {
+                        that.states.create.buttons.AddCluster.click();
+                    }
                 });
             }
         }
@@ -530,10 +510,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.local_selected_clustername) {
         var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('value', this.local_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_clustername = clustername_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_clustername = clustername_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 
@@ -545,10 +535,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.local_selected_ip) {
         var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('value', this.local_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_ip = ip_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_ip = ip_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 
@@ -560,10 +560,21 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.local_selected_token) {
         var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('value', this.local_selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_token = token_input.val();
+            catoken_input.val(token_input.val() + "@cern.ch");
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_token = token_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 
@@ -575,10 +586,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.local_selected_catoken) {
         var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', this.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_catoken = catoken_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_catoken = catoken_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 
@@ -588,10 +609,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.openstack_selected_clustername) {
         var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('value', this.openstack_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).change(function () {
             that.openstack_selected_clustername = openstack_clustername_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).change(function () {
             that.openstack_selected_clustername = openstack_clustername_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 
@@ -603,10 +634,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.openstack_selected_ip) {
         var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('value', this.openstack_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).change(function () {
             that.openstack_selected_ip = openstack_ip_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).change(function () {
             that.openstack_selected_ip = openstack_ip_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 
@@ -618,10 +659,20 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.openstack_selected_catoken) {
         var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('value', this.openstack_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).change(function () {
             that.openstack_selected_catoken = openstack_catoken_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     } else {
         var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).change(function () {
             that.openstack_selected_catoken = openstack_catoken_input.val();
+        }).keypress(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == _keyboard2.default.keycodes.enter) {
+                that.states.create.buttons.AddCluster.click();
+            }
         });
     }
 };
@@ -725,6 +776,12 @@ K8sSelection.prototype.get_html_create_users = function () {
 
     var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_create_input').attr('placeholder', 'Username').addClass('form__field').appendTo(user_create_div).change(function () {
         that.user_create_input = user_create_input.val();
+        user_email_create_input.val(user_create_input.val() + "@cern.ch");
+    }).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create_users.buttons.CreateUser.click();
+        }
     });
 
     // Adds user email field to create_user state frontend. Currently I have kept this input for testing. We can delete
@@ -735,6 +792,11 @@ K8sSelection.prototype.get_html_create_users = function () {
 
     var user_email_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_email_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_email_create_input').attr('placeholder', 'Email').addClass('form__field').appendTo(user_create_div).change(function () {
         that.user_email_create_input = user_email_create_input.val();
+    }).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create_users.buttons.CreateUser.click();
+        }
     });
 };
 
@@ -778,7 +840,12 @@ K8sSelection.prototype.get_html_auth = function () {
     // Adds username field to create_user state frontend
     (0, _jquery2.default)('<br><label for="user_auth_pass" id="user_auth_pass_label">Password</label><br>').appendTo(html);
 
-    var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_auth_pass').attr('type', 'password').attr("required", "required").attr('id', 'user_auth_pass').attr('placeholder', 'Password').addClass('form__field').appendTo(html);
+    var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_auth_pass').attr('type', 'password').attr("required", "required").attr('id', 'user_auth_pass').attr('placeholder', 'Password').addClass('form__field').appendTo(html).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.auth.buttons.Authenticate.click();
+        }
+    });
 };
 
 K8sSelection.prototype.authenticate = function () {
@@ -851,6 +918,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
         this.get_auth = msg.content.data.kerberos_auth;
+        console.log("Kerberos auth from backend: " + msg.content.data.kerberos_auth);
         // this.delete_list = msg.content.data.delete_list;
         // this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
@@ -894,13 +962,14 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // The message received when successfully changed current context in the backend
         this.is_reachable = msg.content.data.is_reachable;
         this.is_admin = msg.content.data.is_admin;
+        this.current_context = msg.content.data.context;
         this.hide_close = false;
-        this.modal.modal('hide');
+        this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail'
         });
     } else if (msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
-        // The message received when successfully changed current context in the backend
+        // The message received when not successfully changed current context in the backend
         this.is_reachable = msg.content.data.is_reachable;
         this.is_admin = msg.content.data.is_admin;
         this.current_context = msg.content.data.context;
@@ -951,19 +1020,18 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.user_email_create_input = undefined;
         this.switch_state(this.states.create_users);
     } else if (msg.content.data.msgtype == 'kerberos-auth') {
-        console.log("Inside kerberos auth communication condition!");
+        console.log("Inside kerberos auth condition!");
         this.enabled = true;
         this.get_auth = true;
     } else if (msg.content.data.msgtype == 'auth-successfull') {
         this.get_auth = false;
         this.switch_state(this.states.loading);
-        this.refresh_modal();
-    } else if (msg.content.data.msgtype == 'auth-unsuccessfull') {
-        this.get_html_error(msg.content.data.error, this.states.auth);
         this.send({
             'action': 'change-current-context',
             'context': this.currently_selected_context
         });
+    } else if (msg.content.data.msgtype == 'auth-unsuccessfull') {
+        this.get_html_error(msg.content.data.error, this.states.auth);
     } else if (msg.content.data.msgtype == 'get-clusters-unsuccessfull') {
         this.get_html_error(msg.content.data.error, this.states.select);
     }
@@ -1064,28 +1132,34 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_6__;
 /* 7 */
 /***/ (function(module, exports) {
 
-module.exports = "<br> <div id=user_html_inputs> </div> ";
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 
 /***/ }),
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> ";
+module.exports = "<br> <div id=user_html_inputs> </div> ";
 
 /***/ }),
 /* 9 */
 /***/ (function(module, exports) {
 
-module.exports = "<div id=user_create_div style=\"margin:0 auto\"> </div>";
+module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> ";
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports) {
+
+module.exports = "<div id=user_create_div style=\"margin:0 auto\"> </div>";
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(11);
+var content = __webpack_require__(12);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -1093,7 +1167,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(14)(content, options);
+var update = __webpack_require__(15)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -1110,11 +1184,11 @@ if(false) {
 }
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var escape = __webpack_require__(12);
-exports = module.exports = __webpack_require__(13)(false);
+var escape = __webpack_require__(13);
+exports = module.exports = __webpack_require__(14)(false);
 // imports
 
 
@@ -1125,7 +1199,7 @@ exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: 
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1149,7 +1223,7 @@ module.exports = function escape(url) {
 };
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1231,7 +1305,7 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -1277,7 +1351,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(15);
+var	fixUrls = __webpack_require__(16);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -1590,7 +1664,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1685,7 +1759,7 @@ module.exports = function (css) {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "images/k8s_blue.png";

@@ -61,27 +61,27 @@ class K8sSelection:
             context = msg['content']['data']['context']
 
             # Logging just for testing purposes
-            self.log.info("Context from frontend: ", context)
+            self.log.info("Changing current context to: ", context)
 
             try:
                 # Currently unsetting the OS_TOKEN initially everytime while executing the token issue command because
                 # otherwise the command does not work
                 os.environ['OS_TOKEN'] = ''
                 my_env = os.environ.copy()
-                # my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
-                p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env, shell=True)
+                my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
+                p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env,
+                                     shell=True)
                 out, err = p.communicate()
                 out = out.decode('utf-8').rstrip('\n')
-                self.log.info(out)
+                self.log.info("Generated OS_TOKEN: ", out)
                 os.environ['OS_TOKEN'] = out
-    
+
                 # Opening the YAML file using the yaml library
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                     load = yaml.safe_load(stream)
-                
+
                 namespace = 'default'
                 for i in load['contexts']:
-                    self.log.info(i)
                     if i['name'] == context:
                         if 'namespace' in i['context'].keys():
                             namespace = i['context']['namespace']
@@ -103,22 +103,38 @@ class K8sSelection:
                     is_admin = True
                 except:
                     is_admin = False
-                
+
                 # Setting the current context
                 load['current-context'] = context
+
+
+                # Extracting server IP of the currently selected cluster
+                for i in load['contexts']:
+                    if i['name'] == load['current-context']:
+                        cluster_name = i['context']['cluster']
+
+                for i in load['clusters']:
+                    if i['name'] == cluster_name:
+                        server_ip = i['cluster']['server']
+
+                # Setting server ip as environment variable
+                self.log.info("The current server ip is: ", server_ip)
+                os.environ["K8S_MASTER_IP"] = server_ip
 
                 # Writing to the file
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
                 if is_reachable == True:
-                # Sending the message back to frontend
+                    # Sending the message back to frontend
                     self.send({
                         'msgtype': 'changed-current-context',
                         'is_reachable': is_reachable,
-                        'is_admin': is_admin
+                        'is_admin': is_admin,
+                        'context': context
                     })
                 else:
+                    self.log.info("Failed to kinit or generate os_token")
                     self.send({
                         'msgtype': 'changed-current-context-unsuccessfully',
                         'is_reachable': is_reachable,
@@ -126,17 +142,20 @@ class K8sSelection:
                         'context': context
                     })
             except Exception as e:
+                self.log.info("Failed to kinit or generate os_token")
                 self.log.info(str(e))
                 error = 'Cannot reach cluster. Please try again after some time.'
-                self.send({ 
+                self.send({
                     'msgtype': 'changed-current-context-error',
-                    'error': error 
+                    'error': error
                 })
         elif action == 'add-context-cluster':
             # This action adds the cluster and context information in the KUBECONFIG file received from the user
 
             # Here the tab is mode i.e. local, openstack, etc
             tab = msg['content']['data']['tab']
+
+            self.log.info("Adding cluster and context!")
 
             # We can handle different modes using conditions
             if tab == 'local':
@@ -271,7 +290,7 @@ class K8sSelection:
                     # Check whether the newly added cluster is responding. If not then the error is handled below.
                     api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
                     api_response = api_instance2.list_namespaced_pod(namespace=namespace)
-
+                    self.log.info("Successfully added cluster and context!")
                     self.send({
                         'msgtype': 'added-context-successfully',
                         'tab': 'local'
@@ -435,6 +454,7 @@ class K8sSelection:
                     api_instance2 = client.CoreV1Api(api_client=config.new_client_from_config(context=context_name))
                     api_instance2.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
 
+                    self.log.info("Successfully added cluster and context!")
                     self.send({
                         'msgtype': 'added-context-successfully',
                         'tab': 'openstack'
@@ -543,6 +563,7 @@ class K8sSelection:
                     'msgtype': 'connection-details-error',
                 })
         elif action == "delete-current-context":
+            self.log.info("Deleting context from KUBECONFIG")
             # This action deletes the context and cluster from the KUBECONFIG file
             context = msg['content']['data']['context']
 
@@ -566,6 +587,7 @@ class K8sSelection:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
+                    self.log.info("Successfully deleted context")
                 self.send({
                     'msgtype': 'deleted-context-successfully',
                 })
@@ -577,6 +599,8 @@ class K8sSelection:
                     'msgtype': 'deleted-context-unsuccessfully',
                 })
         elif action == "create-user":
+            self.log.info("Creating User!")
+
             # This action adds a remote user to the cluster. Only admins can perform this action.
             error = ''
             username = msg['content']['data']['username']
@@ -672,6 +696,7 @@ class K8sSelection:
                         'error': error
                     })
 
+                    self.log.info("Successfully created user")
                 self.send({
                     'msgtype': 'added-user-successfully',
                 })
@@ -684,6 +709,8 @@ class K8sSelection:
                     'error': error
                 })
         elif action == 'kerberos-auth':
+            self.log.info("Getting Kerberos ticket and os_token!")
+
             try:
                 auth_kinit = msg['content']['data']['password']
                 p = subprocess.Popen(['kinit', os.getenv("USER") + '@CERN.CH'], stdin=subprocess.PIPE,
@@ -694,14 +721,16 @@ class K8sSelection:
                 # otherwise the command does not work
                 os.environ['OS_TOKEN'] = ''
                 my_env = os.environ.copy()
-                # my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
-                p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env, shell=True)
+                my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
+                p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env,
+                                     shell=True)
                 out, err = p.communicate()
                 out = out.decode('utf-8').rstrip('\n')
-                self.log.info(out)
+                self.log.info("Generated OS_TOKEN: ", out)
                 os.environ['OS_TOKEN'] = out
 
                 if p.wait() == 0 and out != '':
+                    self.log.info("Got kerberos ticket and os_token successfully!")
                     self.send({
                         'msgtype': 'auth-successfull',
                     })
@@ -729,6 +758,8 @@ class K8sSelection:
         :param server_ip: ip of the cluster
         :return:
         """
+
+        self.log.info("Sending email using sendgrid!")
         try:
             from dotenv import load_dotenv
             from sendgrid import SendGridAPIClient, SendGridException
@@ -748,6 +779,7 @@ class K8sSelection:
             # Send the email to the user.
             sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
             response = sg.send(message)
+            self.log.info("Successfully sent email using sendgrid!")
         except ImportError as e:
             # Handle import exceptions
             error = 'Cannot send email.'
@@ -781,30 +813,26 @@ class K8sSelection:
         :param server_ip: ip of the cluster
         :return:
         """
-        try:
-            import smtplib
 
-            fromaddr = os.getenv("USER") + "@cern.ch"
-            toaddrs = [email]
-            msg = '''
-                From: {fromaddr}
-                To: {toaddr}
-                Subject: Credentials for cluster: {selected_cluster}
+        self.log.info("Sending email!")
+        try:
+            from email.mime.text import MIMEText
+
+            body = '''
                 Cluster name: {selected_cluster}\n\nCA Cert: {ca_cert}\n\nServer IP: {server_ip} 
             '''
 
-            msg = msg.format(fromaddr=fromaddr, toaddr=toaddrs[0], selected_cluster=selected_cluster, ca_cert=ca_cert,
-                             server_ip=server_ip)
-            # The actual mail send
-            server = smtplib.SMTP('smtp.cern.ch:587')
-            server.starttls()
-            server.ehlo('swan.cern.ch')
-            server.mail(fromaddr)
-            server.rcpt(toaddrs[0])
-            server.data(msg)
-            server.quit()
+            # Sending the mail
+            body = body.format(selected_cluster=selected_cluster, ca_cert=ca_cert, server_ip=server_ip)
+            msg = MIMEText(body)
+            msg["From"] = os.environ["USER"] + "@cern.ch"
+            msg["To"] = email
+            msg["Subject"] = "Credentials for cluster: " + selected_cluster
+            p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
+            p.communicate(msg.as_string())
+            self.log.info("Successfully sent email using sendgrid!")
         except Exception as e:
-            # Handle smtplib exceptions
+            # Handle email exceptions
             error = 'Cannot send email.'
             self.log.info(str(e))
             self.send({
@@ -827,21 +855,14 @@ class K8sSelection:
         def _recv(msg):
             self.handle_comm_message(msg)
 
-        # self.log.info("KERBEROS AUTH: ", self.get_kerberos_auth())
-
-        # self.cluster_list()
-
-        # if self.get_kerberos_auth():
-        #     self.log.info("Calling kerberos authentication")
-        #     self.send({
-        #         'msgtype': 'kerberos-auth',
-        #     })
-        # else:
-        #     self.cluster_list()
-
         self.cluster_list()
 
     def cluster_list(self):
+        """
+        Get the list of contexts and clusters from the KUBECONFIG file and send it to the frontend
+        """
+
+        self.log.info("Getting clusters and contexts from KUBECONFIG")
         try:
             if os.path.isdir(os.getenv('HOME') + '/.kube'):
                 if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
@@ -870,7 +891,7 @@ class K8sSelection:
 
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-            
+
             with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
                 load = yaml.safe_load(stream)
 
@@ -882,22 +903,21 @@ class K8sSelection:
                     break
             contexts = [context['name'] for context in contexts]
             clusters = [cluster['name'] for cluster in load['clusters']]
-            
+
             current_context = ''
             if active_context is not '':
                 current_context = active_context['name']
-            
+
             current_cluster = ''
             for i in load['contexts']:
                 if i['name'] == load['current-context']:
                     current_cluster = i['context']['cluster']
-            
+
             kerberos_auth = False
+            self.log.info("Calling klist")
             if self.get_kerberos_auth():
-                self.log.info("Calling kerberos authentication")
                 kerberos_auth = True
-            
-            self.log.info("Kerberos auth required: ", kerberos_auth)
+
             self.send({
                 'msgtype': 'context-select',
                 'contexts': contexts,
@@ -913,130 +933,6 @@ class K8sSelection:
                 'msgtype': 'get-clusters-unsuccessfull',
                 'error': error
             })
-
-    # def cluster_list(self):
-    #     """
-    #     Get the list of contexts and clusters from the KUBECONFIG file and check whether a cluster is reachable and
-    #     the user is an admin of the cluster
-    #     """
-
-    #     try:
-    #         # Currently unsetting the OS_TOKEN initially everytime while executing the token issue command because
-    #         # otherwise the command does not work
-    #         # os.environ['OS_TOKEN'] = ''
-    #         # my_env = os.environ.copy()
-    #         # my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
-    #         # p = subprocess.Popen(['openstack token issue -c id -f value'], stdout=subprocess.PIPE, env=my_env, shell=True)
-    #         # out, err = p.communicate()
-    #         # out = out.decode('utf-8').rstrip('\n')
-    #         # self.log.info(out)
-    #         # os.environ['OS_TOKEN'] = out
-
-    #         if os.path.isdir(os.getenv('HOME') + '/.kube'):
-    #             if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
-    #                 load = {}
-    #                 load['apiVersion'] = 'v1'
-    #                 load['clusters'] = []
-    #                 load['contexts'] = []
-    #                 load['current-context'] = ''
-    #                 load['kind'] = 'Config'
-    #                 load['preferences'] = {}
-    #                 load['users'] = []
-
-    #                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-    #                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-    #         else:
-    #             os.makedirs(os.getenv('HOME') + '/.kube')
-
-    #             load = {}
-    #             load['apiVersion'] = 'v1'
-    #             load['clusters'] = []
-    #             load['contexts'] = []
-    #             load['current-context'] = ''
-    #             load['kind'] = 'Config'
-    #             load['preferences'] = {}
-    #             load['users'] = []
-
-    #             with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
-    #                 yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
-
-    #         with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-    #             load = yaml.safe_load(stream)
-
-    #         contexts = load['contexts']
-    #         active_context = ''
-    #         for i in range(len(contexts)):
-    #             if contexts[i]['name'] == load['current-context']:
-    #                 active_context = contexts[i]
-    #                 break
-
-    #         clusters = []
-    #         for i in load['clusters']:
-    #             clusters.append(i['name'])
-
-    #         current_cluster = ''
-    #         for i in load['contexts']:
-    #             if i['name'] == load['current-context']:
-    #                 current_cluster = i['context']['cluster']
-
-    #         namespaces = []
-    #         for i in contexts:
-    #             self.log.info(i)
-    #             if 'namespace' in i['context'].keys():
-    #                 namespace = i['context']['namespace']
-    #                 namespaces.append(namespace)
-    #             else:
-    #                 namespace = 'default'
-    #                 namespaces.append(namespace)
-
-    #         contexts = [context['name'] for context in contexts]
-    #         current_context = ''
-    #         if active_context is not '':
-    #             current_context = active_context['name']
-
-    #         # Creating two empty lists and looping over the contexts and checking whether the clusters are
-    #         # reachable and if the user is admin of the cluster.
-    #         delete_list = []
-    #         admin_list = []
-    #         for i in range(len(contexts)):
-    #             try:
-    #                 self.log.info("TRY")
-    #                 config.load_kube_config(context=contexts[i])
-    #                 api_instance = client.CoreV1Api()
-    #                 api_response = api_instance.list_namespaced_pod(namespace=namespaces[i], timeout_seconds=2)
-    #                 delete_list.append("False")
-    #             except:
-    #                 self.log.info("EXCEPT")
-    #                 delete_list.append("True")
-
-    #         for i in range(len(contexts)):
-    #             try:
-    #                 self.log.info("TRY")
-    #                 config.load_kube_config(context=contexts[i])
-    #                 api_instance = client.CoreV1Api()
-    #                 api_response = api_instance.list_namespaced_pod(namespace='kube-system', timeout_seconds=2)
-    #                 admin_list.append("True")
-    #             except:
-    #                 self.log.info("EXCEPT")
-    #                 admin_list.append("False")
-
-    #         self.send({
-    #             'msgtype': 'context-select',
-    #             'contexts': contexts,
-    #             'active_context': current_context,
-    #             'clusters': clusters,
-    #             'current_cluster': current_cluster,
-    #             'delete_list': delete_list,
-    #             'admin_list': admin_list,
-    #         })
-    #     except Exception as e:
-    #         error = 'Error getting cluster list. Please try again later'
-    #         self.log.info(str(e))
-    #         self.send({
-    #             'msgtype': 'get-clusters-unsuccessfull',
-    #             'error': error
-    #         })
-
 
 def load_ipython_extension(ipython):
     """ Load Jupyter kernel extension """

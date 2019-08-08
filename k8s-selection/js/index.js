@@ -3,6 +3,7 @@ import dialog from 'base/js/dialog';
 import Jupyter from 'base/js/namespace';
 import events from 'base/js/events';
 import requirejs from 'require';
+import keyboard from 'base/js/keyboard';
 import user_html from './templates/user.html';
 import create_context_html from './templates/create_context.html';
 import user_create from './templates/user_create.html';
@@ -36,7 +37,7 @@ function K8sSelection() {
         create: {
             get_html: $.proxy(this.get_html_create_clusters, this),
             buttons: {
-                'Create Cluster': {
+                'AddCluster': {
                     class: 'btn-success size-100',
                     click: $.proxy(this.create_context, this)
                 }
@@ -45,7 +46,7 @@ function K8sSelection() {
         create_users: {
             get_html: $.proxy(this.get_html_create_users, this),
             buttons: {
-                'Create User': {
+                'CreateUser': {
                     class: 'btn-success size-100',
                     click: $.proxy(this.create_users, this)
                 }
@@ -65,7 +66,6 @@ function K8sSelection() {
     this.is_reachable = false;
     this.is_admin = false;
     this.initial_select = true;
-    this.selected_tab_id = "tab1"
 
     // Starts the communication with backend when the kernel is connected
     events.on('kernel_connected.Kernel', $.proxy(this.start_comm, this));
@@ -178,38 +178,10 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     var template = user_html;
     this.hide_close = true;
     html.append(template);
-    // var delete_list = this.delete_list;
-    // var admin_list = this.admin_list;
     var that = this;
     var list_div = html.find("#user_html_inputs");
 
 
-    /**
-     * Loop to check and accordingly display on frontend whether a context can be used or not and also whether the user is admin of the context.
-     */
-    // for(var i = 0; i < contexts.length; i++) {
-    //     if(delete_list[i] == "True") {
-    //         $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //     }
-    //     else {
-    //         if(admin_list[i] == "True") {
-    //             if(contexts[i] == current_context) {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div></icon><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //             else {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //         }
-    //         else {
-    //             if(contexts[i] == current_context) {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //             else {
-    //                 $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
-    //             }
-    //         }
-    //     }
-    // }
 
     if(current_context != '') {
         if(this.initial_select == true) {
@@ -218,7 +190,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         }
         else {
             if(this.is_reachable == false) {
-                $('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
+                $('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
             }
             else {
                 if(this.is_admin == true) {
@@ -230,7 +202,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
             }
         }
     }
-    
+
 
     for(var i = 0; i < contexts.length; i++) {
         if(contexts[i] != current_context) {
@@ -273,12 +245,13 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         var current_context = button_id.split('.')[1];
         that.currently_selected_context = current_context;
         console.log("Selected cluster: " + current_context);
-        // that.switch_state(that.states.loading);
+
         if(that.get_auth == true) {
             console.log("Auth required!");
             that.switch_state(that.states.auth);
         }
         else {
+            that.switch_state(that.states.loading);
             that.send({
                 'action': 'change-current-context',
                 'context': current_context,
@@ -340,27 +313,25 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     html.append(create_context_html);
 
     var tabs = html.find("#material-tabs");
-    // var active = tabs.find(".active");
+    var active = tabs.find(".active");
     var that = this;
-    
-    this.active_tab = tabs.find("#" + this.selected_tab_id);
-    console.log("Currently active state: " + this.active_tab.html());
 
-    this.selected_tab = this.active_tab.html();
+    console.log("Currently active state: " + active.html());
+
+    this.selected_tab = active.html();
 
     tabs.each(function() {
 
 				var $active, $content, $links = $(this).find('a');
 
-				$active = that.active_tab;
+				$active = $($links[0]);
 				$active.addClass('active');
 
-				$content = $($active.hash);
+				$content = $($active[0].hash);
 
 				$links.not($active).each(function() {
 						$(this.hash).hide();
-                });
-                
+				});
                 // var that = that;
 				$(this).on('click', 'a', function(e) {
 
@@ -373,9 +344,6 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 						$active.addClass('active');
 						$content.show();
                         that.selected_tab = $active.html();
-                        that.active_tab = $active;
-                        that.selected_tab_id = this.id.split("-")[0];
-                        console.log("Currently selected tab hash: " + this.id.split("-")[0]);
                         console.log("Currently selected tab: " + that.selected_tab);
 
 						e.preventDefault();
@@ -424,6 +392,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
                     .appendTo(tab1)
                     .change(function() {
                         that.local_selected_catoken = catoken_input.val();
+                    })
+                    .keypress(function (e) {
+                        var keycode = (e.keyCode ? e.keyCode : e.which);
+                        if (keycode == keyboard.keycodes.enter) {
+                            that.states.create.buttons.AddCluster.click();
+                        }
                     });
             }
             else {
@@ -437,6 +411,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
                     .appendTo(tab1)
                     .change(function() {
                         that.local_selected_catoken = catoken_input.val();
+                    })
+                    .keypress(function (e) {
+                        var keycode = (e.keyCode ? e.keyCode : e.which);
+                        if (keycode == keyboard.keycodes.enter) {
+                            that.states.create.buttons.AddCluster.click();
+                        }
                     });
             }
         }
@@ -459,6 +439,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_clustername = clustername_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -472,6 +458,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_clustername = clustername_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 
@@ -493,6 +485,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_ip = ip_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -506,6 +504,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_ip = ip_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 
@@ -527,6 +531,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_token = token_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -540,6 +550,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_token = token_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 
@@ -561,6 +577,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_catoken = catoken_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -574,6 +596,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab1)
             .change(function() {
                 that.local_selected_catoken = catoken_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 
@@ -593,6 +621,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab2)
             .change(function() {
                 that.openstack_selected_clustername = openstack_clustername_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -606,6 +640,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab2)
             .change(function() {
                 that.openstack_selected_clustername = openstack_clustername_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 
@@ -627,6 +667,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab2)
             .change(function() {
                 that.openstack_selected_ip = openstack_ip_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -640,6 +686,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab2)
             .change(function() {
                 that.openstack_selected_ip = openstack_ip_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 
@@ -661,6 +713,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab2)
             .change(function() {
                 that.openstack_selected_catoken = openstack_catoken_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
     else {
@@ -674,6 +732,12 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .appendTo(tab2)
             .change(function() {
                 that.openstack_selected_catoken = openstack_catoken_input.val();
+            })
+            .keypress(function (e) {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if (keycode == keyboard.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
             });
     }
 };
@@ -798,6 +862,13 @@ K8sSelection.prototype.get_html_create_users = function() {
         .appendTo(user_create_div)
         .change(function() {
             that.user_create_input = user_create_input.val();
+            user_email_create_input.val(user_create_input.val() + "@cern.ch");
+        })
+        .keypress(function (e) {
+            var keycode = (e.keyCode ? e.keyCode : e.which);
+            if (keycode == keyboard.keycodes.enter) {
+                that.states.create_users.buttons.CreateUser.click();
+            }
         });
 
 
@@ -817,6 +888,12 @@ K8sSelection.prototype.get_html_create_users = function() {
         .appendTo(user_create_div)
         .change(function() {
             that.user_email_create_input = user_email_create_input.val();
+        })
+        .keypress(function (e) {
+            var keycode = (e.keyCode ? e.keyCode : e.which);
+            if (keycode == keyboard.keycodes.enter) {
+                that.states.create_users.buttons.CreateUser.click();
+            }
         });
 };
 
@@ -871,6 +948,12 @@ K8sSelection.prototype.get_html_auth = function() {
         .attr('placeholder', 'Password')
         .addClass('form__field')
         .appendTo(html)
+        .keypress(function (e) {
+            var keycode = (e.keyCode ? e.keyCode : e.which);
+            if (keycode == keyboard.keycodes.enter) {
+                that.states.auth.buttons.Authenticate.click();
+            }
+        });
 
 };
 
@@ -889,7 +972,7 @@ K8sSelection.prototype.authenticate = function() {
         action: 'kerberos-auth',
         password: password_field.val()
     });
-}
+};
 
 /**
  * @desc displays the frontend for loading state
@@ -953,7 +1036,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     if(msg.content.data.msgtype == 'context-select') {
         // The initial message recieved from the backend which provides the information about all the contexts
         console.log("Got message from frontend: " + msg.content.data.active_context);
-        this.enabled = true
+        this.enabled = true;
         this.current_context = msg.content.data.active_context;
         this.contexts = msg.content.data.contexts;
         this.current_cluster = msg.content.data.current_cluster;
@@ -1006,14 +1089,15 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // The message received when successfully changed current context in the backend
         this.is_reachable = msg.content.data.is_reachable;
         this.is_admin = msg.content.data.is_admin;
+        this.current_context = msg.content.data.context;
         this.hide_close = false;
-        this.modal.modal('hide');
+        this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail',
         });
     }
     else if(msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
-        // The message received when successfully changed current context in the backend
+        // The message received when not successfully changed current context in the backend
         this.is_reachable = msg.content.data.is_reachable;
         this.is_admin = msg.content.data.is_admin;
         this.current_context = msg.content.data.context;
@@ -1070,21 +1154,20 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.switch_state(this.states.create_users);
     }
     else if(msg.content.data.msgtype == 'kerberos-auth') {
-        console.log("Inside kerberos auth communication condition!")
+        console.log("Inside kerberos auth condition!");
         this.enabled = true;
         this.get_auth = true;
     }
     else if(msg.content.data.msgtype == 'auth-successfull') {
         this.get_auth = false;
         this.switch_state(this.states.loading);
-        this.refresh_modal();
-    }
-    else if(msg.content.data.msgtype == 'auth-unsuccessfull') {
-        this.get_html_error(msg.content.data.error, this.states.auth);
         this.send({
             'action': 'change-current-context',
             'context': this.currently_selected_context,
         });
+    }
+    else if(msg.content.data.msgtype == 'auth-unsuccessfull') {
+        this.get_html_error(msg.content.data.error, this.states.auth);
     }
     else if(msg.content.data.msgtype == 'get-clusters-unsuccessfull') {
         this.get_html_error(msg.content.data.error, this.states.select);
