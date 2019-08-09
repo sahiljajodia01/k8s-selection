@@ -961,7 +961,7 @@ K8sSelection.prototype.get_cluster_detials_view_html = function() {
     .addClass("back-button")
     .html("<i class='fa fa-arrow-left' aria-hidden='true'></i>")
     .appendTo(header)
-    .on("click", this.switch_state(this.states.create_users););
+    .on("click", this.switch_state(this.states.create_users));
 
     $('<h4 class="modal-title">&nbsp;&nbsp;<span>Credentials for cluster: ' + this.user_create_context_name + '</span></h4>').appendTo(header);
 
