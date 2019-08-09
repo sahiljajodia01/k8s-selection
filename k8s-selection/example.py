@@ -10,7 +10,7 @@ import os
 # from __future__ import print_function
 
 # Define data
-# data = {'a list': [1, 42, 3.141, 1337, 'help', u'€'],
+# data = {'a list': [1, 42, 3.141, 1337, 'help'],
 #         'a string': 'bla',
 #         'another dict': {'foo': 'bar',
 #                          'key': 'value',
@@ -141,18 +141,20 @@ import os
 #     pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
 
 
-from email.mime.text import MIMEText
-import subprocess
+# from email.mime.text import MIMEText
+# import subprocess
 
-body = '''
-    Cluster name: {selected_cluster}\n\nCA Cert: {ca_cert}\n\nServer IP: {server_ip} 
-'''
+# body = '''
+#     Cluster name: {selected_cluster}\n\nCA Cert: {ca_cert}\n\nServer IP: {server_ip} 
+# '''
 
-# Sending the mail
-body = body.format(selected_cluster="abc", ca_cert="xyz", server_ip="7348.dcdb4")
-msg = MIMEText(body)
-msg["From"] = "jajodiasahil@gmail.com"
-msg["To"] = "jajodiasahil@gmail.com"
-msg["Subject"] = "Credentials for cluster: " + selected_cluster
-p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
-p.communicate(msg.as_bytes())
+# # Sending the mail
+# body = body.format(selected_cluster="abc", ca_cert="xyz", server_ip="7348.dcdb4")
+# msg = MIMEText(body)
+# msg["From"] = "jajodiasahil@gmail.com"
+# msg["To"] = "jajodiasahil@gmail.com"
+# msg["Subject"] = "Credentials for cluster: " + selected_cluster
+# p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
+# p.communicate(msg.as_bytes())
+
+config.load_kube_config()

@@ -58,6 +58,9 @@ function K8sSelection() {
         },
         error: {
             get_html: $.proxy(this.get_html_error, this)
+        },
+        cluster_details: {
+            get_html: $.proxy(this.get_cluster_detials_view_html, this),
         }
     };
 
@@ -923,7 +926,7 @@ K8sSelection.prototype.create_users = function() {
     console.log("Username: " + this.user_create_input);
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
-
+    this.user_email_id = this.user_email_create_input;
     // Check whether the inputs are not empty.
     // Note: I have not validated the email field right now because it is going to be removed, right?
     if(!this.user_create_input || !this.user_email_create_input) {
@@ -944,6 +947,35 @@ K8sSelection.prototype.create_users = function() {
         'context': this.user_create_context_name
     });
 };
+
+K8sSelection.prototype.get_cluster_detials_view_html = function() {
+    var html = this.modal.find('.modal-body');
+    var header = this.modal.find('.modal-header');
+
+    var that = this;
+
+    html.append(user_create);
+
+    $("<button>")
+    .attr("type", "button")
+    .addClass("back-button")
+    .html("<i class='fa fa-arrow-left' aria-hidden='true'></i>")
+    .appendTo(header)
+    .on("click", this.switch_state(this.states.create_users););
+
+    $('<h4 class="modal-title">&nbsp;&nbsp;<span>Credentials for cluster: ' + this.user_create_context_name + '</span></h4>').appendTo(header);
+
+
+    html.append('<div id="view_context"></div>');
+    var div = html.find("#view_context")
+    $('<h4 id="detail_div">Please send the credentials via email to: ' + this.user_email_id + '</h4><br>').appendTo(div);
+
+    $('<h4 id="cluster_name">Cluster name: ' + this.cluster_name_view + '</h4><br>').appendTo(div);
+
+    $('<h4 id="server_ip">Server IP: ' + this.server_ip_view + '</h4><br>').appendTo(div);
+
+    $('<div class="content"><h4 id="ca_token" style="word-wrap: break-word;">Ca Token: ' + this.ca_cert_view + '</h4><br>').appendTo(div);
+}
 
 
 K8sSelection.prototype.get_html_auth = function() {
@@ -1065,9 +1097,6 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // this.delete_list = msg.content.data.delete_list;
         // this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
-        this.send({
-            'action': 'get-connection-detail',
-        });
     }
     else if(msg.content.data.msgtype == 'added-context-successfully') {
         // The message received when cluster and context are added successfully
@@ -1171,7 +1200,10 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // Message recieved when the user is added to a cluster successfully
         this.user_create_input = undefined;
         this.user_email_create_input = undefined;
-        this.switch_state(this.states.create_users);
+        this.cluster_name_view = msg.content.data.cluster_name;
+        this.server_ip_view = msg.content.data.server_ip;
+        this.ca_cert_view = msg.content.data.ca_cert;
+        this.switch_state(this.states.cluster_details);
     }
     else if(msg.content.data.msgtype == 'kerberos-auth') {
         console.log("Inside kerberos auth condition!");

@@ -527,41 +527,40 @@ class K8sSelection:
             error = ''
             namespace = 'default'
 
-            # try:
-            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
-                load = yaml.safe_load(stream)
+            try:
+                with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                    load = yaml.safe_load(stream)
 
-            contexts = load['contexts']
-            for i in contexts:
-                if i['name'] == load['current-context']:
-                    if 'namespace' in i['context'].keys():
-                        namespace = i['context']['namespace']
-                        break
+                contexts = load['contexts']
+                for i in contexts:
+                    if i['name'] == load['current-context']:
+                        if 'namespace' in i['context'].keys():
+                            namespace = i['context']['namespace']
+                            break
 
-            # Calling kubernetes API to list pods
-            config.load_kube_config()
-            api_instance = client.CoreV1Api()
-            api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
+                # Calling kubernetes API to list pods
+                config.load_kube_config()
+                api_instance = client.CoreV1Api()
+                api_instance.list_namespaced_pod(namespace=namespace, timeout_seconds=2)
 
-            self.send({
-                'msgtype': 'connection-details',
-                'context': load['current-context']
-            })
-
-            # except ApiException as e:
-            #     # If it cannot list pods then send the error to user
-            #     error = 'Cannot list pods in your namespace'
-            #     self.log.info(str(e))
-            #     self.send({
-            #         'msgtype': 'connection-details-error',
-            #     })
-            # except Exception as e:
-            #     # Handle general exception
-            #     error = 'Cannot load KUBECONFIG'
-            #     self.log.info(str(e))
-            #     self.send({
-            #         'msgtype': 'connection-details-error',
-            #     })
+                self.send({
+                    'msgtype': 'connection-details',
+                    'context': load['current-context']
+                })
+            except ApiException as e:
+                # If it cannot list pods then send the error to user
+                error = 'Cannot list pods in your namespace'
+                self.log.info(str(e))
+                self.send({
+                    'msgtype': 'connection-details-error',
+                })
+            except Exception as e:
+                # Handle general exception
+                error = 'Cannot load KUBECONFIG'
+                self.log.info(str(e))
+                self.send({
+                    'msgtype': 'connection-details-error',
+                })
         elif action == "delete-current-context":
             self.log.info("Deleting context from KUBECONFIG")
             # This action deletes the context and cluster from the KUBECONFIG file
@@ -695,21 +694,25 @@ class K8sSelection:
                 dotenv_path = join(dirname(__file__), 'sendgrid.env')
                 self.log.info(".env PATH: ", dotenv_path)
                 # First check for ca_cert and server_ip
-                if ca_cert and server_ip:
-                    if os.path.isfile(dotenv_path):
-                        self.send_sendgrid_email(dotenv_path, email, selected_cluster, ca_cert, server_ip)
-                    else:
-                        self.send_email(email, selected_cluster, ca_cert, server_ip)
-                else:
-                    error = 'Cannot get CA-Cert or Server IP of the cluster'
-                    self.send({
-                        'msgtype': 'added-user-unsuccessfully',
-                        'error': error
-                    })
+                # if ca_cert and server_ip:
+                #     if os.path.isfile(dotenv_path):
+                #         self.send_sendgrid_email(dotenv_path, email, selected_cluster, ca_cert, server_ip)
+                #     else:
+                #         self.send_email(email, selected_cluster, ca_cert, server_ip)
+                # else:
+                #     error = 'Cannot get CA-Cert or Server IP of the cluster'
+                #     self.send({
+                #         'msgtype': 'added-user-unsuccessfully',
+                #         'error': error
+                #     })
 
-                    self.log.info("Successfully created user")
+
+                self.log.info("Successfully created user")
                 self.send({
                     'msgtype': 'added-user-successfully',
+                    'ca_cert': ca_cert,
+                    'server_ip': server_ip,
+                    'cluster_name': selected_cluster
                 })
             except Exception as e:
                 # Handle user creation exceptions
