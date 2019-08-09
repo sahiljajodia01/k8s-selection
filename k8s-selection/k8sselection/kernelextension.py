@@ -824,13 +824,13 @@ class K8sSelection:
 
             # Sending the mail
             body = body.format(selected_cluster=selected_cluster, ca_cert=ca_cert, server_ip=server_ip)
-            msg = MIMEText(body)
+            msg = MIMEText(body.encode())
             msg["From"] = os.environ["USER"] + "@cern.ch"
             msg["To"] = email
             msg["Subject"] = "Credentials for cluster: " + selected_cluster
             p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
             p.communicate(msg.as_string())
-            self.log.info("Successfully sent email using sendgrid!")
+            self.log.info("Successfully sent email")
         except Exception as e:
             # Handle email exceptions
             error = 'Cannot send email.'

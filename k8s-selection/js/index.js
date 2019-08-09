@@ -29,7 +29,7 @@ function K8sSelection() {
             get_html: $.proxy(this.get_html_auth, this),
             buttons: {
                 'Authenticate': {
-                    class: 'btn-success size-100 auth-button',
+                    class: 'btn-blue size-100 auth-button',
                     click: $.proxy(this.authenticate, this)
                 }
             }
@@ -38,7 +38,7 @@ function K8sSelection() {
             get_html: $.proxy(this.get_html_create_clusters, this),
             buttons: {
                 'AddCluster': {
-                    class: 'btn-success size-100',
+                    class: 'btn-blue size-100',
                     click: $.proxy(this.create_context, this)
                 }
             }
@@ -47,7 +47,7 @@ function K8sSelection() {
             get_html: $.proxy(this.get_html_create_users, this),
             buttons: {
                 'CreateUser': {
-                    class: 'btn-success size-100',
+                    class: 'btn-blue size-100',
                     click: $.proxy(this.create_users, this)
                 }
             }
@@ -182,10 +182,9 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     var list_div = html.find("#user_html_inputs");
 
 
-
     if(current_context != '') {
         if(this.initial_select == true) {
-            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + current_context + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
+            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
             this.initial_select = false;
         }
         else {
@@ -194,10 +193,10 @@ K8sSelection.prototype.get_html_select_cluster = function() {
             }
             else {
                 if(this.is_admin == true) {
-                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
+                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
                 }
                 else {
-                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
+                    $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
                 }
             }
         }
@@ -267,11 +266,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         var current_context = button_id.split('.')[1];
         console.log("ID: " + button_id);
         console.log("Selected cluster: " + current_context);
-        that.switch_state(that.states.loading);
-        that.send({
-            'action': 'delete-current-context',
-            'context': current_context,
-        });
+        $.proxy(that.close, that);
     });
 
     /**
@@ -291,6 +286,31 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         .appendTo(html)
         .on('click', $.proxy(this.switch_state, this, this.states.create));
 
+};
+
+K8sSelection.prototype.close = function () {
+    dialog.modal({
+            notebook: Jupyter.notebook,
+            keyboard_manager: Jupyter.keyboard_manager,
+            title: 'Unsaved changes',
+            body: 'You made changes to the Spark connector configuration. Do you want to save them?',
+            buttons: {
+                'No': {},
+                'Yes': {
+                    class: 'btn-blue size-100',
+                    click: $.proxy(this.delete_cluster, this)
+                }
+            }
+        });
+
+};
+
+K8sSelection.prototype.delete_cluster = function () {
+    this.switch_state(this.states.loading);
+    this.send({
+        'action': 'delete-current-context',
+        'context': current_context
+    });
 };
 
 
@@ -350,10 +370,6 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 	            });
     });
 
-    // tabs.click(function() {
-    //     that.selected_tab = $(".active").html();
-    //     console.log("Currently selected tab: " + that.selected_tab);
-    // });
 
     var tab1 = html.find("#tab1");
     var tab1 = tab1.find("#other-settings");
@@ -1132,8 +1148,8 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     }
     else if(msg.content.data.msgtype == 'deleted-context-successfully') {
         // Message received from backend when the context and cluster are deleted successfully from backend
-        this.modal.modal('hide');
-        this.switch_state(this.states.create);
+        // this.modal.modal('hide');
+        this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail',
         });
