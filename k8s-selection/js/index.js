@@ -409,6 +409,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
                     .attr('placeholder', 'CA Token (Base64)')
                     .addClass('form__field')
                     .appendTo(tab1)
+                    .focus(function() {
+                        that.local_selected_catoken = catoken_input.val();
+                    })
                     .change(function() {
                         that.local_selected_catoken = catoken_input.val();
                     })
@@ -428,6 +431,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
                     .attr('placeholder', 'CA Token (Base64)')
                     .addClass('form__field')
                     .appendTo(tab1)
+                    .focus(function() {
+                        that.local_selected_catoken = catoken_input.val();
+                    })
                     .change(function() {
                         that.local_selected_catoken = catoken_input.val();
                     })
@@ -456,6 +462,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Cluster name')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_clustername = clustername_input.val();
+            })
             .change(function() {
                 that.local_selected_clustername = clustername_input.val();
             })
@@ -475,6 +484,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Cluster name')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_clustername = clustername_input.val();
+            })
             .change(function() {
                 that.local_selected_clustername = clustername_input.val();
             })
@@ -502,6 +514,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Server IP')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_ip = ip_input.val();
+            })
             .change(function() {
                 that.local_selected_ip = ip_input.val();
             })
@@ -521,6 +536,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Server IP')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_ip = ip_input.val();
+            })
             .change(function() {
                 that.local_selected_ip = ip_input.val();
             })
@@ -548,6 +566,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Token')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_token = token_input.val();
+            })
             .change(function() {
                 that.local_selected_token = token_input.val();
             })
@@ -567,6 +588,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Token')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_token = token_input.val();
+            })
             .change(function() {
                 that.local_selected_token = token_input.val();
             })
@@ -594,6 +618,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'CA Token (Base64)')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_catoken = catoken_input.val();
+            })
             .change(function() {
                 that.local_selected_catoken = catoken_input.val();
             })
@@ -613,6 +640,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'CA Token (Base64)')
             .addClass('form__field')
             .appendTo(tab1)
+            .focus(function() {
+                that.local_selected_catoken = catoken_input.val();
+            })
             .change(function() {
                 that.local_selected_catoken = catoken_input.val();
             })
@@ -638,6 +668,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Cluster name')
             .addClass('form__field')
             .appendTo(tab2)
+            .focus(function() {
+                that.openstack_selected_clustername = openstack_clustername_input.val();
+            })
             .change(function() {
                 that.openstack_selected_clustername = openstack_clustername_input.val();
             })
@@ -657,6 +690,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Cluster name')
             .addClass('form__field')
             .appendTo(tab2)
+            .focus(function() {
+                that.openstack_selected_clustername = openstack_clustername_input.val();
+            })
             .change(function() {
                 that.openstack_selected_clustername = openstack_clustername_input.val();
             })
@@ -684,6 +720,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Server IP')
             .addClass('form__field')
             .appendTo(tab2)
+            .focus(function() {
+                that.openstack_selected_ip = openstack_ip_input.val();
+            })
             .change(function() {
                 that.openstack_selected_ip = openstack_ip_input.val();
             })
@@ -703,6 +742,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'Server IP')
             .addClass('form__field')
             .appendTo(tab2)
+            .focus(function() {
+                that.openstack_selected_ip = openstack_ip_input.val();
+            })
             .change(function() {
                 that.openstack_selected_ip = openstack_ip_input.val();
             })
@@ -730,8 +772,11 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'CA Token (Base64)')
             .addClass('form__field')
             .appendTo(tab2)
+            .focus(function() {
+                that.openstack_selected_catoken = openstack_selected_ip.val();
+            })
             .change(function() {
-                that.openstack_selected_catoken = openstack_catoken_input.val();
+                that.openstack_selected_catoken = openstack_selected_ip.val();
             })
             .keypress(function (e) {
                 var keycode = (e.keyCode ? e.keyCode : e.which);
@@ -749,6 +794,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
             .attr('placeholder', 'CA Token (Base64)')
             .addClass('form__field')
             .appendTo(tab2)
+            .focus(function() {
+                that.openstack_selected_catoken = openstack_catoken_input.val();
+            })
             .change(function() {
                 that.openstack_selected_catoken = openstack_catoken_input.val();
             })
