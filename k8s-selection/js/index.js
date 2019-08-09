@@ -293,10 +293,9 @@ K8sSelection.prototype.close = function () {
     dialog.modal({
             notebook: Jupyter.notebook,
             keyboard_manager: Jupyter.keyboard_manager,
-            title: 'Unsaved changes',
-            body: 'You made changes to the Spark connector configuration. Do you want to save them?',
+            title: 'Delete Cluster',
+            body: 'Are you sure you want to delete this cluster from the KUBECONFIG file?',
             buttons: {
-                'No': {},
                 'Yes': {
                     class: 'btn-blue size-100',
                     click: $.proxy(this.delete_cluster, this)
