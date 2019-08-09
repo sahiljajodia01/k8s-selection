@@ -126,16 +126,33 @@ import os
 # configuration.api_key_prefix['authorization'] = 'Bearer'
 # configuration.host = 'https://192.168.99.103:8443'
 
-config.load_kube_config()
-namespace = "swan-sahiljajodia"
-api_instance = client.CoreV1Api()
+# config.load_kube_config()
+# namespace = "swan-sahiljajodia"
+# api_instance = client.CoreV1Api()
 
-try:
-    api_response = api_instance.list_namespaced_pod(namespace=namespace)
-    # api_response = json.loads(api_response)
-    pprint(api_response)
-    print("Pods: ")
-    for i in api_response.items:
-        print(i.metadata.name)
-except ApiException as e:
-    pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+# try:
+#     api_response = api_instance.list_namespaced_pod(namespace=namespace)
+#     # api_response = json.loads(api_response)
+#     pprint(api_response)
+#     print("Pods: ")
+#     for i in api_response.items:
+#         print(i.metadata.name)
+# except ApiException as e:
+#     pprint("Exception when calling CoreV1Api->list_namespaced_service_account: %s\n" % e)
+
+
+from email.mime.text import MIMEText
+import subprocess
+
+body = '''
+    Cluster name: {selected_cluster}\n\nCA Cert: {ca_cert}\n\nServer IP: {server_ip} 
+'''
+
+# Sending the mail
+body = body.format(selected_cluster="abc", ca_cert="xyz", server_ip="7348.dcdb4")
+msg = MIMEText(body)
+msg["From"] = "jajodiasahil@gmail.com"
+msg["To"] = "jajodiasahil@gmail.com"
+msg["Subject"] = "Credentials for cluster: " + selected_cluster
+p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
+p.communicate(msg.as_bytes())
