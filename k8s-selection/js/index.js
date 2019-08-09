@@ -289,6 +289,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
 };
 
 K8sSelection.prototype.close = function () {
+    console.log("Inside close function");
     dialog.modal({
             notebook: Jupyter.notebook,
             keyboard_manager: Jupyter.keyboard_manager,
