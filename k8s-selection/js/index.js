@@ -1182,7 +1182,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // Message received from backend when the context and cluster are deleted successfully from backend
         // this.modal.modal('hide');
         this.current_context = msg.content.data.current_context;
-        this.switch_state(this.states.select);
+        this.refresh_modal();
         this.send({
             'action': 'get-connection-detail',
         });
