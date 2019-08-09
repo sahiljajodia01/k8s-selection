@@ -185,7 +185,6 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     if(current_context != '') {
         if(this.initial_select == true) {
             $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
-            this.initial_select = false;
         }
         else {
             if(this.is_reachable == false) {
@@ -240,6 +239,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
      * Handler to get the current context and send it to the backend to change the current context in KUBECONFIG
      */
     list_div.find(".list-item-select").on('click', function() {
+        that.initial_select = false;
         var button_id = $(this).attr('id');
         var current_context = button_id.split('.')[1];
         that.currently_selected_context = current_context;

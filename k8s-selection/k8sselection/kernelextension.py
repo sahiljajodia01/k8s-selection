@@ -583,6 +583,10 @@ class K8sSelection:
                         load['clusters'].pop(i)
                         break
 
+                if context == load['current_context']:
+                    if len(load['contexts']) > 0:
+                        load['current_context'] = load['contexts'][0]['name']
+
                 # Save the file
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
