@@ -560,7 +560,6 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     if (this.local_selected_token) {
         var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('value', this.local_selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).change(function () {
             that.local_selected_token = token_input.val();
-            catoken_input.val(token_input.val() + "@cern.ch");
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
             if (keycode == _keyboard2.default.keycodes.enter) {
