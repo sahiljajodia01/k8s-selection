@@ -205,7 +205,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
 
     for(var i = 0; i < contexts.length; i++) {
         if(contexts[i] != current_context) {
-            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button disabled class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+            $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
         }
     }
 
@@ -266,7 +266,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         var current_context = button_id.split('.')[1];
         console.log("ID: " + button_id);
         console.log("Selected cluster: " + current_context);
-        $.proxy(that.close, that);
+        that.close();
     });
 
     /**
