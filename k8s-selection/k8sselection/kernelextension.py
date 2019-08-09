@@ -583,9 +583,15 @@ class K8sSelection:
                         load['clusters'].pop(i)
                         break
 
+                # If the current context is deleted, also change the current-context in the kubeconfig file
                 if context == load['current-context']:
                     if len(load['contexts']) > 0:
                         load['current-context'] = load['contexts'][0]['name']
+                    else:
+                        load['current-context'] = ''
+
+                current_context = load['current-context']
+
 
                 # Save the file
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
@@ -594,6 +600,7 @@ class K8sSelection:
                     self.log.info("Successfully deleted context")
                 self.send({
                     'msgtype': 'deleted-context-successfully',
+                    'current_context': current_context
                 })
             except Exception as e:
                 # Handle general exception

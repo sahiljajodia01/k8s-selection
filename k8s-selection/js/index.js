@@ -1149,6 +1149,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     else if(msg.content.data.msgtype == 'deleted-context-successfully') {
         // Message received from backend when the context and cluster are deleted successfully from backend
         // this.modal.modal('hide');
+        this.current_context = msg.content.data.current_context;
         this.switch_state(this.states.select);
         this.send({
             'action': 'get-connection-detail',
