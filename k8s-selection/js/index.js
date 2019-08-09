@@ -879,6 +879,7 @@ K8sSelection.prototype.get_html_create_users = function() {
         .change(function() {
             that.user_create_input = user_create_input.val();
             user_email_create_input.val(user_create_input.val() + "@cern.ch");
+            that.user_email_create_input = user_email_create_input.val();
         })
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
@@ -919,6 +920,10 @@ K8sSelection.prototype.get_html_create_users = function() {
  */
 K8sSelection.prototype.create_users = function() {
 
+    console.log("Username: " + this.user_create_input);
+    console.log("Email: " + this.user_email_create_input);
+    console.log("Selected context: " + this.user_create_context_name);
+
     // Check whether the inputs are not empty.
     // Note: I have not validated the email field right now because it is going to be removed, right?
     if(!this.user_create_input || !this.user_email_create_input) {
@@ -927,9 +932,7 @@ K8sSelection.prototype.create_users = function() {
     }
 
     // Logging the inputs just for testing purposes
-    console.log("Username: " + this.user_create_input);
-    console.log("Email: " + this.user_email_create_input);
-    console.log("Selected context: " + this.user_create_context_name);
+    
 
 
     // Send the inputs to the backend to add users to a cluster

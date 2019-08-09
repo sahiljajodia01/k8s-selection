@@ -597,7 +597,7 @@ class K8sSelection:
                 with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
                     yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
 
-                    self.log.info("Successfully deleted context")
+                self.log.info("Successfully deleted context")
                 self.send({
                     'msgtype': 'deleted-context-successfully',
                     'current_context': current_context
@@ -835,12 +835,12 @@ class K8sSelection:
 
             # Sending the mail
             body = body.format(selected_cluster=selected_cluster, ca_cert=ca_cert, server_ip=server_ip)
-            msg = MIMEText(body.encode())
+            msg = MIMEText(body)
             msg["From"] = os.environ["USER"] + "@cern.ch"
             msg["To"] = email
             msg["Subject"] = "Credentials for cluster: " + selected_cluster
             p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
-            p.communicate(msg.as_string())
+            p.communicate(msg.as_bytes())
             self.log.info("Successfully sent email")
         except Exception as e:
             # Handle email exceptions
