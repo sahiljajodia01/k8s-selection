@@ -871,7 +871,7 @@ class K8sSelection:
                 'kerberos_auth': kerberos_auth
             })
         except Exception as e:
-            error = 'Error getting cluster list. Please try again later'
+            error = "Error getting cluster list. The Kubeconfig file is probably corrupted. You can delete it using 'rm $HOME/.kube/config' on the terminal."
             self.log.info(str(e))
             self.send({
                 'msgtype': 'get-clusters-unsuccessfull',
