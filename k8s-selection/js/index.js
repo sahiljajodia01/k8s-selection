@@ -267,6 +267,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     list_div.find(".list-item-delete").on('click', function() {
         var button_id = $(this).attr('id');
         var current_context = button_id.split('.')[1];
+        that.currently_selected_context = current_context;
         console.log("ID: " + button_id);
         console.log("Selected cluster: " + current_context);
         that.close();
