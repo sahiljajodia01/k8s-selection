@@ -309,6 +309,7 @@ K8sSelection.prototype.close = function () {
 };
 
 K8sSelection.prototype.delete_cluster = function () {
+    console.log("Currently deleting context: " + this.currently_selected_context);
     this.switch_state(this.states.loading);
     this.send({
         'action': 'delete-current-context',
