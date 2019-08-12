@@ -185,6 +185,9 @@ function K8sSelection() {
         },
         error: {
             get_html: _jquery2.default.proxy(this.get_html_error, this)
+        },
+        cluster_details: {
+            get_html: _jquery2.default.proxy(this.get_cluster_detials_view_html, this)
         }
     };
 
@@ -306,7 +309,6 @@ K8sSelection.prototype.get_html_select_cluster = function () {
     if (current_context != '') {
         if (this.initial_select == true) {
             (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
-            this.initial_select = false;
         } else {
             if (this.is_reachable == false) {
                 (0, _jquery2.default)('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
@@ -354,6 +356,7 @@ K8sSelection.prototype.get_html_select_cluster = function () {
      * Handler to get the current context and send it to the backend to change the current context in KUBECONFIG
      */
     list_div.find(".list-item-select").on('click', function () {
+        that.initial_select = false;
         var button_id = (0, _jquery2.default)(this).attr('id');
         var current_context = button_id.split('.')[1];
         that.currently_selected_context = current_context;
@@ -403,10 +406,9 @@ K8sSelection.prototype.close = function () {
     _dialog2.default.modal({
         notebook: _namespace2.default.notebook,
         keyboard_manager: _namespace2.default.keyboard_manager,
-        title: 'Unsaved changes',
-        body: 'You made changes to the Spark connector configuration. Do you want to save them?',
+        title: 'Delete Cluster',
+        body: 'Are you sure you want to delete this cluster from the KUBECONFIG file?',
         buttons: {
-            'No': {},
             'Yes': {
                 class: 'btn-blue size-100',
                 click: _jquery2.default.proxy(this.delete_cluster, this)
@@ -419,7 +421,7 @@ K8sSelection.prototype.delete_cluster = function () {
     this.switch_state(this.states.loading);
     this.send({
         'action': 'delete-current-context',
-        'context': current_context
+        'context': this.currently_selected_context
     });
 };
 
@@ -499,7 +501,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             (0, _jquery2.default)('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
 
             if (that.local_selected_catoken) {
-                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', that.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
+                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', that.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
+                    that.local_selected_catoken = catoken_input.val();
+                }).change(function () {
                     that.local_selected_catoken = catoken_input.val();
                 }).keypress(function (e) {
                     var keycode = e.keyCode ? e.keyCode : e.which;
@@ -508,7 +512,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
                     }
                 });
             } else {
-                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
+                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
+                    that.local_selected_catoken = catoken_input.val();
+                }).change(function () {
                     that.local_selected_catoken = catoken_input.val();
                 }).keypress(function (e) {
                     var keycode = e.keyCode ? e.keyCode : e.which;
@@ -524,7 +530,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
 
     if (this.local_selected_clustername) {
-        var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('value', this.local_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).change(function () {
+        var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('value', this.local_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_clustername = clustername_input.val();
+        }).change(function () {
             that.local_selected_clustername = clustername_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -533,7 +541,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).change(function () {
+        var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_clustername = clustername_input.val();
+        }).change(function () {
             that.local_selected_clustername = clustername_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -549,7 +559,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab1);
 
     if (this.local_selected_ip) {
-        var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('value', this.local_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).change(function () {
+        var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('value', this.local_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_ip = ip_input.val();
+        }).change(function () {
             that.local_selected_ip = ip_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -558,7 +570,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).change(function () {
+        var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_ip = ip_input.val();
+        }).change(function () {
             that.local_selected_ip = ip_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -574,7 +588,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="token_text" id="token_text_label">Token</label><br>').appendTo(tab1);
 
     if (this.local_selected_token) {
-        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('value', this.local_selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).change(function () {
+        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('value', this.local_selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_token = token_input.val();
+        }).change(function () {
             that.local_selected_token = token_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -583,7 +599,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).change(function () {
+        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_token = token_input.val();
+        }).change(function () {
             that.local_selected_token = token_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -599,7 +617,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
 
     if (this.local_selected_catoken) {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', this.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
+        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', this.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_catoken = catoken_input.val();
+        }).change(function () {
             that.local_selected_catoken = catoken_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -608,7 +628,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).change(function () {
+        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
+            that.local_selected_catoken = catoken_input.val();
+        }).change(function () {
             that.local_selected_catoken = catoken_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -622,7 +644,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
 
     if (this.openstack_selected_clustername) {
-        var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('value', this.openstack_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).change(function () {
+        var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('value', this.openstack_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).focus(function () {
+            that.openstack_selected_clustername = openstack_clustername_input.val();
+        }).change(function () {
             that.openstack_selected_clustername = openstack_clustername_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -631,7 +655,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).change(function () {
+        var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).focus(function () {
+            that.openstack_selected_clustername = openstack_clustername_input.val();
+        }).change(function () {
             that.openstack_selected_clustername = openstack_clustername_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -647,7 +673,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab2);
 
     if (this.openstack_selected_ip) {
-        var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('value', this.openstack_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).change(function () {
+        var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('value', this.openstack_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).focus(function () {
+            that.openstack_selected_ip = openstack_ip_input.val();
+        }).change(function () {
             that.openstack_selected_ip = openstack_ip_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -656,7 +684,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).change(function () {
+        var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).focus(function () {
+            that.openstack_selected_ip = openstack_ip_input.val();
+        }).change(function () {
             that.openstack_selected_ip = openstack_ip_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -672,8 +702,10 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     (0, _jquery2.default)('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab2);
 
     if (this.openstack_selected_catoken) {
-        var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('value', this.openstack_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).change(function () {
-            that.openstack_selected_catoken = openstack_catoken_input.val();
+        var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('value', this.openstack_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).focus(function () {
+            that.openstack_selected_catoken = openstack_selected_ip.val();
+        }).change(function () {
+            that.openstack_selected_catoken = openstack_selected_ip.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
             if (keycode == _keyboard2.default.keycodes.enter) {
@@ -681,7 +713,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
             }
         });
     } else {
-        var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).change(function () {
+        var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).focus(function () {
+            that.openstack_selected_catoken = openstack_catoken_input.val();
+        }).change(function () {
             that.openstack_selected_catoken = openstack_catoken_input.val();
         }).keypress(function (e) {
             var keycode = e.keyCode ? e.keyCode : e.which;
@@ -792,6 +826,7 @@ K8sSelection.prototype.get_html_create_users = function () {
     var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_create_input').attr('placeholder', 'Username').addClass('form__field').appendTo(user_create_div).change(function () {
         that.user_create_input = user_create_input.val();
         user_email_create_input.val(user_create_input.val() + "@cern.ch");
+        that.user_email_create_input = user_email_create_input.val();
     }).keypress(function (e) {
         var keycode = e.keyCode ? e.keyCode : e.which;
         if (keycode == _keyboard2.default.keycodes.enter) {
@@ -820,17 +855,18 @@ K8sSelection.prototype.get_html_create_users = function () {
  */
 K8sSelection.prototype.create_users = function () {
 
-    // Check whether the inputs are not empty.
-    // Note: I have not validated the email field right now because it is going to be removed, right?
-    if (!this.user_create_input || !this.user_email_create_input) {
-        this.get_html_error("Please fill all the required fields.", this.states.create_users);
-        return;
-    }
-
     // Logging the inputs just for testing purposes
     console.log("Username: " + this.user_create_input);
     console.log("Email: " + this.user_email_create_input);
     console.log("Selected context: " + this.user_create_context_name);
+
+    // Check whether the inputs are not empty.
+    // Note: I have not validated the email field right now because it is going to be removed, right?
+    this.user_email_id = this.user_email_create_input;
+    if (!this.user_create_input || !this.user_email_create_input) {
+        this.get_html_error("Please fill all the required fields.", this.states.create_users);
+        return;
+    }
 
     // Send the inputs to the backend to add users to a cluster
     this.switch_state(this.states.loading);
@@ -840,6 +876,25 @@ K8sSelection.prototype.create_users = function () {
         'email': this.user_email_create_input,
         'context': this.user_create_context_name
     });
+};
+
+K8sSelection.prototype.get_cluster_detials_view_html = function () {
+    var html = this.modal.find('.modal-body');
+    var header = this.modal.find('.modal-header');
+
+    var that = this;
+
+    (0, _jquery2.default)("<button>").attr("type", "button").addClass("back-button").html("<i class='fa fa-arrow-left' aria-hidden='true'></i>").appendTo(header).on("click", _jquery2.default.proxy(this.switch_state, this, this.states.create_users));
+
+    (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Connection details for cluster: ' + this.user_create_context_name + '</span></h4>').appendTo(header);
+
+    (0, _jquery2.default)('<h4 id="detail_div">Please send the connection details via email to: ' + this.user_email_id + '</h4><br>').appendTo(html);
+
+    (0, _jquery2.default)('<div style="display: flex;"><h4 id="cluster_name">K8s Cluster Name:</h4>&nbsp;<p style="font-size: 15px; margin-top: 5px;">' + this.cluster_name_view + '</p><br></div>').appendTo(html);
+
+    (0, _jquery2.default)('<div style="display: flex;"><h4 id="server_ip">K8s master:</h4>&nbsp;<p style="font-size: 15px; margin-top: 5px;">' + this.server_ip_view + '</p><br></div>').appendTo(html);
+
+    (0, _jquery2.default)('<div style="display: flex;"><div class="content"><h4 id="ca_token" style="word-wrap: break-word;">CA Token:</h4>&nbsp;<p style="font-size: 15px; margin-top: 5px;">' + this.ca_cert_view + '</p><br></div>').appendTo(html);
 };
 
 K8sSelection.prototype.get_html_auth = function () {
@@ -937,9 +992,6 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // this.delete_list = msg.content.data.delete_list;
         // this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
-        this.send({
-            'action': 'get-connection-detail'
-        });
     } else if (msg.content.data.msgtype == 'added-context-successfully') {
         // The message received when cluster and context are added successfully
 
@@ -1017,7 +1069,8 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     } else if (msg.content.data.msgtype == 'deleted-context-successfully') {
         // Message received from backend when the context and cluster are deleted successfully from backend
         // this.modal.modal('hide');
-        this.switch_state(this.states.select);
+        this.current_context = msg.content.data.current_context;
+        this.refresh_modal();
         this.send({
             'action': 'get-connection-detail'
         });
@@ -1033,7 +1086,10 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         // Message recieved when the user is added to a cluster successfully
         this.user_create_input = undefined;
         this.user_email_create_input = undefined;
-        this.switch_state(this.states.create_users);
+        this.cluster_name_view = msg.content.data.cluster_name;
+        this.server_ip_view = msg.content.data.server_ip;
+        this.ca_cert_view = msg.content.data.ca_cert;
+        this.switch_state(this.states.cluster_details);
     } else if (msg.content.data.msgtype == 'kerberos-auth') {
         console.log("Inside kerberos auth condition!");
         this.enabled = true;

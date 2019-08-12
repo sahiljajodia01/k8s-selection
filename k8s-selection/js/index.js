@@ -312,7 +312,7 @@ K8sSelection.prototype.delete_cluster = function () {
     this.switch_state(this.states.loading);
     this.send({
         'action': 'delete-current-context',
-        'context': this.current_context
+        'context': this.currently_selected_context
     });
 };
 
