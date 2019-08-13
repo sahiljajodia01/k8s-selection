@@ -875,6 +875,7 @@ class K8sSelection:
 
             # Getting the type of authentication used by contexts
             cluster_auth_type = []
+            current_cluster_auth_type = ''
             for i in range(len(contexts)):
                 if load['current-context'] != '' and contexts[i]['name'] == load['current-context']:
                     current_cluster_auth_type = self.get_auth_type(contexts[i]['context']['user'])
