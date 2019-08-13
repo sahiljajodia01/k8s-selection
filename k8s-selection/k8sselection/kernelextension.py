@@ -166,7 +166,7 @@ class K8sSelection:
                 cluster_name = msg['content']['data']['cluster_name']
                 insecure_server = msg['content']['data']['insecure_server']
                 ip = msg['content']['data']['ip']
-                namespace = "swan-" + str(os.getenv('USER'))
+                namespace = "spark-" + str(os.getenv('USER'))
                 svcaccount = 'local-' + str(os.getenv('USER')) + "-" + cluster_name
                 context_name = cluster_name
 
@@ -318,7 +318,7 @@ class K8sSelection:
                 cluster_name = msg['content']['data']['cluster_name']
                 ip = msg['content']['data']['ip']
                 catoken = msg['content']['data']['catoken']
-                namespace = "swan-" + str(os.getenv('USER'))
+                namespace = "spark-" + str(os.getenv('USER'))
                 svcaccount = 'openstack-' + str(os.getenv('USER'))
                 context_name = cluster_name
 
@@ -826,6 +826,19 @@ class K8sSelection:
         def _recv(msg):
             self.handle_comm_message(msg)
 
+        try:
+
+            with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
+                load = yaml.safe_load(stream)
+
+            if load['current-context'] != '':
+                laod['current-context'] = ''
+
+            with io.open(os.environ['HOME'] + '/.kube/config', 'w', encoding='utf8') as out:
+                yaml.safe_dump(load, out, default_flow_style=False, allow_unicode=True)
+        except Exception as e:
+            self.log.info(str(e))
+
         self.cluster_list()
 
     def cluster_list(self):
@@ -835,6 +848,7 @@ class K8sSelection:
 
         self.log.info("Getting clusters and contexts from KUBECONFIG")
         try:
+
             if os.path.isdir(os.getenv('HOME') + '/.kube'):
                 if not os.path.isfile(os.getenv('HOME') + '/.kube/config'):
                     load = {}

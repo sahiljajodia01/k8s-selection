@@ -738,6 +738,17 @@ K8sSelection.prototype.create_context = function () {
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
 
+    if (this.selected_tab == "local") {
+        this.local_selected_catoken = this.modal.find('input[name="catoken_text"]').val();
+        this.local_selected_clustername = this.modal.find('input[name="clustername_text"]').val();
+        this.local_selected_ip = this.modal.find('input[name="ip_text"]').val();
+        this.local_selected_token = this.modal.find('input[name="token_text"]').val();
+    } else {
+        this.openstack_selected_clustername = this.modal.find('input[name="openstack_clustername_text"]').val();
+        this.openstack_selected_catoken = this.modal.find('input[name="openstack_catoken_text"]').val();
+        this.openstack_selected_ip = this.modal.find('input[name="openstack_ip_text"]').val();
+    }
+
     // Checks whether any input is empty before sending it to backend
     if (this.selected_tab == "local") {
         if (this.checkbox_status == "unchecked") {
@@ -751,7 +762,7 @@ K8sSelection.prototype.create_context = function () {
                 return;
             }
         }
-    } else if (this.selected_tab == "openstack") {
+    } else {
         console.log("Openstack cluster name: " + this.openstack_selected_clustername);
         console.log("Openstack ca token: " + this.openstack_selected_catoken);
         console.log("Openstack ip: " + this.openstack_selected_ip);
@@ -795,7 +806,7 @@ K8sSelection.prototype.create_context = function () {
                 'insecure_server': "true"
             });
         }
-    } else if (this.selected_tab == "openstack") {
+    } else {
         this.send({
             'action': 'add-context-cluster',
             'tab': this.selected_tab,
@@ -857,6 +868,9 @@ K8sSelection.prototype.get_html_create_users = function () {
  * Handler to get user inputs from the create_user state and send it to the backend to create a user
  */
 K8sSelection.prototype.create_users = function () {
+
+    this.user_create_input = this.modal.find('input[name="user_create_input"]').val();
+    this.user_email_create_input = this.modal.find('input[name="user_email_create_input"]').val();
 
     // Logging the inputs just for testing purposes
     console.log("Username: " + this.user_create_input);
