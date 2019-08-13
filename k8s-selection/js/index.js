@@ -125,15 +125,6 @@ K8sSelection.prototype.open_modal = function () {
         this.modal.on('show.bs.modal', function () {
             that.switch_state(that.states.loading);
             console.log("Get auth: " + that.get_auth);
-            // if(that.get_auth) {
-            //     console.log("Auth required!");
-            //     that.switch_state(that.states.auth);
-            // }
-            // else{
-            //     console.log("Auth not required!");
-            //     that.refresh_modal();
-            // }
-
             that.refresh_modal();
         }).modal('show');
 
@@ -185,6 +176,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     var list_div = html.find("#user_html_inputs");
 
 
+
     if(current_context != '') {
         if(this.initial_select == true) {
             $('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
@@ -194,7 +186,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
                 $('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
             }
             else {
-                if(this.is_admin == true) {
+                if(this.is_admin == true && this.current_cluster_auth_type == 'openstack') {
                     $('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
                 }
                 else {
@@ -248,17 +240,29 @@ K8sSelection.prototype.get_html_select_cluster = function() {
         that.currently_selected_context = current_context;
         console.log("Selected cluster: " + current_context);
 
-        if(that.get_auth == true) {
-            console.log("Auth required!");
-            that.switch_state(that.states.auth);
+        for(var i = 0; i < that.contexts.length; i++) {
+            if(that.contexts[i] == that.currently_selected_context) {
+                that.currently_selected_auth_type = that.cluster_auth_type[i];
+            }
+        }
+
+
+        if(that.currently_selected_auth_type == 'local') {
+            that.switch_state(that.states.loading);
+            that.send({
+                'action': 'change-current-context',
+                'context': that.currently_selected_context,
+                'tab': that.currently_selected_auth_type
+            });
         }
         else {
             that.switch_state(that.states.loading);
             that.send({
-                'action': 'change-current-context',
-                'context': current_context,
-            });
+                'action': 'check-auth-required',
+                'context': that.currently_selected_context
+            })
         }
+
     });
 
     /**
@@ -310,7 +314,7 @@ K8sSelection.prototype.close = function () {
 };
 
 K8sSelection.prototype.delete_cluster = function () {
-    console.log("Currently deleting context: " + this.currently_selected_context);
+    console.log("Deleting context: " + this.currently_selected_context);
     this.switch_state(this.states.loading);
     this.send({
         'action': 'delete-current-context',
@@ -1136,26 +1140,25 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.contexts = msg.content.data.contexts;
         this.current_cluster = msg.content.data.current_cluster;
         this.clusters = msg.content.data.clusters;
-        this.get_auth = msg.content.data.kerberos_auth;
+        this.cluster_auth_type = msg.content.data.cluster_auth_type;
+        this.current_cluster_auth_type = msg.content.data.current_cluster_auth_type;
         console.log("Kerberos auth from backend: " + msg.content.data.kerberos_auth);
-        // this.delete_list = msg.content.data.delete_list;
-        // this.admin_list = msg.content.data.admin_list;
         this.switch_state(this.states.select);
     }
     else if(msg.content.data.msgtype == 'added-context-successfully') {
         // The message received when cluster and context are added successfully
 
-            this.local_selected_token = undefined;
-            this.local_selected_catoken = undefined;
-            this.selected_tab = undefined;
-            this.checkbox_status = undefined;
-            this.insecure_server = undefined;
-            this.local_selected_clustername = undefined;
-            this.local_selected_ip = undefined;
-            this.openstack_selected_catoken = undefined;
-            this.openstack_selected_clustername = undefined;
-            this.openstack_selected_ip = undefined;
-            this.selected_tab = undefined;
+        this.local_selected_token = undefined;
+        this.local_selected_catoken = undefined;
+        this.selected_tab = undefined;
+        this.checkbox_status = undefined;
+        this.insecure_server = undefined;
+        this.local_selected_clustername = undefined;
+        this.local_selected_ip = undefined;
+        this.openstack_selected_catoken = undefined;
+        this.openstack_selected_clustername = undefined;
+        this.openstack_selected_ip = undefined;
+        this.selected_tab = undefined;
 
         this.hide_close = false;
         this.refresh_modal();
@@ -1177,24 +1180,12 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
 
         console.log("Added context unsuccessfull");
     }
-    else if(msg.content.data.msgtype == 'changed-current-context') {
+    else if(msg.content.data.msgtype == 'changed-current-context' || msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
         // The message received when successfully changed current context in the backend
         this.is_reachable = msg.content.data.is_reachable;
         this.is_admin = msg.content.data.is_admin;
-        this.current_context = msg.content.data.context;
         this.hide_close = false;
-        this.switch_state(this.states.select);
-        this.send({
-            'action': 'get-connection-detail',
-        });
-    }
-    else if(msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
-        // The message received when not successfully changed current context in the backend
-        this.is_reachable = msg.content.data.is_reachable;
-        this.is_admin = msg.content.data.is_admin;
-        this.current_context = msg.content.data.context;
-        this.hide_close = false;
-        this.switch_state(this.states.select);
+        this.refresh_modal();
         this.send({
             'action': 'get-connection-detail',
         });
@@ -1249,17 +1240,16 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.ca_cert_view = msg.content.data.ca_cert;
         this.switch_state(this.states.cluster_details);
     }
-    else if(msg.content.data.msgtype == 'kerberos-auth') {
-        console.log("Inside kerberos auth condition!");
-        this.enabled = true;
-        this.get_auth = true;
+    else if(msg.content.data.msgtype == 'auth-required') {
+        console.log("Auth required!");
+        this.switch_state(this.states.auth);
     }
-    else if(msg.content.data.msgtype == 'auth-successfull') {
-        this.get_auth = false;
+    else if(msg.content.data.msgtype == 'auth-not-required' || msg.content.data.msgtype == 'auth-successfull') {
         this.switch_state(this.states.loading);
         this.send({
             'action': 'change-current-context',
             'context': this.currently_selected_context,
+            'tab': this.currently_selected_auth_type
         });
     }
     else if(msg.content.data.msgtype == 'auth-unsuccessfull') {
