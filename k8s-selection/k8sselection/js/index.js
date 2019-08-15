@@ -196,6 +196,9 @@ function K8sSelection() {
     this.is_reachable = false;
     this.is_admin = false;
     this.initial_select = true;
+    this.stateConfigMap = {};
+    this.openstack_tab = 'openstack';
+    this.token_tab = 'sa-token';
 
     // Starts the communication with backend when the kernel is connected
     _events2.default.on('kernel_connected.Kernel', _jquery2.default.proxy(this.start_comm, this));
@@ -304,7 +307,7 @@ K8sSelection.prototype.get_html_select_cluster = function () {
             if (this.is_reachable == false) {
                 (0, _jquery2.default)('<div class="cluster-list-div"><div class="not-connected-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
             } else {
-                if (this.is_admin == true && this.current_cluster_auth_type == 'openstack') {
+                if (this.is_admin == true && this.current_cluster_auth_type == this.openstack_tab) {
                     (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
                 } else {
                     (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text">' + current_context + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + current_context + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + current_context + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + current_context + '">Select</button><hr></div>').appendTo(list_div);
@@ -315,7 +318,11 @@ K8sSelection.prototype.get_html_select_cluster = function () {
 
     for (var i = 0; i < contexts.length; i++) {
         if (contexts[i] != current_context) {
-            (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+            if (this.cluster_auth_type[i] == 'none') {
+                (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button disabled class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+            } else {
+                (0, _jquery2.default)('<div class="cluster-list-div"><div class="connect-symbol" style="visibility: hidden;"><i class="fa fa-circle" aria-hidden="true"></i></div><div class="list-item-text" style="color: #C0C0C0;">' + contexts[i] + '</div><button class="list-item-delete pure-material-button-text" id="delete.' + contexts[i] + '">X</button><button disabled class="list-item-share pure-material-button-text" id="share.' + contexts[i] + '"><i class="fa fa-share-alt"></i></button><button class="list-item-select pure-material-button-text" id="select.' + contexts[i] + '">Select</button><hr></div>').appendTo(list_div);
+            }
         }
     }
 
@@ -393,7 +400,7 @@ K8sSelection.prototype.get_html_select_cluster = function () {
     list_div.find(".list-item-share").on('click', function () {
         var button_id = (0, _jquery2.default)(this).attr('id');
         var current_context = button_id.split('.')[1];
-        that.user_create_context_name = current_context;
+        that.stateConfigMap['user_create_context_name'] = current_context;
         that.switch_state(that.states.create_users);
     });
 
@@ -445,9 +452,9 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     var active = tabs.find(".active");
     var that = this;
 
-    console.log("Currently active state: " + active.html());
+    console.log("Currently active state: " + active.attr('id'));
 
-    this.selected_tab = active.html();
+    this.selected_tab = active.attr('id');
 
     tabs.each(function () {
 
@@ -474,7 +481,7 @@ K8sSelection.prototype.get_html_create_clusters = function () {
 
             $active.addClass('active');
             $content.show();
-            that.selected_tab = $active.html();
+            that.selected_tab = $active.attr('id');
             console.log("Currently selected tab: " + that.selected_tab);
 
             e.preventDefault();
@@ -503,230 +510,94 @@ K8sSelection.prototype.get_html_create_clusters = function () {
 
             (0, _jquery2.default)('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
 
-            if (that.local_selected_catoken) {
-                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', that.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
-                    that.local_selected_catoken = catoken_input.val();
-                }).change(function () {
-                    that.local_selected_catoken = catoken_input.val();
-                }).keypress(function (e) {
-                    var keycode = e.keyCode ? e.keyCode : e.which;
-                    if (keycode == _keyboard2.default.keycodes.enter) {
-                        that.states.create.buttons.AddCluster.click();
-                    }
-                });
-            } else {
-                var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
-                    that.local_selected_catoken = catoken_input.val();
-                }).change(function () {
-                    that.local_selected_catoken = catoken_input.val();
-                }).keypress(function (e) {
-                    var keycode = e.keyCode ? e.keyCode : e.which;
-                    if (keycode == _keyboard2.default.keycodes.enter) {
-                        that.states.create.buttons.AddCluster.click();
-                    }
-                });
-            }
+            var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', that.stateConfigMap['local_selected_catoken']).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).keypress(function (e) {
+                var keycode = e.keyCode ? e.keyCode : e.which;
+                if (keycode == _keyboard2.default.keycodes.enter) {
+                    that.states.create.buttons.AddCluster.click();
+                }
+            });
         }
     });
 
     // Adds Cluster name input to the local tab
     (0, _jquery2.default)('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
 
-    if (this.local_selected_clustername) {
-        var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('value', this.local_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_clustername = clustername_input.val();
-        }).change(function () {
-            that.local_selected_clustername = clustername_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_clustername = clustername_input.val();
-        }).change(function () {
-            that.local_selected_clustername = clustername_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'clustername_text').attr('value', this.stateConfigMap['local_selected_clustername']).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab1).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 
     // Adds Server IP input to the local tab
     (0, _jquery2.default)('<br><br>').appendTo(tab1);
 
     (0, _jquery2.default)('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab1);
 
-    if (this.local_selected_ip) {
-        var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('value', this.local_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_ip = ip_input.val();
-        }).change(function () {
-            that.local_selected_ip = ip_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_ip = ip_input.val();
-        }).change(function () {
-            that.local_selected_ip = ip_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var ip_input = (0, _jquery2.default)('<input/>').attr('name', 'ip_text').attr('type', 'text').attr("required", "required").attr('id', 'ip_text').attr('value', this.stateConfigMap['local_selected_ip']).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab1).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 
-    // Adds Token input to the local tab
+    // Adds Service Account Token input to the local tab
     (0, _jquery2.default)('<br><br>').appendTo(tab1);
 
-    (0, _jquery2.default)('<label for="token_text" id="token_text_label">Token</label><br>').appendTo(tab1);
+    (0, _jquery2.default)('<label for="token_text" id="token_text_label">Service Account Token</label><br>').appendTo(tab1);
 
-    if (this.local_selected_token) {
-        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('value', this.local_selected_token).attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_token = token_input.val();
-        }).change(function () {
-            that.local_selected_token = token_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('placeholder', 'Token').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_token = token_input.val();
-        }).change(function () {
-            that.local_selected_token = token_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var token_input = (0, _jquery2.default)('<input/>').attr('name', 'token_text').attr('type', 'text').attr("required", "required").attr('id', 'token_text').attr('value', this.stateConfigMap['local_selected_token']).attr('placeholder', 'Service Account Token').addClass('form__field').appendTo(tab1).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 
     // Adds CA Token input to the local tab is insecure checkbox is unchecked
     (0, _jquery2.default)('<br id="br1"><br id="br2">').appendTo(tab1);
 
     (0, _jquery2.default)('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
 
-    if (this.local_selected_catoken) {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', this.local_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_catoken = catoken_input.val();
-        }).change(function () {
-            that.local_selected_catoken = catoken_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).focus(function () {
-            that.local_selected_catoken = catoken_input.val();
-        }).change(function () {
-            that.local_selected_catoken = catoken_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'catoken_text').attr('value', this.stateConfigMap['local_selected_catoken']).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab1).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 
     // Adds Cluster name input to the openstack tab
     (0, _jquery2.default)('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
 
-    if (this.openstack_selected_clustername) {
-        var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('value', this.openstack_selected_clustername).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).focus(function () {
-            that.openstack_selected_clustername = openstack_clustername_input.val();
-        }).change(function () {
-            that.openstack_selected_clustername = openstack_clustername_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).focus(function () {
-            that.openstack_selected_clustername = openstack_clustername_input.val();
-        }).change(function () {
-            that.openstack_selected_clustername = openstack_clustername_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var openstack_clustername_input = (0, _jquery2.default)('<input required/>').attr('name', 'openstack_clustername_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_clustername_text').attr('value', this.stateConfigMap['openstack_selected_clustername']).attr('placeholder', 'Cluster name').addClass('form__field').appendTo(tab2).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 
     // Adds Server IP input to the openstack tab
     (0, _jquery2.default)('<br><br>').appendTo(tab2);
 
     (0, _jquery2.default)('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab2);
 
-    if (this.openstack_selected_ip) {
-        var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('value', this.openstack_selected_ip).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).focus(function () {
-            that.openstack_selected_ip = openstack_ip_input.val();
-        }).change(function () {
-            that.openstack_selected_ip = openstack_ip_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).focus(function () {
-            that.openstack_selected_ip = openstack_ip_input.val();
-        }).change(function () {
-            that.openstack_selected_ip = openstack_ip_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var openstack_ip_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_ip_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_ip_text').attr('value', this.stateConfigMap['openstack_selected_ip']).attr('placeholder', 'Server IP').addClass('form__field').appendTo(tab2).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 
     // Adds CA Token input to the openstack tab
     (0, _jquery2.default)('<br><br>').appendTo(tab2);
 
     (0, _jquery2.default)('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab2);
 
-    if (this.openstack_selected_catoken) {
-        var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('value', this.openstack_selected_catoken).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).focus(function () {
-            that.openstack_selected_catoken = openstack_selected_ip.val();
-        }).change(function () {
-            that.openstack_selected_catoken = openstack_selected_ip.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    } else {
-        var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).focus(function () {
-            that.openstack_selected_catoken = openstack_catoken_input.val();
-        }).change(function () {
-            that.openstack_selected_catoken = openstack_catoken_input.val();
-        }).keypress(function (e) {
-            var keycode = e.keyCode ? e.keyCode : e.which;
-            if (keycode == _keyboard2.default.keycodes.enter) {
-                that.states.create.buttons.AddCluster.click();
-            }
-        });
-    }
+    var openstack_catoken_input = (0, _jquery2.default)('<input/>').attr('name', 'openstack_catoken_text').attr('type', 'text').attr("required", "required").attr('id', 'openstack_catoken_text').attr('value', this.stateConfigMap['openstack_selected_catoken']).attr('placeholder', 'CA Token (Base64)').addClass('form__field').appendTo(tab2).keypress(function (e) {
+        var keycode = e.keyCode ? e.keyCode : e.which;
+        if (keycode == _keyboard2.default.keycodes.enter) {
+            that.states.create.buttons.AddCluster.click();
+        }
+    });
 };
 
 /**
@@ -738,35 +609,42 @@ K8sSelection.prototype.create_context = function () {
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
 
-    if (this.selected_tab == "local") {
-        this.local_selected_catoken = this.modal.find('input[name="catoken_text"]').val();
-        this.local_selected_clustername = this.modal.find('input[name="clustername_text"]').val();
-        this.local_selected_ip = this.modal.find('input[name="ip_text"]').val();
-        this.local_selected_token = this.modal.find('input[name="token_text"]').val();
-    } else {
-        this.openstack_selected_clustername = this.modal.find('input[name="openstack_clustername_text"]').val();
-        this.openstack_selected_catoken = this.modal.find('input[name="openstack_catoken_text"]').val();
-        this.openstack_selected_ip = this.modal.find('input[name="openstack_ip_text"]').val();
+    if (this.selected_tab == this.token_tab) {
+        this.stateConfigMap['local_selected_catoken'] = this.modal.find('input[name="catoken_text"]').val();
+        this.stateConfigMap['local_selected_clustername'] = this.modal.find('input[name="clustername_text"]').val();
+        this.stateConfigMap['local_selected_ip'] = this.modal.find('input[name="ip_text"]').val();
+        this.stateConfigMap['local_selected_token'] = this.modal.find('input[name="token_text"]').val();
+    } else if (this.selected_tab == this.openstack_tab) {
+        this.stateConfigMap['openstack_selected_clustername'] = this.modal.find('input[name="openstack_clustername_text"]').val();
+        this.stateConfigMap['openstack_selected_catoken'] = this.modal.find('input[name="openstack_catoken_text"]').val();
+        this.stateConfigMap['openstack_selected_ip'] = this.modal.find('input[name="openstack_ip_text"]').val();
     }
 
     // Checks whether any input is empty before sending it to backend
-    if (this.selected_tab == "local") {
+    if (this.selected_tab == this.token_tab) {
+        // Logging all the input from frontend just for debugging purposes.
+        console.log("Selected clustername: " + this.stateConfigMap['local_selected_clustername']);
+        console.log("Selected ip: " + this.stateConfigMap['local_selected_ip']);
+        console.log("Selected token: " + this.stateConfigMap['local_selected_token']);
+        console.log("Selected catoken: " + this.stateConfigMap['local_selected_catoken']);
+
         if (this.checkbox_status == "unchecked") {
-            if (!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token || !this.local_selected_catoken) {
+            if (!this.stateConfigMap['local_selected_clustername'] || !this.stateConfigMap['local_selected_ip'] || !this.stateConfigMap['local_selected_token'] || !this.stateConfigMap['local_selected_catoken']) {
                 this.get_html_error("Please fill all the required fields.", this.states.create);
                 return;
             }
         } else {
-            if (!this.local_selected_clustername || !this.local_selected_ip || !this.local_selected_token) {
+            if (!this.stateConfigMap['local_selected_clustername'] || !this.stateConfigMap['local_selected_ip'] || !this.stateConfigMap['local_selected_token']) {
                 this.get_html_error("Please fill all the required fields.", this.states.create);
                 return;
             }
         }
-    } else {
-        console.log("Openstack cluster name: " + this.openstack_selected_clustername);
-        console.log("Openstack ca token: " + this.openstack_selected_catoken);
-        console.log("Openstack ip: " + this.openstack_selected_ip);
-        if (!this.openstack_selected_catoken || !this.openstack_selected_clustername || !this.openstack_selected_ip) {
+    } else if (this.selected_tab == this.openstack_tab) {
+        console.log("Openstack cluster name: " + this.stateConfigMap['openstack_selected_clustername']);
+        console.log("Openstack ca token: " + this.stateConfigMap['openstack_selected_catoken']);
+        console.log("Openstack ip: " + this.stateConfigMap['openstack_selected_ip']);
+
+        if (!this.stateConfigMap['openstack_selected_catoken'] || !this.stateConfigMap['openstack_selected_clustername'] || !this.stateConfigMap['openstack_selected_ip']) {
             this.get_html_error("Please fill all the required fields.", this.states.create);
             return;
         }
@@ -775,44 +653,35 @@ K8sSelection.prototype.create_context = function () {
     footer.find('#select-button').attr('disabled', true);
     header.find('.close').hide();
 
-    // Logging all the input from frontend just for debugging purposes.
-    console.log("Selected token: " + this.local_selected_token);
-    console.log("Selected catoken: " + this.local_selected_catoken);
-    console.log("Selected tab: " + this.selected_tab);
-    console.log("Insecure server: ", this.checkbox_status);
-    console.log("Selected openstack cluster: ", this.openstack_selected_clustername);
-    console.log("Selected openstack server ip: ", this.openstack_selected_ip);
-    console.log("Selected openstack ca token: ", this.openstack_selected_catoken);
-
     // Sending the data to the backend according to the tab selected currently
-    if (this.selected_tab == "local") {
+    if (this.selected_tab == this.token_tab) {
         if (this.checkbox_status == "unchecked") {
             this.send({
                 'action': 'add-context-cluster',
-                'token': this.local_selected_token,
+                'token': this.stateConfigMap['local_selected_token'],
                 'tab': this.selected_tab,
-                'catoken': this.local_selected_catoken,
-                'cluster_name': this.local_selected_clustername,
-                'ip': this.local_selected_ip,
+                'catoken': this.stateConfigMap['local_selected_catoken'],
+                'cluster_name': this.stateConfigMap['local_selected_clustername'],
+                'ip': this.stateConfigMap['local_selected_ip'],
                 'insecure_server': "false"
             });
         } else {
             this.send({
                 'action': 'add-context-cluster',
-                'token': this.local_selected_token,
+                'token': this.stateConfigMap['local_selected_token'],
                 'tab': this.selected_tab,
-                'cluster_name': this.local_selected_clustername,
-                'ip': this.local_selected_ip,
+                'cluster_name': this.stateConfigMap['local_selected_clustername'],
+                'ip': this.stateConfigMap['local_selected_ip'],
                 'insecure_server': "true"
             });
         }
-    } else {
+    } else if (this.selected_tab == this.openstack_tab) {
         this.send({
             'action': 'add-context-cluster',
             'tab': this.selected_tab,
-            'catoken': this.openstack_selected_catoken,
-            'cluster_name': this.openstack_selected_clustername,
-            'ip': this.openstack_selected_ip
+            'catoken': this.stateConfigMap['openstack_selected_catoken'],
+            'cluster_name': this.stateConfigMap['openstack_selected_clustername'],
+            'ip': this.stateConfigMap['openstack_selected_ip']
         });
     }
 };
@@ -838,7 +707,7 @@ K8sSelection.prototype.get_html_create_users = function () {
     (0, _jquery2.default)('<br><label for="user_create_input" id="user_create_input_label">Username</label><br>').appendTo(user_create_div);
 
     var user_create_input = (0, _jquery2.default)('<input/>').attr('name', 'user_create_input').attr('type', 'text').attr("required", "required").attr('id', 'user_create_input').attr('placeholder', 'Username').addClass('form__field').appendTo(user_create_div).change(function () {
-        that.user_create_input = user_create_input.val();
+        that.stateConfigMap['user_create_input'] = user_create_input.val();
         user_email_create_input.val(user_create_input.val() + "@cern.ch");
         that.user_email_create_input = user_email_create_input.val();
     }).keypress(function (e) {
@@ -869,18 +738,18 @@ K8sSelection.prototype.get_html_create_users = function () {
  */
 K8sSelection.prototype.create_users = function () {
 
-    this.user_create_input = this.modal.find('input[name="user_create_input"]').val();
-    this.user_email_create_input = this.modal.find('input[name="user_email_create_input"]').val();
+    this.stateConfigMap['user_create_input'] = this.modal.find('input[name="user_create_input"]').val();
+    this.stateConfigMap['user_email_create_input'] = this.modal.find('input[name="user_email_create_input"]').val();
 
     // Logging the inputs just for testing purposes
-    console.log("Username: " + this.user_create_input);
-    console.log("Email: " + this.user_email_create_input);
-    console.log("Selected context: " + this.user_create_context_name);
+    console.log("Username: " + this.stateConfigMap['user_create_input']);
+    console.log("Email: " + this.stateConfigMap['user_email_create_input']);
+    console.log("Selected context: " + this.stateConfigMap['user_create_context_name']);
 
     // Check whether the inputs are not empty.
     // Note: I have not validated the email field right now because it is going to be removed, right?
-    this.user_email_id = this.user_email_create_input;
-    if (!this.user_create_input || !this.user_email_create_input) {
+    this.stateConfigMap['user_email_id'] = this.stateConfigMap['user_email_create_input'];
+    if (!this.stateConfigMap['user_create_input'] || !this.stateConfigMap['user_email_create_input']) {
         this.get_html_error("Please fill all the required fields.", this.states.create_users);
         return;
     }
@@ -889,9 +758,9 @@ K8sSelection.prototype.create_users = function () {
     this.switch_state(this.states.loading);
     this.send({
         'action': 'create-user',
-        'username': this.user_create_input,
-        'email': this.user_email_create_input,
-        'context': this.user_create_context_name
+        'username': this.stateConfigMap['user_create_input'],
+        'email': this.stateConfigMap['user_email_create_input'],
+        'context': this.stateConfigMap['user_create_context_name']
     });
 };
 
@@ -903,9 +772,9 @@ K8sSelection.prototype.get_cluster_detials_view_html = function () {
 
     (0, _jquery2.default)("<button>").attr("type", "button").addClass("back-button").html("<i class='fa fa-arrow-left' aria-hidden='true'></i>").appendTo(header).on("click", _jquery2.default.proxy(this.switch_state, this, this.states.create_users));
 
-    (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Connection details for cluster: ' + this.user_create_context_name + '</span></h4>').appendTo(header);
+    (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Connection details for cluster: ' + this.stateConfigMap['user_create_context_name'] + '</span></h4>').appendTo(header);
 
-    (0, _jquery2.default)('<h4 id="detail_div">Please send the connection details via email to: ' + this.user_email_id + '</h4><br>').appendTo(html);
+    (0, _jquery2.default)('<h4 id="detail_div">Please send the connection details via email to: ' + this.stateConfigMap['user_email_id'] + '</h4><br>').appendTo(html);
 
     (0, _jquery2.default)('<div style="display: flex;"><h4 id="cluster_name">K8s Cluster Name:</h4>&nbsp;<p style="font-size: 15px; margin-top: 5px;">' + this.cluster_name_view + '</p><br></div>').appendTo(html);
 
@@ -1011,17 +880,15 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
     } else if (msg.content.data.msgtype == 'added-context-successfully') {
         // The message received when cluster and context are added successfully
 
-        this.local_selected_token = undefined;
-        this.local_selected_catoken = undefined;
+        this.stateConfigMap['local_selected_token'] = undefined;
+        this.stateConfigMap['local_selected_catoken'] = undefined;
         this.selected_tab = undefined;
         this.checkbox_status = undefined;
-        this.insecure_server = undefined;
-        this.local_selected_clustername = undefined;
-        this.local_selected_ip = undefined;
-        this.openstack_selected_catoken = undefined;
-        this.openstack_selected_clustername = undefined;
-        this.openstack_selected_ip = undefined;
-        this.selected_tab = undefined;
+        this.stateConfigMap['local_selected_clustername'] = undefined;
+        this.stateConfigMap['local_selected_ip'] = undefined;
+        this.stateConfigMap['openstack_selected_catoken'] = undefined;
+        this.stateConfigMap['openstack_selected_clustername'] = undefined;
+        this.stateConfigMap['openstack_selected_ip'] = undefined;
 
         this.hide_close = false;
         this.refresh_modal();
@@ -1089,7 +956,7 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.get_html_error(msg.content.data.error, this.states.create_users);
     } else if (msg.content.data.msgtype == 'added-user-successfully') {
         // Message recieved when the user is added to a cluster successfully
-        this.user_create_input = undefined;
+        this.stateConfigMap['user_create_input'] = undefined;
         this.user_email_create_input = undefined;
         this.cluster_name_view = msg.content.data.cluster_name;
         this.server_ip_view = msg.content.data.server_ip;
@@ -1219,7 +1086,7 @@ module.exports = "<br> <div id=user_html_inputs> </div> ";
 /* 9 */
 /***/ (function(module, exports) {
 
-module.exports = " <header> <div id=material-tabs> <a id=tab1-tab href=#tab1 class=active value=local>local</a> <a id=tab2-tab href=#tab2 value=openstack>openstack</a> <a id=tab3-tab href=#tab3 value=gcloud>gcloud</a> <a id=tab4-tab href=#tab4 value=aws>aws</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> <div id=tab4> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> ";
+module.exports = " <header> <div id=material-tabs> <a id=sa-token href=#tab1 class=active>token</a> <a id=openstack href=#tab2>openstack</a> <a id=gcloud href=#tab3>gcloud</a> <span class=yellow-bar></span> </div> </header> <div class=tab-content> <div id=tab1> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab2> </div> <div id=tab3> <p>Third tab content.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script> ";
 
 /***/ }),
 /* 10 */
@@ -1268,7 +1135,7 @@ exports = module.exports = __webpack_require__(14)(false);
 
 
 // module
-exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 410px;\n      margin-top: 15px;\n      margin: auto;\n  }\n  \n  .select-text {\n      position: flex;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 45px;\n      right: 75px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}\n\n\n\n.container-tabs{\n\theight:500px;\n\twidth:100%;\n\tpadding:0;\n\tmargin:10px;\n\tborder-radius:5px;\n\tbox-shadow: 0 2px 3px rgba(0,0,0,.3)\n\t\n}\n\nheader {\n\t\tposition: relative;\n\t  text-align: center;\n}\n\n.hide {\n\t\tdisplay: none;\n}\n\n.tab-content {\n\t\tpadding:25px;\n}\n\n#material-tabs {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t  /* padding:0; */\n        border-bottom: 1px solid #e0e0e0;\n        /* margin: 0 auto; */\n}\n\n#material-tabs>a {\n\t\tposition: relative;\n\t display:inline-block;\n\t\ttext-decoration: none;\n\t\tpadding: 22px;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 14px;\n\t\tfont-weight: 600;\n\t\tcolor: #424f5a;\n\t\ttext-align: center;\n\t\t/*outline:;*/\n}\n\n#material-tabs>a.active {\n\t\tfont-weight: 700;\n\t\toutline:none;\n}\n\n#material-tabs>a:not(.active):hover {\n\t\tbackground-color: inherit;\n\t\tcolor: #7c848a;\n}\n\n@media only screen and (max-width: 520px) {\n\t\t.nav-tabs#material-tabs>li>a {\n\t\t\t\tfont-size: 11px;\n\t\t}\n}\n\n.yellow-bar {\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t\tbottom: 0;\n\t\theight: 3px;\n\t\tbackground: #458CFF;\n\t\tdisplay: block;\n\t\tleft: 0;\n\t\ttransition: left .2s ease;\n\t\t-webkit-transition: left .2s ease;\n\t\ttransition: width .2s ease;\n\t\t-webkit-transition: width .2s ease;\n}\n\n#tab1-tab.active ~ span.yellow-bar {\n\t\tleft: 0;\n\t\twidth: 90px;\n}\n\n#tab2-tab.active ~ span.yellow-bar {\n\t\tleft:95px;\n\t\twidth: 130px;\n}\n\n#tab3-tab.active ~ span.yellow-bar {\n\t\tleft: 230px;\n\t\twidth: 105px;\n}\n\n#tab4-tab.active ~ span.yellow-bar {\n\t\tleft:340px;\n\t\twidth: 80px;\n}\n\n.back-button {\n    float: left;\n    font-size: 16px;\n    font-weight: bold;\n    line-height: 1;\n    color: black;\n    text-shadow: 0 1px 0 #fff;\n    /*filter: alpha(opacity=20);*/\n    opacity: 0.7;\n    margin-top: 5px;\n}\n\nbutton.back-button {\n    padding: 0;\n    cursor: pointer;\n    background: transparent;\n    border: 0;\n    -webkit-appearance: none;\n    appearance: none;\n}\n\n\n\n\n.pure-material-checkbox {\n    z-index: 0;\n    position: relative;\n    display: inline-block;\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.87);\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 16px;\n    line-height: 1.5;\n}\n\n/* Input */\n.pure-material-checkbox > input {\n    appearance: none;\n    -moz-appearance: none;\n    -webkit-appearance: none;\n    z-index: -1;\n    position: absolute;\n    left: -10px;\n    top: -8px;\n    display: block;\n    margin: 0;\n    border-radius: 50%;\n    width: 40px;\n    height: 40px;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    box-shadow: none;\n    outline: none;\n    opacity: 0;\n    transform: scale(1);\n    pointer-events: none;\n    transition: opacity 0.3s, transform 0.2s;\n}\n\n/* Span */\n.pure-material-checkbox > span {\n    display: inline-block;\n    width: 100%;\n    cursor: pointer;\n}\n\n/* Box */\n.pure-material-checkbox > span::before {\n    content: \"\";\n    display: inline-block;\n    box-sizing: border-box;\n    margin: 3px 11px 3px 1px;\n    border: solid 2px; /* Safari */\n    border-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    border-radius: 2px;\n    width: 18px;\n    height: 18px;\n    vertical-align: top;\n    transition: border-color 0.2s, background-color 0.2s;\n}\n\n/* Checkmark */\n.pure-material-checkbox > span::after {\n    content: \"\";\n    display: block;\n    position: absolute;\n    top: 3px;\n    left: 1px;\n    width: 10px;\n    height: 5px;\n    border: solid 2px transparent;\n    border-right: none;\n    border-top: none;\n    transform: translate(3px, 4px) rotate(-45deg);\n}\n\n/* Checked, Indeterminate */\n.pure-material-checkbox > input:checked,\n.pure-material-checkbox > input:indeterminate {\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::before,\n.pure-material-checkbox > input:indeterminate + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::after,\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));\n}\n\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-left: none;\n    transform: translate(4px, 3px);\n}\n\n/* Hover, Focus */\n.pure-material-checkbox:hover > input {\n    opacity: 0.04;\n}\n\n.pure-material-checkbox > input:focus {\n    opacity: 0.12;\n}\n\n.pure-material-checkbox:hover > input:focus {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-checkbox > input:active {\n    opacity: 1;\n    transform: scale(0);\n    transition: transform 0s, opacity 0s;\n}\n\n.pure-material-checkbox > input:active + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked:active + span::before {\n    border-color: transparent;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n}\n\n/* Disabled */\n.pure-material-checkbox > input:disabled {\n    opacity: 0;\n}\n\n.pure-material-checkbox > input:disabled + span {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    cursor: initial;\n}\n\n.pure-material-checkbox > input:disabled + span::before {\n    border-color: currentColor;\n}\n\n.pure-material-checkbox > input:checked:disabled + span::before,\n.pure-material-checkbox > input:indeterminate:disabled + span::before {\n    border-color: transparent;\n    background-color: currentColor;\n}\n\n\n\n.fab-button {\n    position: relative;\n    float: right;\n    color: #fff;\n    padding: 15px 20px;\n    border-radius: 50%;\n    background-color: #03A9F4;\n    cursor: pointer;\n    box-shadow:0px 3px 3px #BDBDBD;\n  }\n\n.kubernetes-icon {\n    background-image: url(" + escape(__webpack_require__(0)) + ");\n    width: 16px;\n    height: 16px;\n}\n\n.cluster-list-div {\n    display: flex;\n    flex-direction: row;\n    border-bottom: 0.3px solid rgba(85, 87, 86, 0.62);\n    margin-bottom:10px;\n    margin-top: 10px;\n    /* border: 1px solid black; */\n\n}\n\n.cluster-list-div > .list-item-delete {\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-text {\n    flex: auto;\n    font-size: 17px;\n    margin-top: 6px;\n}\n\n.cluster-list-div > .list-item-share {\n    margin-top: 2px;\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-select {\n    margin-top: 2px;\n    width: 7rem;\n}\n\n.cluster-list-div > .connect-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #008017;\n}\n\n.cluster-list-div > .not-connected-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #FF0000;\n}\n\n.cluster-list-div > .list-item-load {\n    align-items: center;\n    text-align: center;\n}\n\n\n\n.pure-material-button-text {\n    position: relative;\n    display: inline-block;\n    box-sizing: border-box;\n    border: none;\n    border-radius: 4px;\n    padding: 0 8px;\n    min-width: 64px;\n    height: 36px;\n    vertical-align: middle;\n    text-align: center;\n    text-overflow: ellipsis;\n    text-transform: uppercase;\n    color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: transparent;\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 14px;\n    font-weight: 500;\n    line-height: 36px;\n    overflow: hidden;\n    outline: none;\n    cursor: pointer;\n}\n\n.pure-material-button-text::-moz-focus-inner {\n    border: none;\n}\n\n/* Overlay */\n.pure-material-button-text::before {\n    content: \"\";\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: currentColor;\n    opacity: 0;\n    transition: opacity 0.2s;\n}\n\n/* Ripple */\n.pure-material-button-text::after {\n    content: \"\";\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    border-radius: 50%;\n    padding: 50%;\n    width: 32px;\n    height: 32px;\n    background-color: currentColor;\n    opacity: 0;\n    transform: translate(-50%, -50%) scale(1) ;\n    transition: opacity 1s, transform 0.5s;\n}\n\n/* Hover, Focus */\n.pure-material-button-text:hover::before {\n    opacity: 0.04;\n}\n\n.pure-material-button-text:focus::before {\n    opacity: 0.12;\n}\n\n.pure-material-button-text:hover:focus::before {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-button-text:active::after {\n    opacity: 0.16;\n    transform: translate(-50%, -50%) scale(0);\n    transition: transform 0s;\n}\n\n/* Disabled */\n.pure-material-button-text:disabled {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    background-color: transparent;\n    cursor: initial;\n}\n\n.pure-material-button-text:disabled::before {\n    opacity: 0;\n}\n\n.pure-material-button-text:disabled::after {\n    opacity: 0;\n}\n\n\n#user_html_inputs {\n    max-height: 280px;\n    overflow-y: auto;\n}\n\n\n.nb-spinner {\n    width: 75px;\n    height: 75px;\n    background: transparent;\n    border-top: 4px solid #009688;\n    border-right: 4px solid transparent;\n    border-radius: 50%;\n    -webkit-animation: 1s spin linear infinite;\n    animation: 1s spin linear infinite;\n}\n\n\n.loading-flexbox {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n    flex-wrap: wrap;\n}\n\n.loading-flexbox > .loading-div {\n    width: 300px;\n    height: 300px;\n    -webkit-box-flex: 0;\n    -ms-flex: 0 0 100%;\n    flex: 0 0 100%;\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    -webkit-box-sizing: border-box;\n    box-sizing: border-box;\n    margin: 0;\n    position: relative;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: center;\n    -ms-flex-pack: center;\n    justify-content: center;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    overflow: hidden;\n}\n\n-webkit-@keyframes spin {\n  -webkit-from {\n    -webkit-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  -webkit-to {\n    -webkit-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@-webkit-keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
+exports.push([module.i, ".btn-blue {\n    position: relative;\n  \n    display: block;\n    margin: auto;\n    padding: 10px;\n\n    overflow: hidden;\n  \n    border-width: 0;\n    outline: none;\n    border-radius: 2px;\n    box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n    \n    background-color: #03A9F4;\n    color: #ecf0f1;\n    \n    transition: background-color .3s;\n}\n\n.modal-title {\n    margin: 0;\n    line-height: 1.42857143;\n    font-size: 20px;\n}\n\n\n.wrap {\n    position: absolute;\n    right: 0;\n    top: 40%;\n    width: 350px;\n    left: 0;\n    margin: 25px auto;\n  }\n  \n  /* select starting stylings ------------------------------*/\n  .select {\n    font-family:\n      'Roboto','Helvetica','Arial',sans-serif;\n      position: relative;\n      width: 410px;\n      margin-top: 15px;\n      margin: auto;\n  }\n  \n  .select-text {\n      position: flex;\n      font-family: inherit;\n      background-color: transparent;\n      width: 350px;\n      padding: 10px 10px 10px 0;\n      font-size: 18px;\n      border-radius: 0;\n      border: none;\n      border-bottom: 1px solid rgba(0,0,0, 0.12);\n  }\n  \n  /* Remove focus */\n  .select-text:focus {\n      outline: none;\n      border-bottom: 1px solid rgba(0,0,0, 0);\n  }\n  \n      /* Use custom arrow */\n  .select .select-text {\n      appearance: none;\n      -webkit-appearance:none\n  }\n  \n  .select:after {\n      position: absolute;\n      top: 45px;\n      right: 75px;\n      /* Styling the down arrow */\n      width: 0;\n      height: 0;\n      padding: 0;\n      content: '';\n      border-left: 6px solid transparent;\n      border-right: 6px solid transparent;\n      border-top: 6px solid rgba(0, 0, 0, 0.12);\n      pointer-events: none;\n  }\n  \n  \n  /* LABEL ======================================= */\n  .select-label {\n      color: rgba(0,0,0, 0.26);\n      font-size: 18px;\n      font-weight: normal;\n      position: absolute;\n      pointer-events: none;\n      left: 0;\n      top: 10px;\n      transition: 0.2s ease all;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-label, .select-text:valid ~ .select-label {\n      color: rgb(0, 0, 0);\n      top: -20px;\n      transition: 0.2s ease all;\n      font-size: 14px;\n  }\n  \n  /* BOTTOM BARS ================================= */\n  .select-bar {\n      position: relative;\n      display: block;\n      width: 350px;\n  }\n  \n  .select-bar:before, .select-bar:after {\n      content: '';\n      height: 2px;\n      width: 0;\n      bottom: 1px;\n      position: absolute;\n      background: #2F80ED;\n      transition: 0.2s ease all;\n  }\n  \n  .select-bar:before {\n      left: 50%;\n  }\n  \n  .select-bar:after {\n      right: 50%;\n  }\n  \n  /* active state */\n  .select-text:focus ~ .select-bar:before, .select-text:focus ~ .select-bar:after {\n      width: 50%;\n  }\n  \n  /* HIGHLIGHTER ================================== */\n  .select-highlight {\n      position: absolute;\n      height: 60%;\n      width: 100px;\n      top: 25%;\n      left: 0;\n      pointer-events: none;\n      opacity: 0.5;\n  }\n\n\n\n.form__field {\n    font-family: inherit;\n    width: 50%;\n    border: 0;\n    border-bottom: 1px solid #d2d2d2;\n    outline: 0;\n    font-size: 16px;\n    color: #212121;\n    padding: 7px 0;\n    background: transparent;\n    transition: border-color 0.2s;\n}\n  \n.form__field::placeholder {\n    color: transparent;\n}\n\n/* label,\n.form__field:placeholder-shown ~ .form__label {\n    font-size: 16px;\n    cursor: text;\n    top: 20px;\n}\n\n.form__field:focus ~ .form__label {\n  position: absolute;\n  top: 0;\n  display: block;\n  transition: 0.2s;\n  font-size: 12px;\n  color: #9b9b9b;\n}\n\n.form__field:focus ~ .form__label {\n  color: #212121;\n} */\n\n.form__field:focus {\n  padding-bottom: 6px;\n  border-bottom: 2px solid #212121;\n}\n\n\n\n.container-tabs{\n\theight:500px;\n\twidth:100%;\n\tpadding:0;\n\tmargin:10px;\n\tborder-radius:5px;\n\tbox-shadow: 0 2px 3px rgba(0,0,0,.3)\n\t\n}\n\nheader {\n\t\tposition: relative;\n\t  text-align: center;\n}\n\n.hide {\n\t\tdisplay: none;\n}\n\n.tab-content {\n\t\tpadding:25px;\n}\n\n#material-tabs {\n\t\tposition: relative;\n\t\tdisplay: inline-block;\n\t  /* padding:0; */\n        border-bottom: 1px solid #e0e0e0;\n        /* margin: 0 auto; */\n}\n\n#material-tabs>a {\n\t\tposition: relative;\n\t display:inline-block;\n\t\ttext-decoration: none;\n\t\tpadding: 22px;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 14px;\n\t\tfont-weight: 600;\n\t\tcolor: #424f5a;\n\t\ttext-align: center;\n\t\t/*outline:;*/\n}\n\n#material-tabs>a.active {\n\t\tfont-weight: 700;\n\t\toutline:none;\n}\n\n#material-tabs>a:not(.active):hover {\n\t\tbackground-color: inherit;\n\t\tcolor: #7c848a;\n}\n\n@media only screen and (max-width: 520px) {\n\t\t.nav-tabs#material-tabs>li>a {\n\t\t\t\tfont-size: 11px;\n\t\t}\n}\n\n.yellow-bar {\n\t\tposition: absolute;\n\t\tz-index: 10;\n\t\tbottom: 0;\n\t\theight: 3px;\n\t\tbackground: #458CFF;\n\t\tdisplay: block;\n\t\tleft: 0;\n\t\ttransition: left .2s ease;\n\t\t-webkit-transition: left .2s ease;\n\t\ttransition: width .2s ease;\n\t\t-webkit-transition: width .2s ease;\n}\n\n#sa-token.active ~ span.yellow-bar {\n\t\tleft: 0;\n\t\twidth: 90px;\n}\n\n#openstack.active ~ span.yellow-bar {\n\t\tleft:95px;\n\t\twidth: 130px;\n}\n\n#gcloud.active ~ span.yellow-bar {\n\t\tleft: 230px;\n\t\twidth: 105px;\n}\n\n.back-button {\n    float: left;\n    font-size: 16px;\n    font-weight: bold;\n    line-height: 1;\n    color: black;\n    text-shadow: 0 1px 0 #fff;\n    /*filter: alpha(opacity=20);*/\n    opacity: 0.7;\n    margin-top: 5px;\n}\n\nbutton.back-button {\n    padding: 0;\n    cursor: pointer;\n    background: transparent;\n    border: 0;\n    -webkit-appearance: none;\n    appearance: none;\n}\n\n\n\n\n.pure-material-checkbox {\n    z-index: 0;\n    position: relative;\n    display: inline-block;\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.87);\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 16px;\n    line-height: 1.5;\n}\n\n/* Input */\n.pure-material-checkbox > input {\n    appearance: none;\n    -moz-appearance: none;\n    -webkit-appearance: none;\n    z-index: -1;\n    position: absolute;\n    left: -10px;\n    top: -8px;\n    display: block;\n    margin: 0;\n    border-radius: 50%;\n    width: 40px;\n    height: 40px;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    box-shadow: none;\n    outline: none;\n    opacity: 0;\n    transform: scale(1);\n    pointer-events: none;\n    transition: opacity 0.3s, transform 0.2s;\n}\n\n/* Span */\n.pure-material-checkbox > span {\n    display: inline-block;\n    width: 100%;\n    cursor: pointer;\n}\n\n/* Box */\n.pure-material-checkbox > span::before {\n    content: \"\";\n    display: inline-block;\n    box-sizing: border-box;\n    margin: 3px 11px 3px 1px;\n    border: solid 2px; /* Safari */\n    border-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n    border-radius: 2px;\n    width: 18px;\n    height: 18px;\n    vertical-align: top;\n    transition: border-color 0.2s, background-color 0.2s;\n}\n\n/* Checkmark */\n.pure-material-checkbox > span::after {\n    content: \"\";\n    display: block;\n    position: absolute;\n    top: 3px;\n    left: 1px;\n    width: 10px;\n    height: 5px;\n    border: solid 2px transparent;\n    border-right: none;\n    border-top: none;\n    transform: translate(3px, 4px) rotate(-45deg);\n}\n\n/* Checked, Indeterminate */\n.pure-material-checkbox > input:checked,\n.pure-material-checkbox > input:indeterminate {\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::before,\n.pure-material-checkbox > input:indeterminate + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked + span::after,\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-color: rgb(var(--pure-material-onprimary-rgb, 255, 255, 255));\n}\n\n.pure-material-checkbox > input:indeterminate + span::after {\n    border-left: none;\n    transform: translate(4px, 3px);\n}\n\n/* Hover, Focus */\n.pure-material-checkbox:hover > input {\n    opacity: 0.04;\n}\n\n.pure-material-checkbox > input:focus {\n    opacity: 0.12;\n}\n\n.pure-material-checkbox:hover > input:focus {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-checkbox > input:active {\n    opacity: 1;\n    transform: scale(0);\n    transition: transform 0s, opacity 0s;\n}\n\n.pure-material-checkbox > input:active + span::before {\n    border-color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n}\n\n.pure-material-checkbox > input:checked:active + span::before {\n    border-color: transparent;\n    background-color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.6);\n}\n\n/* Disabled */\n.pure-material-checkbox > input:disabled {\n    opacity: 0;\n}\n\n.pure-material-checkbox > input:disabled + span {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    cursor: initial;\n}\n\n.pure-material-checkbox > input:disabled + span::before {\n    border-color: currentColor;\n}\n\n.pure-material-checkbox > input:checked:disabled + span::before,\n.pure-material-checkbox > input:indeterminate:disabled + span::before {\n    border-color: transparent;\n    background-color: currentColor;\n}\n\n\n\n.fab-button {\n    position: relative;\n    float: right;\n    color: #fff;\n    padding: 15px 20px;\n    border-radius: 50%;\n    background-color: #03A9F4;\n    cursor: pointer;\n    box-shadow:0px 3px 3px #BDBDBD;\n  }\n\n.kubernetes-icon {\n    background-image: url(" + escape(__webpack_require__(0)) + ");\n    width: 16px;\n    height: 16px;\n}\n\n.cluster-list-div {\n    display: flex;\n    flex-direction: row;\n    border-bottom: 0.3px solid rgba(85, 87, 86, 0.62);\n    margin-bottom:10px;\n    margin-top: 10px;\n    /* border: 1px solid black; */\n\n}\n\n.cluster-list-div > .list-item-delete {\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-text {\n    flex: auto;\n    font-size: 17px;\n    margin-top: 6px;\n}\n\n.cluster-list-div > .list-item-share {\n    margin-top: 2px;\n    width: 5px;\n}\n\n.cluster-list-div > .list-item-select {\n    margin-top: 2px;\n    width: 7rem;\n}\n\n.cluster-list-div > .connect-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #008017;\n}\n\n.cluster-list-div > .not-connected-symbol {\n    margin-top: 10px;\n    width: 3rem;\n    color: #FF0000;\n}\n\n.cluster-list-div > .list-item-load {\n    align-items: center;\n    text-align: center;\n}\n\n\n\n.pure-material-button-text {\n    position: relative;\n    display: inline-block;\n    box-sizing: border-box;\n    border: none;\n    border-radius: 4px;\n    padding: 0 8px;\n    min-width: 64px;\n    height: 36px;\n    vertical-align: middle;\n    text-align: center;\n    text-overflow: ellipsis;\n    text-transform: uppercase;\n    color: rgb(var(--pure-material-primary-rgb, 33, 150, 243));\n    background-color: transparent;\n    font-family: var(--pure-material-font, \"Roboto\", \"Segoe UI\", BlinkMacSystemFont, system-ui, -apple-system);\n    font-size: 14px;\n    font-weight: 500;\n    line-height: 36px;\n    overflow: hidden;\n    outline: none;\n    cursor: pointer;\n}\n\n.pure-material-button-text::-moz-focus-inner {\n    border: none;\n}\n\n/* Overlay */\n.pure-material-button-text::before {\n    content: \"\";\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: currentColor;\n    opacity: 0;\n    transition: opacity 0.2s;\n}\n\n/* Ripple */\n.pure-material-button-text::after {\n    content: \"\";\n    position: absolute;\n    left: 50%;\n    top: 50%;\n    border-radius: 50%;\n    padding: 50%;\n    width: 32px;\n    height: 32px;\n    background-color: currentColor;\n    opacity: 0;\n    transform: translate(-50%, -50%) scale(1) ;\n    transition: opacity 1s, transform 0.5s;\n}\n\n/* Hover, Focus */\n.pure-material-button-text:hover::before {\n    opacity: 0.04;\n}\n\n.pure-material-button-text:focus::before {\n    opacity: 0.12;\n}\n\n.pure-material-button-text:hover:focus::before {\n    opacity: 0.16;\n}\n\n/* Active */\n.pure-material-button-text:active::after {\n    opacity: 0.16;\n    transform: translate(-50%, -50%) scale(0);\n    transition: transform 0s;\n}\n\n/* Disabled */\n.pure-material-button-text:disabled {\n    color: rgba(var(--pure-material-onsurface-rgb, 0, 0, 0), 0.38);\n    background-color: transparent;\n    cursor: initial;\n}\n\n.pure-material-button-text:disabled::before {\n    opacity: 0;\n}\n\n.pure-material-button-text:disabled::after {\n    opacity: 0;\n}\n\n\n#user_html_inputs {\n    max-height: 280px;\n    overflow-y: auto;\n}\n\n\n.nb-spinner {\n    width: 75px;\n    height: 75px;\n    background: transparent;\n    border-top: 4px solid #009688;\n    border-right: 4px solid transparent;\n    border-radius: 50%;\n    -webkit-animation: 1s spin linear infinite;\n    animation: 1s spin linear infinite;\n}\n\n\n.loading-flexbox {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n    flex-wrap: wrap;\n}\n\n.loading-flexbox > .loading-div {\n    width: 300px;\n    height: 300px;\n    -webkit-box-flex: 0;\n    -ms-flex: 0 0 100%;\n    flex: 0 0 100%;\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    -webkit-box-sizing: border-box;\n    box-sizing: border-box;\n    margin: 0;\n    position: relative;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: center;\n    -ms-flex-pack: center;\n    justify-content: center;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    overflow: hidden;\n}\n\n-webkit-@keyframes spin {\n  -webkit-from {\n    -webkit-transform: rotate(0deg);\n    -ms-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  -webkit-to {\n    -webkit-transform: rotate(360deg);\n    -ms-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@-webkit-keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n\n@keyframes spin {\n  from {\n    -webkit-transform: rotate(0deg);\n    transform: rotate(0deg);\n  }\n  to {\n    -webkit-transform: rotate(360deg);\n    transform: rotate(360deg);\n  }\n}\n", ""]);
 
 // exports
 
