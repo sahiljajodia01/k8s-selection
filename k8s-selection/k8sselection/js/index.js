@@ -366,7 +366,7 @@ K8sSelection.prototype.get_html_select_cluster = function () {
             }
         }
 
-        if (that.currently_selected_auth_type == 'local') {
+        if (that.currently_selected_auth_type == that.token_tab) {
             that.switch_state(that.states.loading);
             that.send({
                 'action': 'change-current-context',
@@ -892,9 +892,6 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
 
         this.hide_close = false;
         this.refresh_modal();
-        this.send({
-            'action': 'get-connection-detail'
-        });
     } else if (msg.content.data.msgtype == 'added-context-unsuccessfully') {
         // The message received when cluster and context are not added successfully
         console.log("Added context unsuccessfull");
@@ -908,19 +905,11 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.get_html_error(msg.content.data.error, this.states.create);
 
         console.log("Added context unsuccessfull");
-    } else if (msg.content.data.msgtype == 'changed-current-context' || msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
+    } else if (msg.content.data.msgtype == 'changed-current-context') {
         // The message received when successfully changed current context in the backend
         this.is_reachable = msg.content.data.is_reachable;
         this.is_admin = msg.content.data.is_admin;
         this.hide_close = false;
-        this.refresh_modal();
-        this.send({
-            'action': 'get-connection-detail'
-        });
-    } else if (msg.content.data.msgtype == 'connection-details') {
-        // The message received when asked details about the current context from the backend and the
-        // current context is able to get resources
-        var context = msg.content.data.context;
         this.toolbar_button.html('<div id="extension_icon"></div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s_blue2.default) + '")');
         this.toolbar_button.find("#extension_icon").css('width', '16px');
@@ -928,9 +917,11 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.toolbar_button.find("#extension_icon").css('margin-left', '5px');
         this.toolbar_button.removeAttr('disabled');
         this.enabled = true;
-    } else if (msg.content.data.msgtype == 'connection-details-error') {
-        // The message received when asked details about the current context from the backend and the
-        // current context is not able to get resources
+        this.refresh_modal();
+    } else if (msg.content.data.msgtype == 'changed-current-context-unsuccessfully') {
+        this.is_reachable = msg.content.data.is_reachable;
+        this.is_admin = msg.content.data.is_admin;
+        this.hide_close = false;
         this.toolbar_button.html('<div id="extension_icon"></div>');
         this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
         this.toolbar_button.find("#extension_icon").css('width', '16px');
@@ -938,14 +929,22 @@ K8sSelection.prototype.on_comm_msg = function (msg) {
         this.toolbar_button.find("#extension_icon").css('margin-left', '5px');
         this.toolbar_button.removeAttr('disabled');
         this.enabled = true;
+        this.refresh_modal();
     } else if (msg.content.data.msgtype == 'deleted-context-successfully') {
         // Message received from backend when the context and cluster are deleted successfully from backend
         // this.modal.modal('hide');
         this.current_context = msg.content.data.current_context;
+        var current_context_deleted = msg.content.data.current_context_deleted;
+        if (current_context_deleted == true) {
+            this.toolbar_button.html('<div id="extension_icon"></div>');
+            this.toolbar_button.find("#extension_icon").css('background-image', 'url("' + _require2.default.toUrl('./' + _k8s2.default) + '")');
+            this.toolbar_button.find("#extension_icon").css('width', '16px');
+            this.toolbar_button.find("#extension_icon").css('height', '16px');
+            this.toolbar_button.find("#extension_icon").css('margin-left', '5px');
+            this.toolbar_button.removeAttr('disabled');
+            this.enabled = true;
+        }
         this.refresh_modal();
-        this.send({
-            'action': 'get-connection-detail'
-        });
     } else if (msg.content.data.msgtype == 'added-user-unsuccessfully') {
         // Message recieved when the user is not added to a cluster successfully
         var html = this.modal.find('.modal-body');
