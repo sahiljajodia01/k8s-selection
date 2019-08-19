@@ -569,20 +569,21 @@ class K8sSelection:
 
                 # Deploy helm chart for user
                 my_env = os.environ.copy()
-                command = ["helm", "install", "--name", "spark-user-" + os.environ['USER'], "--set",
-                           "user.name=" + os.environ['USER'], "--set", "cvmfs.enable=true", "--set", "user.admin=false",
+                command = ["helm", "install", "--name", "spark-user-" + username, "--set",
+                           "user.name=" + username, "--set", "cvmfs.enable=true", "--set", "user.admin=false",
                            "https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz"]
                 p = subprocess.Popen(command, stdout=subprocess.PIPE, env=my_env)
                 out, err = p.communicate()
 
                 if out.decode('utf-8') != '':
                     # Get the server ip of the cluster to be sent in the email to the user.
-                    for i in load['clusters']:
-                        if i['name'] == selected_cluster:
-                            server_ip = i['cluster']['server']
-                            ca_cert = i['cluster']['certificate-authority-data']
-                            break
-
+                    # for i in load['clusters']:
+                    #     if i['name'] == selected_cluster:
+                    #         server_ip = i['cluster']['server']
+                    #         ca_cert = i['cluster']['certificate-authority-data']
+                    #         break
+                    ca_cert = ''
+                    server_ip = ''
 
                     self.log.info("Successfully created user")
                     self.send({
