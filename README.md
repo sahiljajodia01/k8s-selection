@@ -1,3 +1,5 @@
+[![HitCount](http://hits.dwyl.io/sahiljajodia01/sahiljajodia01/k8s-selection.svg)](http://hits.dwyl.io/sahiljajodia01/sahiljajodia01/k8s-selection)
+
 # K8sSelection Extension
 
 ## Instructions to create and intialize an Openstack K8s cluster to use it with K8sSelection extension
@@ -80,11 +82,6 @@
         --set user.name=$USER \
         --set user.admin=false \
         --name "spark-user-$USER" https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz
-    ```
-
-* Create clusterolebinding. Clusterolebinding should be of the form `admin-cluster-spark-$USER`
-    ```bash
-    kubectl create clusterrolebinding cluster-admin-$USER --clusterrole=cluster-admin --user=$USER
     ```
 
 * Config to add to k8sselection (name, server, certificate-authority-data)
