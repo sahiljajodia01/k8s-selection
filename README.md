@@ -1,10 +1,12 @@
 # K8sSelection Extension
 
-<a href="https://summerofcode.withgoogle.com/projects/#5318125807992832"><img src="https://raw.githubusercontent.com/sahiljajodia01/k8s-selection/master/images/GSoCWithCERN.png"></img></a>
+<a href="https://summerofcode.withgoogle.com/projects/#5318125807992832" target="_blank"><img src="https://raw.githubusercontent.com/sahiljajodia01/k8s-selection/master/images/GSoCWithCERN.png"></img></a>
 
 # About the Project
 
 ### K8s Selection is a Jupyter Notebook extension which will be used at SWAN to support user managed kubernetes clusters. It will allow users to have disposible Kubernetes cluster running Spark to do data analysis inside SWAN. Currently it is integrated with a test version of SWAN.
+
+### You can view the final work report <a href="https://sahiljajodia01.netlify.com/gsoc-2019-final-work-report/" target="_blank">here</a>
 
 ## Why do we need this extension
 This being the poject of SWAN, I will write this with respect to how it will be useful in SWAN. However, different organisations can have different use cases for this extension.
@@ -25,12 +27,22 @@ data analysis inside SWAN notebooks. This will allow them to quickly create clus
 
 Note: Here the word cluster always refers to a Kubernetes cluster.
 
+To know more in detail about the features, you can view my <a href="https://sahiljajodia01.netlify.com/gsoc-2019-final-work-report/" target="_blank">work report</a>
+
 ## Future Work
 The work that can be done to make this jupyter notebook extension more useful in the future.
 
 * Adding GCloud (and similarly other) mode to use GKE clusters for spark
 * Creating abstractions (functions) so it is easy to extend
 * Making it useful for services other than spark. E.g Distributed Tensorflow (Currently it is only useful for Spark)
+
+## References and Links
+- <a href="https://sahiljajodia01.netlify.com/gsoc-2019-final-work-report/" target="_blank">Final Work Report</a>
+- <a href="https://docs.google.com/presentation/d/1K0XjJu5EAAVYTYyr_SYOGFIaPiLxWYqtzZJmzyK8IXM/edit?usp=sharing" target="_blank">Final Project Presentation</a>
+- <a href="https://summerofcode.withgoogle.com/projects/#5318125807992832" target="_blank">GSoC Project Page</a>
+- <a href="https://swan.web.cern.ch/" target="_blank">SWAN</a>
+- <a href="https://jupyter-notebook.readthedocs.io/en/stable/extending/" target="_blank">Jupyter Notebook Extensions</a>
+- <a href="https://spark.apache.org/docs/latest/running-on-kubernetes.html" target="_blank">Apache Spark on Kubernetes</a>
 
 
 # Documentation
