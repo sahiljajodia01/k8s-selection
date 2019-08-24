@@ -265,19 +265,19 @@ header {
 		-webkit-transition: width .2s ease;
 }
 
-#sa-token.active ~ span.yellow-bar {
-		left: 0;
-		width: 90px;
+#openstack.active ~ span.yellow-bar {
+    left: 0;
+    width: 160px;
 }
 
-#openstack.active ~ span.yellow-bar {
-		left:95px;
-		width: 130px;
+#sa-token.active ~ span.yellow-bar {
+    left:165px;
+    width: 90px;
 }
 
 #gcloud.active ~ span.yellow-bar {
-		left: 230px;
-		width: 105px;
+    left: 260px;
+    width: 100px;
 }
 
 .back-button {

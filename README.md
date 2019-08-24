@@ -1,6 +1,38 @@
-[![HitCount](http://hits.dwyl.io/sahiljajodia01/sahiljajodia01/k8s-selection.svg)](http://hits.dwyl.io/sahiljajodia01/sahiljajodia01/k8s-selection)
-
 # K8sSelection Extension
+
+
+# About the Project
+
+### K8s Selection is a Jupyter Notebook extension which will be used at SWAN to support user managed kubernetes clusters. It will allow users to have disposible Kubernetes cluster running Spark to do data analysis inside SWAN. Currently it is integrated with a test version of SWAN.
+
+## Why do we need this extension
+This being the poject of SWAN, I will write this with respect to how it will be useful in SWAN. However, different organisations can have different use cases for this extension.
+
+* Currently SWAN does not support user managed K8s clusters for Spark. This extension will allow the support of user managed clusters.
+* After joining CERN, almost every user get some computing resources, but currently a user cannot use it for scalable
+data analysis inside SWAN notebooks. This will allow them to quickly create cluster, use it and then dispose it again.
+* If due to some reason the cluster is not responding, then currently it is hard to use another cluster. This extension can handle more than one cluster.
+* Users (mostly physicists) of SWAN wants to do data analysis of the large datasets that they have using Spark. They dont want to execute complex kubernetes commands to setup K8s clusters for Spark. This extension serves them by doing most of the work in the backend.
+
+## Features
+* Parsing and showing all the clusters available to use from the KUBECONFIG file
+* Deleting obsolete or unused clusters from the KUBECONFIG file
+* Add your own cluster (if you are an admin) or Add clusters shared by admin to you, in the KUBECONFIG file.
+* This extension allows couple of different authentication modes (Token and Openstack).
+* Displaying whether you are successfully connected to a cluster.
+* You can share your cluster with other user (so that they can use your cluster to offload services). This feature however currently only works for SWAN.
+
+Note: Here the word cluster always refers to a Kubernetes cluster.
+
+## Future Work
+The work that can be done to make this jupyter notebook extension more useful in the future.
+
+* Adding GCloud (and similarly other) mode to use GKE clusters for spark
+* Creating abstractions (functions) so it is easy to extend
+* Making it useful for services other than spark. E.g Distributed Tensorflow (Currently it is only useful for Spark)
+
+
+# Documentation
 
 ## Instructions to create and intialize an Openstack K8s cluster to use it with K8sSelection extension
 
@@ -65,23 +97,10 @@
     helm install \
         --wait \
         --kubeconfig "${KUBECONFIG}" \
-        --set namespace=spark-$USER \
         --set cvmfs.enable=true \
         --set user.name=$USER \
         --set user.admin=true \
         --name "spark-admin-$USER" https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz
-    ```
-  
-* Deploy User. Namespace should be of the form `spark-$USER`
-    ```bash
-    helm install \
-        --wait \
-        --kubeconfig "${KUBECONFIG}" \
-        --set namespace=spark-$USER \
-        --set cvmfs.enable=true \
-        --set user.name=$USER \
-        --set user.admin=false \
-        --name "spark-user-$USER" https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz
     ```
 
 * Config to add to k8sselection (name, server, certificate-authority-data)
@@ -89,24 +108,26 @@
     kubectl config view --flatten
     ```
 
+## Deploy user (done by extension while sharing access with the user)
+  
+* Deploy User. Namespace should be of the form `spark-$USER` 
+    ```bash
+    helm install \
+        --wait \
+        --kubeconfig "${KUBECONFIG}" \
+        --set cvmfs.enable=true \
+        --set user.name=$USER \
+        --name "spark-user-$USER" https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz
+    ```
+
 ## Instructions for User to use the extension
 
 You will receive the credentials of the cluster from the admin on your CERN email. Get the credential from there and go to the extension to add the cluster onto your KUBECONFIG file.
 
 
-## Instructions to run the extension using Docker on your local
-
-First clone this repository and then run the following commands in the terminal
-
-```bash
-docker build -t custom_extension .
-docker-compose -f docker-compose.yml up
-```
-
-**Note**: Please make sure you change the Envionment variables and volume mounts inside the `docker-compose.yml` file according to your local PC.
-
 ## Testing - running spark pi with selected cluster
 
+To test this extension, you can run the following block of code from the jupyter notebook after connecting to a cluster from the extension.
 ```python
 import os
 from pyspark import SparkContext, SparkConf
@@ -151,3 +172,15 @@ def inside(p):
 count = sc.parallelize(range(0, NUM_SAMPLES)).filter(inside).count()
 print("Pi is roughly %f" % (4.0 * count / NUM_SAMPLES))
 ```
+
+
+## Instructions to run the extension using Docker on your local
+
+The `Dockerfile` and `docker-compose.yml` files are already included in this repository. First clone this repository and then run the following commands in the terminal
+
+```bash
+docker build -t custom_extension .
+docker-compose -f docker-compose.yml up
+```
+
+**Note**: Please make sure you change the Envionment variables and volume mounts inside the `docker-compose.yml` file according to your local PC.

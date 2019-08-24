@@ -200,6 +200,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     }
 
 
+
     for(var i = 0; i < contexts.length; i++) {
         if(contexts[i] != current_context) {
             if(this.cluster_auth_type[i] == 'none') {
@@ -389,10 +390,10 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     });
 
 
-    var tab1 = html.find("#tab1");
-    var tab1 = tab1.find("#other-settings");
-
     var tab2 = html.find("#tab2");
+    var tab2 = tab2.find("#other-settings");
+
+    var tab1 = html.find("#tab1");
 
 
     // "Insecure cluster" checkbox logic for the local tab.
@@ -410,9 +411,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         }
         else {
             that.checkbox_status = "unchecked";
-            $('<br id="br1"><br id="br2">').appendTo(tab1);
+            $('<br id="br1"><br id="br2">').appendTo(tab2);
 
-            $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
+            $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab2);
 
             var catoken_input = $('<input/>')
                 .attr('name', 'catoken_text')
@@ -422,7 +423,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
                 .attr('value', that.stateConfigMap['local_selected_catoken'])
                 .attr('placeholder', 'CA Token (Base64)')
                 .addClass('form__field')
-                .appendTo(tab1)
+                .appendTo(tab2)
                 .keypress(function (e) {
                     var keycode = (e.keyCode ? e.keyCode : e.which);
                     if (keycode == keyboard.keycodes.enter) {
@@ -435,7 +436,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
 
     // Adds Cluster name input to the local tab
-    $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab1);
+    $('<label for="clustername_text" id="clustername_text_label">Cluster name</label><br>').appendTo(tab2);
 
     var clustername_input = $('<input required/>')
         .attr('name', 'clustername_text')
@@ -445,7 +446,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['local_selected_clustername'])
         .attr('placeholder', 'Cluster name')
         .addClass('form__field')
-        .appendTo(tab1)
+        .appendTo(tab2)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
@@ -455,9 +456,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
 
     // Adds Server IP input to the local tab
-    $('<br><br>').appendTo(tab1);
+    $('<br><br>').appendTo(tab2);
 
-    $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab1);
+    $('<label for="ip_text" id="ip_text_label">Server IP</label><br>').appendTo(tab2);
 
     var ip_input = $('<input/>')
         .attr('name', 'ip_text')
@@ -467,7 +468,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['local_selected_ip'])
         .attr('placeholder', 'Server IP')
         .addClass('form__field')
-        .appendTo(tab1)
+        .appendTo(tab2)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
@@ -477,9 +478,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
 
     // Adds Service Account Token input to the local tab
-    $('<br><br>').appendTo(tab1);
+    $('<br><br>').appendTo(tab2);
 
-    $('<label for="token_text" id="token_text_label">Service Account Token</label><br>').appendTo(tab1);
+    $('<label for="token_text" id="token_text_label">Service Account Token</label><br>').appendTo(tab2);
 
     var token_input = $('<input/>')
         .attr('name', 'token_text')
@@ -489,7 +490,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['local_selected_token'])
         .attr('placeholder', 'Service Account Token')
         .addClass('form__field')
-        .appendTo(tab1)
+        .appendTo(tab2)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
@@ -499,9 +500,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
 
     // Adds CA Token input to the local tab is insecure checkbox is unchecked
-    $('<br id="br1"><br id="br2">').appendTo(tab1);
+    $('<br id="br1"><br id="br2">').appendTo(tab2);
 
-    $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab1);
+    $('<label for="catoken_text" id="catoken_text_label">CA Token (Base64)</label><br id="br3">').appendTo(tab2);
 
 
     var catoken_input = $('<input/>')
@@ -512,7 +513,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['local_selected_catoken'])
         .attr('placeholder', 'CA Token (Base64)')
         .addClass('form__field')
-        .appendTo(tab1)
+        .appendTo(tab2)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
@@ -522,7 +523,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
 
     // Adds Cluster name input to the openstack tab
-    $('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab2);
+    $('<label for="openstack_clustername_text" id="openstack_clustername_text_label">Cluster name</label><br>').appendTo(tab1);
 
     var openstack_clustername_input = $('<input required/>')
         .attr('name', 'openstack_clustername_text')
@@ -532,7 +533,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['openstack_selected_clustername'])
         .attr('placeholder', 'Cluster name')
         .addClass('form__field')
-        .appendTo(tab2)
+        .appendTo(tab1)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
@@ -541,9 +542,9 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         });
 
     // Adds Server IP input to the openstack tab
-    $('<br><br>').appendTo(tab2);
+    $('<br><br>').appendTo(tab1);
 
-    $('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab2);
+    $('<label for="openstack_ip_text" id="openstack_ip_text_label">Server IP</label><br>').appendTo(tab1);
 
     var openstack_ip_input = $('<input/>')
         .attr('name', 'openstack_ip_text')
@@ -553,7 +554,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['openstack_selected_ip'])
         .attr('placeholder', 'Server IP')
         .addClass('form__field')
-        .appendTo(tab2)
+        .appendTo(tab1)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
@@ -562,10 +563,11 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         });
 
 
+        
     // Adds CA Token input to the openstack tab
-    $('<br><br>').appendTo(tab2);
+    $('<br><br>').appendTo(tab1);
 
-    $('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab2);
+    $('<label for="openstack_catoken_text" id="openstack_catoken_text_label">CA Token (Base64)</label><br>').appendTo(tab1);
 
 
     var openstack_catoken_input = $('<input/>')
@@ -576,7 +578,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         .attr('value', this.stateConfigMap['openstack_selected_catoken'])
         .attr('placeholder', 'CA Token (Base64)')
         .addClass('form__field')
-        .appendTo(tab2)
+        .appendTo(tab1)
         .keypress(function (e) {
             var keycode = (e.keyCode ? e.keyCode : e.which);
             if (keycode == keyboard.keycodes.enter) {
