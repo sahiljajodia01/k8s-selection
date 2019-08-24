@@ -1,5 +1,6 @@
 # K8sSelection Extension
 
+<a href="https://summerofcode.withgoogle.com/projects/#5318125807992832"><img src="https://raw.githubusercontent.com/sahiljajodia01/k8s-selection/master/images/GSoCWithCERN.png"></img></a>
 
 # About the Project
 
