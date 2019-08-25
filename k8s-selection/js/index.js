@@ -1109,7 +1109,6 @@ K8sSelection.prototype.start_comm = function () {
     }
 };
 
-
 function load_ipython_extension() {
 
     var conn = new K8sSelection();
