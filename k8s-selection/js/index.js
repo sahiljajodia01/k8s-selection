@@ -200,7 +200,6 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     }
 
 
-
     for(var i = 0; i < contexts.length; i++) {
         if(contexts[i] != current_context) {
             if(this.cluster_auth_type[i] == 'none') {
@@ -402,11 +401,11 @@ K8sSelection.prototype.get_html_create_clusters = function() {
     checkbox.change(function() {
         if($(this).is(":checked")) {
             that.checkbox_status = "checked";
-            tab1.find("#br1").remove();
-            tab1.find("#br2").remove();
-            tab1.find("#br3").remove();
-            tab1.find("#catoken_text_label").remove();
-            tab1.find("#catoken_text").remove();
+            tab2.find("#br1").remove();
+            tab2.find("#br2").remove();
+            tab2.find("#br3").remove();
+            tab2.find("#catoken_text_label").remove();
+            tab2.find("#catoken_text").remove();
 
         }
         else {
@@ -563,7 +562,7 @@ K8sSelection.prototype.get_html_create_clusters = function() {
         });
 
 
-        
+
     // Adds CA Token input to the openstack tab
     $('<br><br>').appendTo(tab1);
 
@@ -801,7 +800,7 @@ K8sSelection.prototype.get_cluster_detials_view_html = function() {
 
     $('<h4 class="modal-title">&nbsp;&nbsp;<span>Connection details for cluster: ' + this.stateConfigMap['user_create_context_name'] + '</span></h4>').appendTo(header);
 
-    $('<h4 id="detail_div">Please send the connection details via email to: ' + this.stateConfigMap['user_email_id'] + '</h4><br>').appendTo(html);
+    $('<h4 id="detail_div">Please send the connection details via email to: <a href="mailto:' + this.stateConfigMap['user_email_id'] + '">' + this.stateConfigMap['user_email_id'] + '</a></h4><br>').appendTo(html);
 
     $('<div style="display: flex;"><h4 id="cluster_name">K8s Cluster Name:</h4>&nbsp;<p style="font-size: 15px; margin-top: 5px;">' + this.cluster_name_view + '</p><br></div>').appendTo(html);
 
@@ -1109,6 +1108,7 @@ K8sSelection.prototype.start_comm = function () {
         console.log("K8sSelection: No communication established, kernel null");
     }
 };
+
 
 function load_ipython_extension() {
 
