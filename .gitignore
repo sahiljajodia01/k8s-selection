@@ -8,3 +8,10 @@ __pycache__/
 *.env
 venv/
 spark/
+run.sh
+*.sh
+*.yaml
+example.py
+helm_chart_test.py
+package-lock.json
+config
