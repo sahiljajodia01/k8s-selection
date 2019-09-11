@@ -137,6 +137,14 @@ var _k8s_blue = __webpack_require__(17);
 
 var _k8s_blue2 = _interopRequireDefault(_k8s_blue);
 
+var _openstack = __webpack_require__(18);
+
+var _openstack2 = _interopRequireDefault(_openstack);
+
+var _kubernetes_token = __webpack_require__(19);
+
+var _kubernetes_token2 = _interopRequireDefault(_kubernetes_token);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -489,9 +497,18 @@ K8sSelection.prototype.get_html_create_clusters = function () {
     });
 
     var tab2 = html.find("#tab2");
+
+    tab2.find("#kubernetes-token-readme").on('click', function () {
+        that.get_html_help(that.token_tab);
+    });
+
     var tab2 = tab2.find("#other-settings");
 
     var tab1 = html.find("#tab1");
+
+    tab1.find("#openstack-readme").on('click', function () {
+        that.get_html_help(that.openstack_tab);
+    });
 
     // "Insecure cluster" checkbox logic for the local tab.
     var checkbox = html.find("#cluster-mode");
@@ -860,6 +877,34 @@ K8sSelection.prototype.get_html_error = function (error, prev_state) {
     }
 };
 
+K8sSelection.prototype.get_html_help = function (tab) {
+    if (this.modal) {
+        _namespace2.default.keyboard_manager.disable();
+        var header = this.modal.find('.modal-header');
+        var body = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+
+        header.html('');
+        body.html('');
+        footer.html('');
+
+        (0, _jquery2.default)('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
+
+        // Here the back button allows to go back to the previous state
+        (0, _jquery2.default)("<button>").attr("type", "button").addClass("back-button").html("<i class='fa fa-arrow-left' aria-hidden='true'></i>").appendTo(header).on("click", _jquery2.default.proxy(this.switch_state, this, this.states.create));
+
+        (0, _jquery2.default)('<h4 class="modal-title">&nbsp;&nbsp;<span>Help</span></h4>').appendTo(header);
+
+        var help_div = (0, _jquery2.default)('<div style="max-height: 400px; overflow-y: auto;"></div>').appendTo(body);
+
+        if (tab == this.openstack_tab) {
+            help_div.append(_openstack2.default);
+        } else if (tab == this.token_tab) {
+            help_div.append(_kubernetes_token2.default);
+        }
+    }
+};
+
 /**
  * @desc Handler to process messages recieved from the backend
  * @param msg
@@ -1093,7 +1138,7 @@ module.exports = "<br> <div id=user_html_inputs> </div> ";
 /* 9 */
 /***/ (function(module, exports) {
 
-module.exports = "<div style=position:relative;text-align:center> <div id=material-tabs> <a id=openstack href=#tab1 class=active>openstack<br>(Recommended)</a> <a id=sa-token href=#tab2>token</a> <a id=gcloud href=#tab3>gcloud</a> <span class=yellow-bar></span> </div> </div> <div class=tab-content> <div id=tab1> <p>Please ensure that the prerequities are satisfied before adding the cluster</p> <a href=https://gitlab.cern.ch/swan/jupyter/blob/gsoc2019/K8sSelection/README.md target=_blank>https://gitlab.cern.ch/swan/jupyter/blob/gsoc2019/K8sSelection/README.md</a> <br><br> </div> <div id=tab2> <p>Please ensure that the prerequities are satisfied before adding the cluster</p> <a href=https://gitlab.cern.ch/swan/jupyter/blob/gsoc2019/K8sSelection/README.md target=_blank>https://gitlab.cern.ch/swan/jupyter/blob/gsoc2019/K8sSelection/README.md</a> <br><br> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab3> <p>This is currently not implemented.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script>";
+module.exports = "<div style=position:relative;text-align:center xmlns=http://www.w3.org/1999/html> <div id=material-tabs> <a id=openstack href=#tab1 class=active>openstack<br>(Recommended)</a> <a id=sa-token href=#tab2>token</a> <a id=gcloud href=#tab3>gcloud</a> <span class=yellow-bar></span> </div> </div> <div class=tab-content> <div id=tab1> <p>Please ensure that the <a id=openstack-readme>prerequities</a> are satisfied before adding the newly created cluster</p> <br><br> </div> <div id=tab2> <p>Please ensure that the <a id=kubernetes-token-readme>prerequities</a> are satisfied before adding the newly created cluster</p> <br><br> <div id=cluster-settings> <label class=pure-material-checkbox> <input type=checkbox id=cluster-mode> <span>Disable TLS support</span> </label> </div> <br> <hr> <br> <div id=other-settings> </div> </div> <div id=tab3> <p>This is currently not implemented.</p> </div> </div> <script src=https://code.jquery.com/jquery-3.4.1.min.js integrity=\"sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=\" crossorigin=anonymous></script>";
 
 /***/ }),
 /* 10 */
@@ -1712,6 +1757,18 @@ module.exports = function (css) {
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "images/k8s_blue.png";
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+module.exports = "<p>Create cluster</p>\n<pre><code class=\"language-bash\">openstack coe cluster create \\\n    --cluster-template kubernetes-1.13.3-3 \\\n    --master-flavor m2.small \\\n    --node-count 4 \\\n    --flavor m2.small \\\n    --keypair pkothuri_new \\\n    --labels keystone_auth_enabled=&quot;true&quot; \\\n    --labels influx_grafana_dashboard_enabled=&quot;false&quot; \\\n    --labels manila_enabled=&quot;true&quot; \\\n    --labels kube_tag=&quot;v1.13.3-12&quot; \\\n    --labels kube_csi_enabled=&quot;true&quot; \\\n    --labels kube_csi_version=&quot;v0.3.2&quot; \\\n    --labels container_infra_prefix=&quot;gitlab-registry.cern.ch/cloud/atomic-system-containers/&quot; \\\n    --labels cgroup_driver=&quot;cgroupfs&quot; \\\n    --labels cephfs_csi_enabled=&quot;true&quot; \\\n    --labels flannel_backend=&quot;vxlan&quot; \\\n    --labels cvmfs_csi_version=&quot;v0.3.0&quot; \\\n    --labels admission_control_list=&quot;NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority&quot; \\\n    --labels ingress_controller=&quot;traefik&quot; \\\n    --labels manila_version=&quot;v0.3.0&quot; \\\n    --labels cvmfs_csi_enabled=&quot;true&quot; \\\n    --labels cvmfs_tag=&quot;qa&quot; \\\n    --labels cephfs_csi_version=&quot;v0.3.0&quot; \\\n    --labels monitoring_enabled=&quot;true&quot; \\\n    --labels tiller_enabled=&quot;true&quot; \\\n&lt;cluster-name&gt;</code></pre>\n<p><strong>Note</strong>: <code>--labels &quot;keystone_auth_enabled=true&quot;</code> is important for openstack token authentication\n<br><br></p>\n<p>Obtain Configuration</p>\n<pre><code class=\"language-bash\">mkdir -p $HOME/&lt;cluster-name&gt;\ncd $HOME/&lt;cluster-name&gt;\nopenstack coe cluster config k8s-pkothuri &gt; env.sh\n. env.sh</code></pre>\n<br>\n\n<p>Install tiller</p>\n<pre><code class=\"language-bash\">kubectl --namespace kube-system create serviceaccount tiller\nkubectl create clusterrolebinding tiller-kube-system --clusterrole cluster-admin --serviceaccount=kube-system:tiller\nhelm init --service-account tiller --wait\nhelm version</code></pre>\n<br>\n\n<p>Deploy Spark Services</p>\n<pre><code class=\"language-bash\">helm install \\\n    --wait \\\n    --name spark \\\n    --set spark.shuffle.enable=true \\\n    --set cvmfs.enable=true https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/master/cern-spark-services-1.0.0.tgz</code></pre>\n<br>\n\n<p>Deploy Admin. Namespace should be of the form <code>spark-$USER</code></p>\n<pre><code class=\"language-bash\">helm install \\\n    --wait \\\n    --kubeconfig &quot;${KUBECONFIG}&quot; \\\n    --set cvmfs.enable=true \\\n    --set user.name=$USER \\\n    --set user.admin=true \\\n    --name &quot;spark-admin-$USER&quot; https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz</code></pre>\n<br>\n\n<p>Config to add to k8sselection (name, server, certificate-authority-data)</p>\n<pre><code class=\"language-bash\">kubectl config view --flatten</code></pre>\n";
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+module.exports = "<p>Create cluster</p>\n<pre><code class=\"language-bash\">openstack coe cluster create \\\n    --cluster-template kubernetes-1.13.3-3 \\\n    --master-flavor m2.small \\\n    --node-count 4 \\\n    --flavor m2.small \\\n    --keypair pkothuri_new \\\n    --labels keystone_auth_enabled=&quot;true&quot; \\\n    --labels influx_grafana_dashboard_enabled=&quot;false&quot; \\\n    --labels manila_enabled=&quot;true&quot; \\\n    --labels kube_tag=&quot;v1.13.3-12&quot; \\\n    --labels kube_csi_enabled=&quot;true&quot; \\\n    --labels kube_csi_version=&quot;v0.3.2&quot; \\\n    --labels container_infra_prefix=&quot;gitlab-registry.cern.ch/cloud/atomic-system-containers/&quot; \\\n    --labels cgroup_driver=&quot;cgroupfs&quot; \\\n    --labels cephfs_csi_enabled=&quot;true&quot; \\\n    --labels flannel_backend=&quot;vxlan&quot; \\\n    --labels cvmfs_csi_version=&quot;v0.3.0&quot; \\\n    --labels admission_control_list=&quot;NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority&quot; \\\n    --labels ingress_controller=&quot;traefik&quot; \\\n    --labels manila_version=&quot;v0.3.0&quot; \\\n    --labels cvmfs_csi_enabled=&quot;true&quot; \\\n    --labels cvmfs_tag=&quot;qa&quot; \\\n    --labels cephfs_csi_version=&quot;v0.3.0&quot; \\\n    --labels monitoring_enabled=&quot;true&quot; \\\n    --labels tiller_enabled=&quot;true&quot; \\\n&lt;cluster-name&gt;</code></pre>\n<p><strong>Note</strong>: <code>--labels &quot;keystone_auth_enabled=true&quot;</code> is important for openstack token authentication\n<br><br></p>\n<p>Obtain Configuration</p>\n<pre><code class=\"language-bash\">mkdir -p $HOME/&lt;cluster-name&gt;\ncd $HOME/&lt;cluster-name&gt;\nopenstack coe cluster config k8s-pkothuri &gt; env.sh\n. env.sh</code></pre>\n<br>\n\n<p>Install tiller</p>\n<pre><code class=\"language-bash\">kubectl --namespace kube-system create serviceaccount tiller\nkubectl create clusterrolebinding tiller-kube-system --clusterrole cluster-admin --serviceaccount=kube-system:tiller\nhelm init --service-account tiller --wait\nhelm version</code></pre>\n<br>\n\n<p>Deploy Spark Services</p>\n<pre><code class=\"language-bash\">helm install \\\n    --wait \\\n    --name spark \\\n    --set spark.shuffle.enable=true \\\n    --set cvmfs.enable=true https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/master/cern-spark-services-1.0.0.tgz</code></pre>\n<br>\n\n<p>Deploy Admin. Namespace should be of the form <code>spark-$USER</code></p>\n<pre><code class=\"language-bash\">helm install \\\n    --wait \\\n    --kubeconfig &quot;${KUBECONFIG}&quot; \\\n    --set cvmfs.enable=true \\\n    --set user.name=$USER \\\n    --set user.admin=true \\\n    --name &quot;spark-admin-$USER&quot; https://gitlab.cern.ch/db/spark-service/spark-service-charts/raw/spark_user_accounts/cern-spark-user-1.1.0.tgz</code></pre>\n<br>\n\n<p>Create admin service account and give it clusterrolebinding</p>\n<pre><code class=\"language-bash\">kubectl create serviceaccount &lt;serviceacc name&gt; --namespace spark-$USER\n\nkubctl create clusterrolebinding &lt;cluster-role-binding name&gt; --clusterrole=&quot;cluster-admin&quot; --serviceaccount=&quot;spark-$USER:&lt;serviceacc name&gt;&quot;</code></pre>\n<br>\n\n<p>Get the service account token</p>\n<pre><code class=\"language-bash\">SECRET=$(kubectl --namespace spark-$USER get serviceaccount &lt;serviceacc name&gt; -o json | python -c &#39;import json,sys;obj=json.load(sys.stdin);print(obj[&quot;secrets&quot;][0][&quot;name&quot;])&#39;)\n\nkubectl --namespace spark-$USER get secret &quot;${SECRET}&quot; -o json | python -c &#39;import json,sys;obj=json.load(sys.stdin);print(obj[&quot;data&quot;][&quot;token&quot;])&#39; | base64 --decode</code></pre>\n<br>\n\n<p>Config to add to k8sselection (name, server, certificate-authority-data, serviceaccount token (Get from above))</p>\n<pre><code class=\"language-bash\">kubectl config view --flatten</code></pre>\n";
 
 /***/ })
 /******/ ]);

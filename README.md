@@ -1,3 +1,5 @@
+[![HitCount](http://hits.dwyl.io/sahiljajodia01/k8s-selection.svg)](http://hits.dwyl.io/sahiljajodia01/k8s-selection)
+
 # K8sSelection Extension
 
 <a href="https://summerofcode.withgoogle.com/projects/#5318125807992832" target="_blank"><img src="https://raw.githubusercontent.com/sahiljajodia01/k8s-selection/master/images/GSoCWithCERN.png"></img></a>

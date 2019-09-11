@@ -10,6 +10,8 @@ import user_create from './templates/user_create.html';
 import './css/style.css';
 import kubernetes_icon from './images/k8s.png';
 import kubernetes_icon_blue from './images/k8s_blue.png';
+import openstack_md from './markdown/openstack.md';
+import kubernetes_token_md from './markdown/kubernetes_token.md';
 
 
 /**
@@ -168,6 +170,7 @@ K8sSelection.prototype.get_html_select_cluster = function() {
     var html = this.modal.find('.modal-body');
     var footer = this.modal.find('.modal-footer');
     var header = this.modal.find('.modal-header');
+
 
     $('<h4 class="modal-title">Spark cluster setting</h4>').appendTo(header);
     var contexts = this.contexts;
@@ -390,10 +393,18 @@ K8sSelection.prototype.get_html_create_clusters = function() {
 
 
     var tab2 = html.find("#tab2");
+
+    tab2.find("#kubernetes-token-readme").on('click', function() {
+        that.get_html_help(that.token_tab);
+    })
+
     var tab2 = tab2.find("#other-settings");
 
     var tab1 = html.find("#tab1");
 
+    tab1.find("#openstack-readme").on('click', function() {
+        that.get_html_help(that.openstack_tab);
+    });
 
     // "Insecure cluster" checkbox logic for the local tab.
     var checkbox = html.find("#cluster-mode");
@@ -907,6 +918,42 @@ K8sSelection.prototype.get_html_error = function (error, prev_state) {
         $('<h4 class="modal-title">&nbsp;&nbsp;<span>Error</span></h4>').appendTo(header);
 
         $('<div id="setting-error"><br><h4 style="color: red;">' + error + '</h4></div>').appendTo(body);
+    }
+};
+
+
+K8sSelection.prototype.get_html_help = function (tab) {
+    if (this.modal) {
+        Jupyter.keyboard_manager.disable();
+        var header = this.modal.find('.modal-header');
+        var body = this.modal.find('.modal-body');
+        var footer = this.modal.find('.modal-footer');
+
+        header.html('');
+        body.html('');
+        footer.html('');
+
+        $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>').appendTo(header);
+
+        // Here the back button allows to go back to the previous state
+        $("<button>")
+            .attr("type", "button")
+            .addClass("back-button")
+            .html("<i class='fa fa-arrow-left' aria-hidden='true'></i>")
+            .appendTo(header)
+            .on("click", $.proxy(this.switch_state, this, this.states.create));
+
+        $('<h4 class="modal-title">&nbsp;&nbsp;<span>Help</span></h4>').appendTo(header);
+
+        var help_div = $('<div style="max-height: 400px; overflow-y: auto;"></div>').appendTo(body);
+
+        if(tab == this.openstack_tab) {
+            help_div.append(openstack_md);
+        }
+        else if(tab == this.token_tab) {
+            help_div.append(kubernetes_token_md);
+        }
+
     }
 };
 

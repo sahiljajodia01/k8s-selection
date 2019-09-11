@@ -46,6 +46,17 @@ class K8sSelection:
         else:
             return 'none'
 
+    def get_os_token():
+        os.environ['OS_TOKEN'] = ''
+        my_env = os.environ.copy()
+        my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
+        command = ["openstack", "token", "issue", "-c", "id", "-f", "value"]
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, env=my_env)
+        out, err = p.communicate()
+        out = out.decode('utf-8').rstrip('\n')
+        self.log.info("Generated OS_TOKEN: ", out)
+        os.environ['OS_TOKEN'] = out
+
     def handle_comm_message(self, msg):
         """
         Handle message received from frontend.
@@ -66,19 +77,10 @@ class K8sSelection:
             self.log.info("Changing current context to: ", context)
 
             try:
-
                 if tab == self.openstack:
                     # Currently unsetting the OS_TOKEN initially everytime while executing the token issue command because
                     # otherwise the command does not work
-                    os.environ['OS_TOKEN'] = ''
-                    my_env = os.environ.copy()
-                    my_env["PYTHONPATH"] = "/usr/local/lib/python3.6/site-packages:" + my_env["PYTHONPATH"]
-                    command = ["openstack", "token", "issue", "-c", "id", "-f", "value"]
-                    p = subprocess.Popen(command, stdout=subprocess.PIPE, env=my_env)
-                    out, err = p.communicate()
-                    out = out.decode('utf-8').rstrip('\n')
-                    self.log.info("Generated OS_TOKEN: ", out)
-                    os.environ['OS_TOKEN'] = out
+                    self.get_os_token()
 
                 # Opening the YAML file using the yaml library
                 with io.open(os.environ['HOME'] + '/.kube/config', 'r', encoding='utf8') as stream:
@@ -343,7 +345,7 @@ class K8sSelection:
                 ip = msg['content']['data']['ip']
                 catoken = msg['content']['data']['catoken']
                 namespace = "spark-" + str(os.getenv('USER'))
-                svcaccount = self.openstack + '-' + str(os.getenv('USER'))
+                svcaccount = self.openstack + '-' + str(os.getenv('USER')) + "-" + cluster_name
                 context_name = cluster_name
 
                 try:
