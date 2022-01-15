@@ -29,6 +29,6 @@
     "devbridge-autocomplete": "^1.4.5",
     "inline-edit-js": "^1.1.1",
     "jquery": "^3.4.1",
-    "marked": "^0.7.0"
+    "marked": "^4.0.10"
   }
 }
